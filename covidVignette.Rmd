@@ -1,0 +1,322 @@
+---
+title: "covid-vignette-api"
+author: "Min-Jung Jung"
+date: "9/20/2021"
+output:   
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reqired pakages
+
+```{r, echo=TRUE, warning = FALSE, message=FALSE, include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(jsonlite)
+library(knitr)
+library(httr)
+library(tidytext)
+```
+
+# JSON Data
+
+JSON, also known as [*Java Script Object Notation*](https://www.json.org/json-en.html) is a text based format for storing and/or transporting data. JSON is used across the internet and databases because of its text based format for storing data. In addition, JSON can represent 2D data, [hierarchical data](https://en.wikipedia.org/wiki/Hierarchical_database_model), and use key-value pairs.
+
+Since JSON is a text based format, we need to load in R packages that can handle the text based format.
+
+# Packages used for reading JSON data in R
+
+Here are R packages that can be used to work with JSON data:
+
+* `rjson`
+* `RJSONIO`
+* `jsonlite`
+
+For this project, `rjson` and `jsonlite` is used.
+
+Couple resources for understanding the functionality of `rjson` and `jsonlite`:
+
+1. [https://cran.r-project.org/web/packages/rjson/rjson.pdf](https://cran.r-project.org/web/packages/rjson/rjson.pdf)
+
+2. [https://cran.r-project.org/web/packages/jsonlite/jsonlite.pdf](https://cran.r-project.org/web/packages/jsonlite/jsonlite.pdf)
+
+# Contact the Covid Data API
+
+To access the [Covid Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), we need to get a URL with the name of the table and attributes we want to pull from it.
+
+In addition, I wrote 6 more functions that take different endpoints.
+
+
+```{r}
+base_url = "https://api.covid19api.com"
+```
+
+## Function for United States Confirmed Cases from March 1st, 2020 to September 21st, 2021
+```{r}
+country_Name <- function(){
+  country <- GET("https://api.covid19api.com/countries")
+  countrylist <- fromJSON(rawToChar(country$content))
+  countrylist1 <- as_tibble(data.frame(Country = countrylist$Country, Slug = countrylist$Slug))
+  return(countrylist1)
+}
+```
+countryName <- countryName()
+
+
+
+```{r}
+get_confirmed_cases <- function(country){
+     if(country %in% countryName$Slug){
+  full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-03-01T00:00:00Z&to=2021-09-21T00:00:00Z")
+  confirmed_cases_text = content(GET(url=full_url),"text")
+  confirmed_cases_json = fromJSON(confirmed_cases_text)
+  return(confirmed_cases_json)
+     }
+        else {
+      message <- paste("ERROR: Argument for country was not found in the Slug.", 
+                       "Look up countryName to find the country you are looking for and use Slug.")
+      stop(message)
+    }
+}
+```
+
+
+
+confirmed <- get_confirmed_cases("canada")
+
+confirmed
+
+
+
+## Function for United States Death Cases from March 1st, 2020 to September 21st, 2021
+
+
+```{r}
+get_deaths_cases <- function(country){
+    if(country %in% countryName$Slug){
+  full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-03-01T00:00:00Z&to=2021-09-21T00:00:00Z")
+  deaths_cases_text = content(GET(url=full_url),"text")
+  deaths_cases_json = fromJSON(deaths_cases_text)
+  return(deaths_cases_json)
+    }
+        else {
+      message <- paste("ERROR: Argument for country was not found in the Slug.", 
+                       "Look up countryName to find the country you are looking for and use Slug.")
+      stop(message)
+    }
+}
+```
+
+
+deaths <- get_deaths_cases("india")
+
+deaths
+
+
+
+
+
+get_deaths_cases("canada")
+
+
+## Function for United States Recovered Cases from March 1st, 2020 to September 21st, 2021
+
+
+```{r}
+get_recovered_cases <- function(country){
+  if(country %in% countryName$Slug){
+  full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-03-01T00:00:00Z&to=2021-09-21T00:00:00Z")
+  recovered_cases_text = content(GET(url=full_url),"text")
+  recovered_cases_json = fromJSON(recovered_cases_text)
+  return(recovered_cases_json)
+  }
+      else {
+      message <- paste("ERROR: Argument for country was not found in the Slug.", 
+                       "Look up countryName to find the country you are looking for and use Slug.")
+      stop(message)
+    }
+}
+```
+
+
+recovered <- get_recovered_cases("united-states")
+recovered
+
+
+
+```{r}
+get_cases_bystate <- function(state_name){
+  state_name <- tolower(state_name)
+  two_word_states = list("new hampshire", "new jersey", "new mexico","new york","north carolina","north dakota","south carolina","south dakota", "distrct of columbia", "puerto rico","Northern Mariana Islands", "Virgin Islands", "Rhode Island")
+  if (state_name %in% two_word_states){
+     full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
+     URLencode(full_url)
+    covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
+    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
+  }
+    else{
+    full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
+    covid_cases_by_states_text = content(GET(url=full_url),"text")
+    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
+  }
+  return(covid_cases_by_states_json)
+}
+
+```
+stateCases <- get_cases_bystate("North Carolina")
+stateCases
+
+
+```{r}
+covid_summary_cases <- function(){
+   full_url = paste0(base_url,"/summary")
+   covid_summary <- GET(url=full_url)
+   covid_cases_summary <- fromJSON(rawToChar(covid_summary$content))
+   covid_cases_summary1 <- covid_cases_summary$Countries
+    return(covid_cases_summary1)
+}
+
+```
+
+covidSummary <- covid_summary_cases()
+covidSummary
+
+
+```{r}
+get_cases_summary <- function(){
+ full_url = paste0(base_url,"/summary")
+    covid_cases_by_all_text = content(GET(url=full_url),"text")
+    covid_cases_by_all_json = fromJSON(covid_cases_by_all_text)
+  return(covid_cases_by_all_json)
+}
+```
+caseSum <- get_cases_summary() 
+caseSum
+
+
+
+```{r}
+get_cases_world <- function(){
+ full_url = paste0(base_url,"/world/total")
+    covid_cases_world_text = content(GET(url=full_url),"text")
+    covid_cases_world_json = fromJSON(covid_cases_world_text)
+  return(covid_cases_world_json)
+}
+```
+caseWorld <- get_cases_world()
+caseWorld
+
+
+```{r}
+get_live_cases <- function(country){
+       if(country %in% countryName$Slug){
+   full_url = paste0(base_url,"/live/country/",country,"/status/confirmed/date/2021-08-31T00:00:00Z")
+    covid_cases_live_text = content(GET(url=full_url),"text")
+    covid_cases_live_json = fromJSON(covid_cases_live_text)
+  return(covid_cases_live_json)
+       }
+      else {
+      message <- paste("ERROR: Argument for country was not found in the Slug.", 
+                       "Look up countryName to find the country you are looking for and use Slug.")
+      stop(message)
+    }
+}
+``` 
+liveCase <- get_live_cases("united-states")
+liveCase
+
+
+URLencode()
+//Replace space with %20 for url to understand
+$new = str_replace(' ', '%20', $your_string);
+
+```{r}
+countryName <- country_Name()
+
+confirmed <- get_confirmed_cases("canada")
+
+deaths <- get_deaths_cases("india")
+
+recovered <- get_recovered_cases("united-states")
+
+stateCases <- get_cases_bystate("North Carolina")
+
+caseSum <- get_cases_summary() 
+
+covidSummary <- covid_summary_cases()
+
+caseWorld <- get_cases_world()
+
+country_liveCase <- get_live_cases("united-states")
+ 
+
+```
+# Exploratory Data Analysis
+
+## Contigency Tables/ Numerical Summaries
+
+```{r}
+kable(stateCases)
+
+# kable(confirmed)
+# kable(deaths)
+# kable(recovered)
+# kable(caseSum)
+# kable(liveCase)
+```
+
+## Graphical Summaries
+
+
+# Bar plot
+top_state_09_30_2021 <- country_liveCase %>% filter(Date == "2021-09-30T00:00:00Z") %>% arrange(desc(Active))
+top_10_state_09_30_2021 <- top_state_09_30_2021[1:10,]
+
+ggplot(data=top_10_state_09_30_2021, aes(x=Province, y=Active)) +
+  geom_bar(stat="identity", fill="green")
+
+
+
+
+  geom_text(aes(label=Cases), vjust=1.6, color="black", size=3.5)+   theme_minimal()+ ggtitle("Top 10 North Carolina Cities Confirmed Covid Cases on September 23rd, 2021.")
+  
+```{r}
+# Bar plot
+top_city_09_30_2021 <- stateCases %>% filter(Date == "2021-09-30T00:00:00Z") %>% arrange(desc(Cases))
+top_10_city_09_30_2021 <- top_city_09_30_2021[1:10,]
+
+ggplot(data=top_10_city_09_30_2021, aes(x=City, y=Cases)) +
+  geom_bar(stat="identity", fill="steelblue")
+
+
+```
+
+  geom_text(aes(label=Cases), vjust=1.6, color="white", size=3.5)+
+stat="identity", theme_minimal()
+
+  + ggtitle("Top 10 North Carolina Cities Confirmed Covid Cases on September 30, 2020.")
+
+
+# Histogram
+
+top_country_09_30_2021 <- covidSummary %>% filter(Date == "2021-10-01T18:17:16.341Z") %>% arrange(desc(TotalConfirmed))
+top_10_country_09_30_2021 <- top_country_09_30_2021[1:20,]
+
+top_10_country_09_30_2021
+
+ggplot(top_10_country_09_30_2021, aes(x=TotalConfirmed)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(TotalConfirmed)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Covid Cases in top 20 countries on September 30, 2020")
+
+#Blue line is the mean line.
+
+
+  
+```{r}
+# Histogram
+ggplot(top_city_09_30_2021, aes(x=Cases)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(Cases)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Covid Cases in North Carolina Cities on November 22nd, 2020")
+
+#Blue line is the mean line.
+```
