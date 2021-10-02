@@ -5,14 +5,26 @@ date: "9/20/2021"
 output:   
   github_document:
     toc: true
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+This project is to create a vignette about contacting an API. I created functions to download data via interacting endpoints. I will show this process with COVID API. 
+
+
 # Reqired pakages
 
+I used following packages to set up function, data manipulation, and analysis with COVID API:
+
+  * `knitr`: to generate pretty tables of date using the `kable()` function.  
+  * `tidyverse`: to manipulate data, generate plots (via `ggplot2`), and to use piping/chaining.
+  * `rmarkdown`: to knit output files manually using the `render()` function.  
+  * `jsonlite`: to pull data from various endpoints of the Covid 19 APIs.
+  
 ```{r, echo=TRUE, warning = FALSE, message=FALSE, include=FALSE}
 library(ggplot2)
 library(tidyverse)
@@ -50,12 +62,16 @@ To access the [Covid Data](https://documenter.getpostman.com/view/10808728/SzS8r
 
 In addition, I wrote 6 more functions that take different endpoints.
 
+#Base url
 
 ```{r}
 base_url = "https://api.covid19api.com"
 ```
 
-## Function for United States Confirmed Cases from March 1st, 2020 to September 21st, 2021
+## country name
+
+#This function is to generate data.frame of country name and Slug.
+
 ```{r}
 country_Name <- function(){
   country <- GET("https://api.covid19api.com/countries")
@@ -66,8 +82,9 @@ country_Name <- function(){
 ```
 countryName <- countryName()
 
+## `Confirmed Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
-
+#This function interacts with the `By Country Total` endpoint. 
 ```{r}
 get_confirmed_cases <- function(country){
      if(country %in% countryName$Slug){
@@ -86,14 +103,15 @@ get_confirmed_cases <- function(country){
 
 
 
-confirmed <- get_confirmed_cases("canada")
+confirmed <- get_confirmed_cases()
 
 confirmed
 
 
 
-## Function for United States Death Cases from March 1st, 2020 to September 21st, 2021
+## `Death Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
+#This function interacts with the `By Country Total` endpoint, but modified the status as deaths. 
 
 ```{r}
 get_deaths_cases <- function(country){
@@ -116,15 +134,12 @@ deaths <- get_deaths_cases("india")
 
 deaths
 
-
-
-
-
 get_deaths_cases("canada")
 
 
-## Function for United States Recovered Cases from March 1st, 2020 to September 21st, 2021
+## `Recovered Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
+#This function interacts with the `By Country Total` endpoint, but modified the status as recovered.
 
 ```{r}
 get_recovered_cases <- function(country){
@@ -146,7 +161,9 @@ get_recovered_cases <- function(country){
 recovered <- get_recovered_cases("united-states")
 recovered
 
+## `U.S.A cases by state`
 
+#This function interacts with the `Day One Live` endpoint. confrimed cases only
 
 ```{r}
 get_cases_bystate <- function(state_name){
@@ -162,53 +179,29 @@ get_cases_bystate <- function(state_name){
     full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
     covid_cases_by_states_text = content(GET(url=full_url),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-  }
-  return(covid_cases_by_states_json)
+    }
+     covid_cases_by_states <- covid_cases_by_states_json %>% select(Country, Province, City, Cases, Status, Date) 
+  return(covid_cases_by_states)
 }
 
-```
 stateCases <- get_cases_bystate("North Carolina")
 stateCases
-
-
+```
+%>% select(Country, NewConfirmed, TotalConfirmed, NewDeaths, TotalDeaths, Date) %>% as_tibble()
 ```{r}
 covid_summary_cases <- function(){
    full_url = paste0(base_url,"/summary")
    covid_summary <- GET(url=full_url)
    covid_cases_summary <- fromJSON(rawToChar(covid_summary$content))
-   covid_cases_summary1 <- covid_cases_summary$Countries
-    return(covid_cases_summary1)
+   covid_cases_summary1 <- covid_cases_summary$Countries %>% select(Country, NewConfirmed, TotalConfirmed, NewDeaths, TotalDeaths, Date) 
+   return(covid_cases_summary1)
 }
-
-```
 
 covidSummary <- covid_summary_cases()
 covidSummary
-
-
-```{r}
-get_cases_summary <- function(){
- full_url = paste0(base_url,"/summary")
-    covid_cases_by_all_text = content(GET(url=full_url),"text")
-    covid_cases_by_all_json = fromJSON(covid_cases_by_all_text)
-  return(covid_cases_by_all_json)
-}
 ```
-caseSum <- get_cases_summary() 
-caseSum
+   covid_cases_summary1 <- covid_cases_summary$Countries
 
-
-
-```{r}
-get_cases_world <- function(){
- full_url = paste0(base_url,"/world/total")
-    covid_cases_world_text = content(GET(url=full_url),"text")
-    covid_cases_world_json = fromJSON(covid_cases_world_text)
-  return(covid_cases_world_json)
-}
-```
-caseWorld <- get_cases_world()
-caseWorld
 
 
 ```{r}
@@ -225,11 +218,11 @@ get_live_cases <- function(country){
       stop(message)
     }
 }
-``` 
+
 liveCase <- get_live_cases("united-states")
 liveCase
 
-
+```
 URLencode()
 //Replace space with %20 for url to understand
 $new = str_replace(' ', '%20', $your_string);
@@ -260,7 +253,7 @@ country_liveCase <- get_live_cases("united-states")
 ## Contigency Tables/ Numerical Summaries
 
 ```{r}
-kable(stateCases)
+# kable(stateCases)
 
 # kable(confirmed)
 # kable(deaths)
@@ -283,6 +276,30 @@ ggplot(data=top_10_state_09_30_2021, aes(x=Province, y=Active)) +
 
 
   geom_text(aes(label=Cases), vjust=1.6, color="black", size=3.5)+   theme_minimal()+ ggtitle("Top 10 North Carolina Cities Confirmed Covid Cases on September 23rd, 2021.")
+
+```{r}
+# Bar plot
+top_country<- covidSummary %>% arrange(desc(TotalConfirmed))
+top_10_country <- top_country[1:10,]
+
+ggplot(data=top_10_country, aes(x=Country, y=TotalConfirmed)) +
+  geom_bar(stat="identity", fill="yellowgreen") + geom_text(aes(label=TotalConfirmed), vjust=1.6, color="black", size=3.5) + theme(axis.text.x = element_text(angle = 45, hjust=1)) + labs(x = "Country", title = "Top 10 countries on Total Confirmed case")
+
+
+```
+```{r}
+# Bar plot
+top_country<- covidSummary %>% arrange(desc(NewDeaths))
+top_10_country <- top_country[1:10,]
+
+ggplot(data=top_10_country, aes(x=Country, y=NewDeaths)) +
+  geom_bar(stat="identity", fill="orange") +
+  labs(x = "Country", title = "Top 10 countries on newDeath case") + geom_text(aes(label=NewDeaths), vjust=1.6, color="black", size=3.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+
+```
+
   
 ```{r}
 # Bar plot
@@ -290,7 +307,8 @@ top_city_09_30_2021 <- stateCases %>% filter(Date == "2021-09-30T00:00:00Z") %>%
 top_10_city_09_30_2021 <- top_city_09_30_2021[1:10,]
 
 ggplot(data=top_10_city_09_30_2021, aes(x=City, y=Cases)) +
-  geom_bar(stat="identity", fill="steelblue")
+  geom_bar(stat="identity", fill="steelblue") + geom_text(aes(label=Cases), vjust=1.6, color="white", size=3.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) + labs(x = "NC CITY", title = "Top 10 City in North Carolina on Confirmed case")
 
 
 ```
@@ -299,24 +317,25 @@ ggplot(data=top_10_city_09_30_2021, aes(x=City, y=Cases)) +
 stat="identity", theme_minimal()
 
   + ggtitle("Top 10 North Carolina Cities Confirmed Covid Cases on September 30, 2020.")
-
+stateCases
 
 # Histogram
-
-top_country_09_30_2021 <- covidSummary %>% filter(Date == "2021-10-01T18:17:16.341Z") %>% arrange(desc(TotalConfirmed))
-top_10_country_09_30_2021 <- top_country_09_30_2021[1:20,]
-
-top_10_country_09_30_2021
-
-ggplot(top_10_country_09_30_2021, aes(x=TotalConfirmed)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(TotalConfirmed)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Covid Cases in top 20 countries on September 30, 2020")
+```{r}
+top_country<- covidSummary %>% arrange(desc(TotalConfirmed))
+top_20_country <- top_country[1:20,]
+```
+```{r}
+ggplot(covidSummary, aes(x=NewDeaths)) + geom_histogram(color="orange2", fill="red", size = 2, binwidth=40)+geom_vline(aes(xintercept=mean(NewDeaths)),color="blue", linetype="dashed", size=1) + labs(x = "New Death Case", title = "Histogram of new death cases today: 192 countries")
 
 #Blue line is the mean line.
 
+```
 
-  
+
+
 ```{r}
 # Histogram
-ggplot(top_city_09_30_2021, aes(x=Cases)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(Cases)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Covid Cases in North Carolina Cities on November 22nd, 2020")
+ggplot(top_city_09_30_2021, aes(x=Cases)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(Cases)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Cases in North Carolina Cities on September 30, 2021")
 
 #Blue line is the mean line.
 ```
