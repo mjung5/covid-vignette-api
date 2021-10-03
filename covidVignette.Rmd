@@ -173,23 +173,10 @@ get_cases_bystate <- function(state_name){
 }
 
 nc_stateData <- get_cases_bystate("North Carolina")
-nc_stateData 
+
 ```
 
 ## `Summary cases by Countries`
-
-
-covid_summary_cases <- function(){
-   full_url = paste0(base_url,"/summary")
-   covid_summary <- GET(url=full_url)
-   covid_cases_summary <- fromJSON(rawToChar(covid_summary$content))
-   covid_cases_summary1 <- data.frame(covid_cases_summary$Countries) 
-   #covid_cases_summary2 <- data.frame(covid_cases_summary1)
-   return(covid_cases_summary1)
-}
-
-covidSum <- covid_summary_cases()
-covidSum
 
 
 ```{r}
@@ -203,9 +190,8 @@ covid_summary_cases <- function(){
 }
 
 covidSum <- covid_summary_cases()
-covidSum
-``` 
 
+``` 
 
 
 ```{r}
@@ -225,7 +211,7 @@ get_live_cases <- function(country){
 }
 
 us_liveCases <- get_live_cases("united-states")
-us_liveCases
+
 ```
 
 
@@ -245,9 +231,7 @@ newcolumnData <- function(dataset){
                                       if_else(Confirmed > 39337, "mediumhigh", 
                                         if_else(Confirmed > 18725, "medium", 
                                           if_else(Confirmed > 6173, "mediumlow","low")))))
-                                          
                                   )            
-
   return(dataset)
 }
 ```
@@ -255,7 +239,7 @@ newcolumnData <- function(dataset){
 
 new_live_07_28_2021 <- us_liveCases %>% filter(Date == "2021-07-28T00:00:00Z")
 
-newcolumnData1 <- newcolumnData(new_live_07_28_2021)
+newcolumnData1 <- newcolumnData(new_live_07_28_2021) %>% as_tibble()
 newcolumnData1
 ```
 
@@ -281,11 +265,6 @@ newAddData_state <- function(dataset){
   return(dataset1)
 }
 
-
-
-
-newCovidSummary <- newAddData_state(covidSum)
-newCovidSummary
 ```
 
 
@@ -315,6 +294,8 @@ usRecovered <- get_recovered_cases("united-states")
 #us_liveCase <- get_live_cases("united-states")
 
 in_liveCase <- get_live_cases("india") 
+
+newCovidSummary <- newAddData_state(covidSum)
 
 ```
 # Exploratory Data Analysis
@@ -541,17 +522,3 @@ ggplot(data = newCovidSummary, aes(x = TotalConfirmed, y = TotalDeaths))+
 ```
 
 
-
-
-# Scatter plot - U.S. live case
-
-us_covid_cases <- liveCase
-
-us_covid_cases <- aggregate((activeCases = liveCase$Active), 
-                            by = list(Date=cut(as.POSIXct(liveCase$Date), "month")), sum)
-
-us_covid_cases
-
-
-stateCovidCase <- stateCases
-stateCovidCase <- aggregate(stateCovidCase$Cases by = list()
