@@ -214,9 +214,9 @@ us_liveCases <- get_live_cases("united-states")
 
 ```
 
-
+https://www.statista.com/chart/20978/coronavirus-cases-us-map/
 ```{r}
-#As of July 28,2012 CDC covid case map
+#As of July 28,2020 CDC covid case map
 #https://twitter.com/cdcgov/status/1288609081696169990
 
 #we can create a function that will manipulate our data to prepare for data summaries and visualization

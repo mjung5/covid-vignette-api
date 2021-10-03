@@ -213,6 +213,8 @@ get_cases_bystate <- function(state_name){
 nc_stateData <- get_cases_bystate("North Carolina")
 ```
 
+    ## No encoding supplied: defaulting to UTF-8.
+
 ## `Summary cases by Countries`
 
 ``` r
@@ -247,8 +249,10 @@ get_live_cases <- function(country){
 us_liveCases <- get_live_cases("united-states")
 ```
 
+<https://www.statista.com/chart/20978/coronavirus-cases-us-map/>
+
 ``` r
-#As of July 28,2012 CDC covid case map
+#As of July 28,2020 CDC covid case map
 #https://twitter.com/cdcgov/status/1288609081696169990
 
 #we can create a function that will manipulate our data to prepare for data summaries and visualization
@@ -434,9 +438,9 @@ Summarydata_World
     ##   <chr>           <dbl>   <dbl>
     ## 1 high         70952.    67701 
     ## 2 low              8.25      4 
-    ## 3 medium        5263.     5139 
-    ## 4 mediumhigh   23387.    21058.
-    ## 5 Veryhigh   2073425.   507360.
+    ## 3 medium        5272.     5168 
+    ## 4 mediumhigh   23393.    21058.
+    ## 5 Veryhigh   2075058.   507360.
 
 ``` r
 newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(TotalConfirmed), Med = median(TotalConfirmed))
@@ -445,9 +449,9 @@ newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(Tota
     ## # A tibble: 4 x 3
     ##   TotalDeathRateStatus      Avg     Med
     ##   <chr>                   <dbl>   <dbl>
-    ## 1 high                  846671. 172156.
-    ## 2 low                  1233025. 158949 
-    ## 3 medium               1278127. 219596.
+    ## 1 high                  847592. 172156.
+    ## 2 low                  1233982. 158949 
+    ## 3 medium               1279111. 219596.
     ## 4 serious                 4572.   4572.
 
 ``` r
@@ -458,15 +462,15 @@ newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(Tota
     ##   TotalDeathRateStatus   Avg   Med    Var   IQR
     ##   <chr>                <dbl> <dbl>  <dbl> <dbl>
     ## 1 high                  6.71  6.48  1.76  1.92 
-    ## 2 low                   1.06  1.15  0.281 0.807
-    ## 3 medium                2.89  2.75  0.498 1.12 
+    ## 2 low                   1.06  1.15  0.281 0.814
+    ## 3 medium                2.90  2.75  0.498 1.12 
     ## 4 serious              22.0  22.0  18.2   3.01
 
 ``` r
 cor(newCovidSummary$TotalConfirmed, newCovidSummary$TotalDeaths)
 ```
 
-    ## [1] 0.9308892
+    ## [1] 0.9308448
 
 ``` r
 # kable(stateCases)
