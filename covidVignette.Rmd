@@ -31,7 +31,6 @@ library(tidyverse)
 library(jsonlite)
 library(knitr)
 library(httr)
-library(tidytext)
 library(lubridate)
 ```
 
@@ -63,7 +62,7 @@ To access the [Covid Data](https://documenter.getpostman.com/view/10808728/SzS8r
 
 In addition, I wrote 6 more functions that take different endpoints.
 
-#Base url
+# Base url
 
 ```{r}
 base_url = "https://api.covid19api.com"
@@ -71,7 +70,7 @@ base_url = "https://api.covid19api.com"
 
 ## country name
 
-#This function is to generate data.frame of country name and Slug.
+#This helper function is to generate data.frame of country name and Slug. 
 
 ```{r}
 country_Name <- function(){
@@ -85,13 +84,31 @@ countryName <- country_Name()
 countryName
 ```
 
-## `Confirmed Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
+## Summary data
+
+#This function interacts with the `Summary` endpoint. 
+
+```{r}
+covid_summary_cases <- function(){
+   full_url = paste0(base_url,"/summary")
+   covid_summary_text <- content(GET(url=full_url),"text")
+   covid_cases_summary_json <- fromJSON(covid_summary_text)
+   covid_cases_summary1 <- data.frame(covid_cases_summary_json$Countries) 
+   return(covid_cases_summary1)
+}
+
+covidSum <- covid_summary_cases()
+covidSum
+``` 
+
+## confirmed cases
 #This function interacts with the `By Country Total` endpoint. 
+
 ```{r}
 get_confirmed_cases <- function(country){
      if(country %in% countryName$Slug){
-  full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-03-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+  full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
   confirmed_cases_text = content(GET(url=full_url),"text")
   confirmed_cases_json = fromJSON(confirmed_cases_text)
       covid_confirmed_cases <- confirmed_cases_json %>% select(Country, Cases, Status, Date) #%>% rename(ConfirmedCases =  Cases) 
@@ -104,16 +121,18 @@ get_confirmed_cases <- function(country){
     }
 }
 
+confirmed_cases <- get_confirmed_cases("united-states")
+confirmed_cases
 ```
 
-## `Death Cases by different contries` from March 1st, 2020 to September 21st, 2021
+# Death cases
 
-#This function interacts with the `By Country Total` endpoint, but modified the status as deaths. 
+#This function interacts with the `By Country Total` endpoint with status changed to deaths. 
 
 ```{r}
 get_deaths_cases <- function(country){
     if(country %in% countryName$Slug){
-  full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-03-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+  full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
   deaths_cases_text = content(GET(url=full_url),"text")
   deaths_cases_json = fromJSON(deaths_cases_text)
        covid_deaths_cases <- deaths_cases_json  %>% select(Country, Cases, Status, Date) #%>% rename(DeathsCases =  Cases) 
@@ -125,16 +144,18 @@ get_deaths_cases <- function(country){
       stop(message)
     }
 }
+death_cases <- get_deaths_cases("united-states")
+death_cases
 ```
 
-## `Recovered Cases by different contries` from March 1st, 2020 to September 21st, 2021
+# Recovered cases
 
-#This function interacts with the `By Country Total` endpoint, but modified the status as recovered.
+#This function interacts with the `By Country Total` endpoint with status changed to recovered.  
 
 ```{r}
 get_recovered_cases <- function(country){
   if(country %in% countryName$Slug){
-  full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-03-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+  full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
   recovered_cases_text = content(GET(url=full_url),"text")
   recovered_cases_json = fromJSON(recovered_cases_text)
        covid_recovered_cases <- recovered_cases_json  %>% select(Country, Cases, Status, Date) #%>% rename(RecoveredCases =  Cases)
@@ -146,15 +167,21 @@ get_recovered_cases <- function(country){
       stop(message)
     }
 }
+recovered_cases <- get_recovered_cases("united-states")
+recovered_cases
 ```
 
+```{r}
+us_all_cases <- rbind(confirmed_cases, death_cases)
+us_all_cases
+```
 
-## `U.S.A cases by state`
+## Us confirmed cases by state
 
-#This function interacts with the `Day One Live` endpoint. confrimed cases only
+#This function interacts with the `Day One Live` endpoint with status changed to confirmed
 
 ```{r}
-get_cases_bystate <- function(state_name){
+confirmed_cases_bystate <- function(state_name){
   state_name <- tolower(state_name)
   two_word_states = list("new hampshire", "new jersey", "new mexico","new york","north carolina","north dakota","south carolina","south dakota", "distrct of columbia", "puerto rico","Northern Mariana Islands", "Virgin Islands", "Rhode Island")
   if (state_name %in% two_word_states){
@@ -172,30 +199,48 @@ get_cases_bystate <- function(state_name){
   return(covid_cases_by_states)
 }
 
-nc_stateData <- get_cases_bystate("North Carolina")
-
+nc_confirmedData <- confirmed_cases_bystate("North Carolina")
+nc_confirmedData1 <- nc_confirmedData %>% filter(row_number() <= n()-1)
 ```
 
-## `Summary cases by Countries`
+## Us Death cases by state
 
+#This function interacts with the `Day One Live` endpoint with status changed to deaths.
 
 ```{r}
-covid_summary_cases <- function(){
-   full_url = paste0(base_url,"/summary")
-   covid_summary_text <- content(GET(url=full_url),"text")
-   covid_cases_summary_json <- fromJSON(covid_summary_text)
-   covid_cases_summary1 <- data.frame(covid_cases_summary_json$Countries)  
-   covid_cases_summary2 <- as_tibble(covid_cases_summary1)
-   return(covid_cases_summary2)
+deaths_cases_bystate <- function(state_name){
+  state_name <- tolower(state_name)
+  two_word_states = list("new hampshire", "new jersey", "new mexico","new york","north carolina","north dakota","south carolina","south dakota", "distrct of columbia", "puerto rico","Northern Mariana Islands", "Virgin Islands", "Rhode Island")
+  if (state_name %in% two_word_states){
+     full_url = paste0(base_url,"/dayone/country/united-states/status/deaths/live?province=",state_name)
+     URLencode(full_url)
+    covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
+    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
+  }
+    else{
+    full_url = paste0(base_url,"/dayone/country/united-states/status/deaths/live?province=",state_name)
+    covid_cases_by_states_text = content(GET(url=full_url),"text")
+    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
+    }
+     covid_cases_by_states <- covid_cases_by_states_json %>% select(Country, Province, City, Cases, Status, Date) 
+  return(covid_cases_by_states)
 }
 
-covidSum <- covid_summary_cases()
+nc_deathData <- deaths_cases_bystate("North Carolina")
+nc_deathData1 <- nc_deathData %>% filter(row_number() <= n()-1)
 
-``` 
+```
+```{r}
+nc_all_cases <- rbind(nc_confirmedData1, nc_deathData1)
+nc_all_cases
+```
 
+## live cases by country
+
+endpoint `Live By Country And Status After Date`
 
 ```{r}
-get_live_cases <- function(country){
+live_cases <- function(country){
        if(country %in% countryName$Slug){
    full_url = paste0(base_url,"/live/country/",country,"/status/confirmed/date/2021-07-01T00:00:00Z")
     covid_cases_live_text = content(GET(url=full_url),"text")
@@ -210,39 +255,64 @@ get_live_cases <- function(country){
     }
 }
 
-us_liveCases <- get_live_cases("united-states")
+us_liveCases <- live_cases("united-states")
 
 ```
 
-https://www.statista.com/chart/20978/coronavirus-cases-us-map/
+## Date manipulation
+
+#This function helps to manipulate date column to date formation and create one variable with time span by quater. 
+
+```{r}
+get_date_case <- function(dataset){
+dataset$Date <- as.Date(dataset$Date)
+dataset <- dataset %>% 
+                  mutate("Time_span" = if_else(Date <= as.Date("2020-09-30"), "2020Q3",
+                                        if_else(Date <= as.Date("2020-12-31"), "2020Q4",
+                                          if_else(Date <= as.Date("2021-03-31"), "2021Q1", 
+                                            if_else(Date <= as.Date("2021-06-30"), "2021Q2", 
+                                              if_else(Date <= as.Date("2021-09-30"),"2021Q3","2021Q4")))))
+                         )
+
+                  dataset$Time_span <- as.factor(dataset$Time_span)
+  return(dataset)
+}              
+
+confirmed_month <- get_date_case(confirmed_cases)
+confirmed_month
+us_all_cases_month <- get_date_case(us_all_cases)
+us_all_cases_month
+nc_all_cases_month<- get_date_case(nc_all_cases)
+nc_all_cases_month
+```
+
+
 ```{r}
 #As of July 28,2020 CDC covid case map
 #https://twitter.com/cdcgov/status/1288609081696169990
 
 #we can create a function that will manipulate our data to prepare for data summaries and visualization
-newcolumnData <- function(dataset){
+usRiskyData <- function(dataset){
   dataset <- dataset %>% 
             mutate("DeathRate"= (Deaths/Confirmed)*100, 
-                   "DeathRateStatus"= if_else(DeathRate > 10, "serious",
-                                  if_else(DeathRate > 5, "high", 
-                                          if_else(DeathRate >2, "medium", "low"))), 
-                   "RiskStatus" = if_else(Confirmed > 174973, "Veryhigh",
-                                    if_else(Confirmed > 82530, "high", 
-                                      if_else(Confirmed > 39337, "mediumhigh", 
-                                        if_else(Confirmed > 18725, "medium", 
-                                          if_else(Confirmed > 6173, "mediumlow","low")))))
+                   "DeathRateStatus"= if_else(DeathRate > 2, "4.High",
+                                  if_else(DeathRate > 1, "3.Medium", 
+                                          if_else(DeathRate >0.5, "2.Low", "1.Very low"))), 
+                   "RiskStatus" = if_else(Confirmed > 1250000, "5.Veryhigh",
+                                    if_else(Confirmed > 750000, "4.High", 
+                                      if_else(Confirmed > 350000, "3.Medium", 
+                                        if_else(Confirmed > 150000, "2.Low", "1.Very Low"))))
                                   )            
   return(dataset)
 }
 ```
 ```{r}
+#need to change the name of file later.
+us_newlive <- us_liveCases %>% filter(Date == "2021-10-01T00:00:00Z")
 
-new_live_07_28_2021 <- us_liveCases %>% filter(Date == "2021-07-28T00:00:00Z")
-
-newcolumnData1 <- newcolumnData(new_live_07_28_2021) %>% as_tibble()
-newcolumnData1
+us_newlive_risk <- usRiskyData(us_newlive) %>% as_tibble()
+us_live_risk <- get_date_case(us_newlive_risk)
 ```
-
 
 ```{r}
 
@@ -255,11 +325,11 @@ newAddData_state <- function(dataset){
                                   if_else(TotalDeathRate > 5, "high", 
                                           if_else(TotalDeathRate >2, "medium", "low"))), 
                    "Active" = (TotalConfirmed-TotalDeaths), 
-                   "RiskStatus" = if_else(TotalConfirmed > 100000, "Veryhigh",
-                                    if_else(TotalConfirmed > 50000, "high", 
-                                      if_else(TotalConfirmed > 10000, "mediumhigh", 
-                                        if_else(TotalConfirmed > 1000, "medium", 
-                                          if_else(TotalConfirmed > 100, "mediumlow","low")))))
+                   "RiskStatus" = if_else(TotalConfirmed > 100000000, "Veryhigh",
+                                    if_else(TotalConfirmed > 50000000, "high", 
+                                      if_else(TotalConfirmed > 10000000, "mediumhigh", 
+                                        if_else(TotalConfirmed > 1000000, "medium", 
+                                          if_else(TotalConfirmed > 100000, "mediumlow","low")))))
             )
 
   return(dataset1)
@@ -267,258 +337,152 @@ newAddData_state <- function(dataset){
 
 ```
 
-
-
-
-```{r}
-#countryName <- country_Name()
-
-indiaConfirmed <- get_confirmed_cases("india")
-
-usConfirmed <- get_confirmed_cases("united-states")
-brazilConfirmed <- get_confirmed_cases("brazil")
-ukConfirmed <- get_confirmed_cases("united-kingdom")
-russiaConfirmed <- get_confirmed_cases("russia")
-
-indiaDeaths <- get_deaths_cases("india")
-
-usDeaths <- get_deaths_cases("united-states") 
-
-inRecovered <- get_recovered_cases("india")
-usRecovered <- get_recovered_cases("united-states")
-
-#stateCases <- get_cases_bystate("North Carolina")
-
-#covidSummary <- covid_summary_cases()
-
-#us_liveCase <- get_live_cases("united-states")
-
-in_liveCase <- get_live_cases("india") 
-
-newCovidSummary <- newAddData_state(covidSum)
-
-```
-# Exploratory Data Analysis
-
-## Contigency Tables/ Numerical Summaries
-
-```{r}
-# combining three datasets
-
-#confirm_subset <- usConfirmed %>% select(Country, Cases,Status, Date)
-#death_subset <- usDeaths %>% select(Country, Cases,Status)
-#recover_subset <- usRecovered %>% select(Country, Cases,Status) 
-five_confirm <- rbind(usConfirmed, brazilConfirmed, indiaConfirmed, ukConfirmed, russiaConfirmed)
-
-
-five_com1 <- five_confirm %>% filter(Date == "2021-09-30T00:00:00Z")
-five_com1
-
-five_confirm_table <- table(five_com1$Country)
-five_confirm_table
-
-```
-
-
-
-
-
-
-```{r}
-# Contingency table
-
-#Worldwide
-
-TotalDeathRate_status <- table(newCovidSummary$TotalDeathRateStatus) 
-
-TotalDeathRate_status1 <- TotalDeathRate_status[c(4,1,3,2)]
-
-kable(TotalDeathRate_status1) #col.names = c("Total DeathRate Status", "Count"))
-
-
-
-TotalRisk_status <- table(newCovidSummary$RiskStatus) 
-
-TotalRisk_status1 <- TotalRisk_status[c(5,1,4,3,2)]
-
-kable(TotalRisk_status1) #col.names = c("Risk Status", "Count"))
-```
-
-
-
 ```{r}
 # Contingency table 
 #United Status
-usDeathRate_status <- table(newcolumnData1$RiskStatus, newcolumnData1$DeathRateStatus)
-kable(usDeathRate_status)
-```
-
-```{r}
-Summarydata_World <- newCovidSummary %>% group_by(RiskStatus) %>% summarise(Avg = mean(TotalConfirmed), Med = median((TotalConfirmed), IQR = IQR(TotalConfirmed), Var = var(TotalConfirmed)) )
-
-Summarydata_World
+usDeathRate_status <- table(us_live_risk$RiskStatus, us_live_risk$DeathRateStatus)
+usDeathRate_status
 ```
 ```{r}
-newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(TotalConfirmed), Med = median(TotalConfirmed))
+
+us_live_risk1 <- us_live_risk %>% arrange(desc(Confirmed))
+us_live_risk2 <- us_live_risk1[1:10,]
+
+state_deathrate <- table(us_live_risk2$Province, us_live_risk2$DeathRateStatus)
+state_deathrate
 ```
-```{r}
-newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(TotalDeathRate), Med = median(TotalDeathRate), Var = var(TotalDeathRate), IQR = IQR(TotalDeathRate))
-```
-
-```{r}
-cor(newCovidSummary$TotalConfirmed, newCovidSummary$TotalDeaths)
-
-```
-
-```{r}
-# kable(stateCases)
-
-# kable(confirmed)
-# kable(deaths)
-# kable(recovered)
-# kable(caseSum)
-# kable(liveCase)
-```
-
-## Graphical Summaries
-
-
-# Bar plot
-top_state_09_30_2021 <- country_liveCase %>% filter(Date == "2021-09-30T00:00:00Z") %>% arrange(desc(Active))
-top_10_state_09_30_2021 <- top_state_09_30_2021[1:10,]
-
-ggplot(data=top_10_state_09_30_2021, aes(x=Province, y=Active)) +
-  geom_bar(stat="identity", fill="green")
-
-
-
-
-  geom_text(aes(label=Cases), vjust=1.6, color="black", size=3.5)+   theme_minimal()+ ggtitle("Top 10 North Carolina Cities Confirmed Covid Cases on September 23rd, 2021.")
-```{r}
-ggplot(data=newCovidSummary, aes(x=RiskStatus)) +
-  geom_bar(aes(fill = as.factor(TotalDeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 192 countries") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
-```
-
-
 
 
 ```{r}
-ggplot(data=newcolumnData1, aes(x=RiskStatus)) +
-  geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 52 states in the U.S") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
+#summary table
+summary_us_state <- us_live_risk %>% summarise(Min = min(Confirmed), Max = max(Confirmed), Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed), Var = var(Confirmed))
+summary_us_state
+
+Summary_us_all <- us_all_cases_month %>% group_by(Status) %>% summarise(Avg = mean(Cases), Med = median(Cases), IQR = IQR(Cases), Var = var(Cases)) 
+
+Summary_us_all
+
+Summary_nc_all <- nc_all_cases_month %>% group_by(City) %>% summarise(Avg = mean(Cases), Med = median(Cases), IQR = IQR(Cases), Var = var(Cases)) 
+Summary_nc_all
+```
+```{r}
+Summary_us_risk <- us_live_risk %>% group_by(RiskStatus) %>% summarise(Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed), Var = var(Confirmed)) 
+
+Summary_us_risk
+```
+```{r}
+Summary_us_DR <- us_live_risk %>% group_by(DeathRateStatus) %>% summarise(Avg = mean(Confirmed), Med = median(Confirmed), Var = var(Confirmed), IQR = IQR(Confirmed))
+Summary_us_DR
+```
+```{r}
+summary_us_deathRate <- us_live_risk %>% group_by(DeathRateStatus) %>% summarise(Avg = mean(DeathRate), Med = median(DeathRate), Var = var(DeathRate), IQR = IQR(DeathRate))
+summary_us_deathRate
 ```
 
 ```{r}
-# Bar plot
-top_country<- newCovidSummary %>% arrange(desc(TotalConfirmed))
-top_10_country <- top_country[1:10,]
+cor(us_live_risk$Confirmed, us_live_risk$Deaths)
+cov(us_live_risk$Confirmed, us_live_risk$Deaths)
+```
 
-ggplot(data=top_10_country, aes(x=Country, y=TotalConfirmed)) +
-  geom_bar(stat="identity", fill="yellowgreen") + geom_text(aes(label=TotalConfirmed), vjust=1.6, color="black", size=3.5) + theme(axis.text.x = element_text(angle = 45, hjust=1)) + labs(x = "Country", title = "Top 10 countries on Total Confirmed case")
+```{r}
+#histogram
+#confirmed_mon_sept <- confirmed_month %>% filter(Month >= "1")
+
+#ggplot(confirmed_mon_sept, aes(Date)) + geom_histogram()
+
+
+# Scatter plot country summary
+ggplot(data = confirmed_month, aes(x = Date, y = Cases))+
+  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of Confirmed Covid Cases by Confirmed Covid Cases") + geom_smooth(method = lm, color = "blue")  
 
 
 ```
+
+
 ```{r}
 # Bar plot
-top_country<- newCovidSummary %>% arrange(desc(NewDeaths))
-top_10_country <- top_country[1:10,]
+top_states<- nc_all_cases_month %>% filter(Status == "confirmed") %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
+top_10counties <- top_states[1:10,]
 
-ggplot(data=top_10_country, aes(x=Country, y=NewDeaths)) +
+ggplot(data=top_10counties, aes(x=City, y=Cases)) +
   geom_bar(stat="identity", fill="orange") +
-  labs(x = "Country", title = "Top 10 countries on newDeath case") + geom_text(aes(label=NewDeaths), vjust=1.6, color="black", size=3.5) +
+  labs(x = "City", title = "Top 10 Counties on Confirmed case") + geom_text(aes(label=Cases), vjust=1.6, color="black", size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 
 
 ```
 
-  
 ```{r}
 # Bar plot
-top_city_09_30_2021 <- nc_stateData %>% filter(Date == "2021-09-30T00:00:00Z") %>% arrange(desc(Cases))
-top_10_city_09_30_2021 <- top_city_09_30_2021[1:10,]
 
-ggplot(data=top_10_city_09_30_2021, aes(x=City, y=Cases)) +
-  geom_bar(stat="identity", fill="steelblue") + geom_text(aes(label=Cases), vjust=1.6, color="white", size=3.5) +
-  theme(axis.text.x = element_text(angle = 45, hjust=1)) + labs(x = "NC CITY", title = "Top 10 City in North Carolina on Confirmed case")
-
-
-```
-
-  geom_text(aes(label=Cases), vjust=1.6, color="white", size=3.5)+
-stat="identity", theme_minimal()
-
-  + ggtitle("Top 10 North Carolina Cities Confirmed Covid Cases on September 30, 2020.")
-stateCases
-
-# Histogram
-```{r}
-top_country<- newCovidSummary %>% arrange(desc(TotalConfirmed))
-top_20_country <- top_country[1:20,]
-```
-```{r}
-ggplot(newCovidSummary, aes(x=NewDeaths)) + geom_histogram(color="orange2", fill="red", size = 1, binwidth=100)+geom_vline(aes(xintercept=mean(NewDeaths)),color="blue", linetype="dashed", size=1) + labs(x = "New Death Case", title = "Histogram of new death cases today: 192 countries")
-
-#Blue line is the mean line.
-
-```
-
-
-
-
-```{r}
-# Histogram
-ggplot(top_city_09_30_2021, aes(x=Cases)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(Cases)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Cases in North Carolina Cities on September 30, 2021")
-
-#Blue line is the mean line.
-```
-
-```{r}
-# Box plot
-us_subset <- usConfirmed %>% select(Country, Cases,Status)
-in_subset <- indiaConfirmed %>% select(Country, Cases,Status)
-us_in <- rbind(us_subset, in_subset)
-
-boxplot(Cases~Country,data=us_in, main="United States and India Covid Cases Comparison using Box plot",xlab="Country", ylab="Cases",col=(c("gold","darkgreen")))
-```
-```{r}
-
-uscaselive <- us_liveCases  %>% 
-  select(Country, Province, Active, Date) 
-incaselive <- in_liveCase %>%
-  select(Country, Province, Active, Date)
-uslive_inlive <- rbind(uscaselive, incaselive )
-
-boxplot(Active~Country,data=uslive_inlive, main="United States and India Covid live Cases Comparison using Box plot",xlab="Country", ylab="Active",col=(c("gold","darkgreen")))
-
-
-```
-```{r}
-# Box plot
-Summary_world <- newCovidSummary %>% select(Country, TotalConfirmed, RiskStatus)
-
-boxplot(TotalConfirmed~RiskStatus,data=Summary_world, main="World Covid Cases Box plot",
-   xlab="RiskStatus", ylab="TotalConfirmed",col=(c("darkgreen")))
-```
-
-```{r}
-# Scatter plot
-covid_cases_by_states2 <- nc_stateData
-
-covid_cases_by_states2 <- aggregate(list(Cases=covid_cases_by_states2$Cases),
-                              by=list(Date=cut(as.POSIXct(covid_cases_by_states2$Date),"month")),sum)
-
-ggplot(data = covid_cases_by_states2, aes(x = Date, y = Cases))+
-  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of Confirmed Covid Cases in North Carolina Cities from November 2020 to September 2021") 
+ggplot(data = us_live_risk, aes(x=RiskStatus)) +
+  geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 55 states") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
 ```
 
 
 ```{r}
+#histogram
+#confirmed_mon_sept <- confirmed_month %>% filter(Month >= "1")
+
+#ggplot(confirmed_mon_sept, aes(Date)) + geom_histogram()
+
+
 # Scatter plot country summary
-ggplot(data = newCovidSummary, aes(x = TotalConfirmed, y = TotalDeaths))+
-  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of Confirmed Covid Cases by Death Covid Cases") + geom_smooth(method = lm, color = "blue")  
+ggplot(data = us_all_cases_month, aes(x = Date, y = Cases))+
+  geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of U.S. Cases by date") + geom_smooth(method = lm, color = "blue")  
+```
+```{r}
 
+Wake_cases <- nc_all_cases_month %>% filter(City=="Wake") 
+Mecklenburg_cases <- nc_all_cases_month %>% filter(City=="Mecklenburg") 
+ncst_cases <- nc_all_cases_month %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
+ncst_cases
+top10_ncst_cases <- ncst_cases[1:10,]
+# Scatter plot nc state summary
+ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
+  geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of  Wake county Cases by date") + geom_smooth(method = lm, color = "blue")  
+
+ggplot(data = Mecklenburg_cases, aes(x = Date, y = Cases))+
+  geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of  Mecklenburg county Cases by date") + geom_smooth(method = lm, color = "blue") 
 
 ```
 
+```{r}
+# Box plot
+us_confirmed_states<- us_all_cases_month %>% filter(Status == "confirmed") 
+
+
+boxplot(Cases~Time_span,data=us_confirmed_states, main="Us Covid confirmed Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
+```
+```{r}
+us_deaths_states<- us_all_cases_month %>% filter(Status == "deaths") 
+
+
+boxplot(Cases~Time_span,data=us_deaths_states, main="Us Covid death Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
+```
+
+
+```{r}
+# Box plot
+
+
+boxplot(Cases~Status,data=us_all_cases_month, main="Us Covid Cases Comparison by Status using Box plot",xlab="Status", ylab="Cases",col=(c("gold","darkgreen")))
+```
+```{r}
+# Histogram plot
+
+#need to change title and name of the x axis
+
+ncst_confirmed_cases <- nc_all_cases_month %>% filter(Status == "confirmed") %>% filter(City == "Wake")
+ncst_deaths_cases <- nc_all_cases_month %>% filter(Status == "deaths") %>% filter(City == "Wake")
+
+ggplot(ncst_confirmed_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
+ggplot(ncst_deaths_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
+
+#boxplot(Cases~City,data=ncst_confirmed_cases, main="Us Covid Cases Comparison by City using Box plot",xlab="City", ylab="Cases",col=(c("gold","darkgreen")))
+```
 
