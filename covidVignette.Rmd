@@ -81,7 +81,6 @@ country_Name <- function(){
 }
 
 countryName <- country_Name()
-countryName
 ```
 
 
@@ -99,7 +98,7 @@ covid_summary_cases <- function(){
 }
 
 covidSum <- covid_summary_cases()
-covidSum
+
 ``` 
 
 ## confirmed cases
@@ -122,7 +121,7 @@ get_confirmed_cases <- function(country){
 }
 
 confirmed_cases <- get_confirmed_cases("united-states")
-confirmed_cases
+
 ```
 
 # Death cases
@@ -145,7 +144,7 @@ get_deaths_cases <- function(country){
     }
 }
 death_cases <- get_deaths_cases("united-states")
-death_cases
+
 ```
 
 # Recovered cases
@@ -168,12 +167,12 @@ get_recovered_cases <- function(country){
     }
 }
 recovered_cases <- get_recovered_cases("united-states")
-recovered_cases
+
 ```
 
 ```{r}
 us_all_cases <- rbind(confirmed_cases, death_cases)
-us_all_cases
+
 ```
 
 ## Us confirmed cases by state
@@ -232,7 +231,7 @@ nc_deathData1 <- nc_deathData %>% filter(row_number() <= n()-1)
 ```
 ```{r}
 nc_all_cases <- rbind(nc_confirmedData1, nc_deathData1)
-nc_all_cases
+
 ```
 
 ## live cases by country
@@ -279,11 +278,11 @@ dataset <- dataset %>%
 }              
 
 confirmed_month <- get_date_case(confirmed_cases)
-confirmed_month
+
 us_all_cases_month <- get_date_case(us_all_cases)
-us_all_cases_month
+
 nc_all_cases_month<- get_date_case(nc_all_cases)
-nc_all_cases_month
+
 ```
 
 
@@ -314,29 +313,9 @@ us_newlive_risk <- usRiskyData(us_newlive) %>% as_tibble()
 us_live_risk <- get_date_case(us_newlive_risk)
 ```
 
-```{r}
+# Exploratory Data Analysis
 
-#https://ourworldindata.org/grapher/biweekly-confirmed-covid-19-cases
-#we can create a function that will manipulate our data to prepare for data summaries and visualization
-newAddData_state <- function(dataset){
-  dataset1 <- dataset %>% 
-            mutate("TotalDeathRate"= (TotalDeaths/TotalConfirmed)*100, 
-                   "TotalDeathRateStatus"= if_else(TotalDeathRate > 10, "serious",
-                                  if_else(TotalDeathRate > 5, "high", 
-                                          if_else(TotalDeathRate >2, "medium", "low"))), 
-                   "Active" = (TotalConfirmed-TotalDeaths), 
-                   "RiskStatus" = if_else(TotalConfirmed > 100000000, "Veryhigh",
-                                    if_else(TotalConfirmed > 50000000, "high", 
-                                      if_else(TotalConfirmed > 10000000, "mediumhigh", 
-                                        if_else(TotalConfirmed > 1000000, "medium", 
-                                          if_else(TotalConfirmed > 100000, "mediumlow","low")))))
-            )
-
-  return(dataset1)
-}
-
-```
-
+## Contigency Tables
 ```{r}
 # Contingency table 
 #United Status
@@ -352,7 +331,7 @@ state_deathrate <- table(us_live_risk2$Province, us_live_risk2$DeathRateStatus)
 state_deathrate
 ```
 
-
+## Numerical Summaries
 ```{r}
 #summary table
 summary_us_state <- us_live_risk %>% summarise(Min = min(Confirmed), Max = max(Confirmed), Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed), Var = var(Confirmed))
@@ -384,24 +363,18 @@ cor(us_live_risk$Confirmed, us_live_risk$Deaths)
 cov(us_live_risk$Confirmed, us_live_risk$Deaths)
 ```
 
+## Graphical Summaries
+
 ```{r}
-#histogram
-#confirmed_mon_sept <- confirmed_month %>% filter(Month >= "1")
-
-#ggplot(confirmed_mon_sept, aes(Date)) + geom_histogram()
-
-
-# Scatter plot country summary
+#Scatter plot country summary
 ggplot(data = confirmed_month, aes(x = Date, y = Cases))+
   geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of Confirmed Covid Cases by Confirmed Covid Cases") + geom_smooth(method = lm, color = "blue")  
-
-
 ```
 
 
 ```{r}
-# Bar plot
+#Bar plot
 top_states<- nc_all_cases_month %>% filter(Status == "confirmed") %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
 top_10counties <- top_states[1:10,]
 
@@ -409,12 +382,10 @@ ggplot(data=top_10counties, aes(x=City, y=Cases)) +
   geom_bar(stat="identity", fill="orange") +
   labs(x = "City", title = "Top 10 Counties on Confirmed case") + geom_text(aes(label=Cases), vjust=1.6, color="black", size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
-
-
 ```
 
 ```{r}
-# Bar plot
+#Bar plot
 
 ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 55 states") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
@@ -422,23 +393,19 @@ ggplot(data = us_live_risk, aes(x=RiskStatus)) +
 
 
 ```{r}
-#histogram
-#confirmed_mon_sept <- confirmed_month %>% filter(Month >= "1")
+# Scatter plot 
 
-#ggplot(confirmed_mon_sept, aes(Date)) + geom_histogram()
-
-
-# Scatter plot country summary
 ggplot(data = us_all_cases_month, aes(x = Date, y = Cases))+
   geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of U.S. Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
-```{r}
 
+```{r}
+# Scatter plot county
 Wake_cases <- nc_all_cases_month %>% filter(City=="Wake") 
 Mecklenburg_cases <- nc_all_cases_month %>% filter(City=="Mecklenburg") 
 ncst_cases <- nc_all_cases_month %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
-ncst_cases
+
 top10_ncst_cases <- ncst_cases[1:10,]
 # Scatter plot nc state summary
 ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
