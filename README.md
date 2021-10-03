@@ -19,12 +19,14 @@ Min-Jung Jung
         September 21st,
         2021](#recovered-cases-by-different-contries-from-march-1st-2020-to-september-21st-2021)
     -   [`U.S.A cases by state`](#usa-cases-by-state)
+    -   [`Summary cases by Countries`](#summary-cases-by-countries)
 -   [Exploratory Data Analysis](#exploratory-data-analysis)
     -   [Contigency Tables/ Numerical
         Summaries](#contigency-tables-numerical-summaries)
     -   [Graphical Summaries](#graphical-summaries)
 -   [Bar plot](#bar-plot)
 -   [Histogram](#histogram)
+-   [Scatter plot - U.S. live case](#scatter-plot---us-live-case)
 
 This project is to create a vignette about contacting an API. I created
 functions to download data via interacting endpoints. I will show this
@@ -100,9 +102,25 @@ country_Name <- function(){
   countrylist1 <- as_tibble(data.frame(Country = countrylist$Country, Slug = countrylist$Slug))
   return(countrylist1)
 }
+
+countryName <- country_Name()
+countryName
 ```
 
-countryName &lt;- countryName()
+    ## # A tibble: 248 x 2
+    ##    Country                   Slug                     
+    ##    <chr>                     <chr>                    
+    ##  1 Poland                    poland                   
+    ##  2 Comoros                   comoros                  
+    ##  3 Djibouti                  djibouti                 
+    ##  4 Turks and Caicos Islands  turks-and-caicos-islands 
+    ##  5 Bulgaria                  bulgaria                 
+    ##  6 Honduras                  honduras                 
+    ##  7 San Marino                san-marino               
+    ##  8 Niue                      niue                     
+    ##  9 Tuvalu                    tuvalu                   
+    ## 10 US Minor Outlying Islands us-minor-outlying-islands
+    ## # ... with 238 more rows
 
 ## `Confirmed Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
@@ -111,10 +129,11 @@ countryName &lt;- countryName()
 ``` r
 get_confirmed_cases <- function(country){
      if(country %in% countryName$Slug){
-  full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-03-01T00:00:00Z&to=2021-09-21T00:00:00Z")
+  full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-03-01T00:00:00Z&to=2021-09-30T00:00:00Z")
   confirmed_cases_text = content(GET(url=full_url),"text")
   confirmed_cases_json = fromJSON(confirmed_cases_text)
-  return(confirmed_cases_json)
+      covid_confirmed_cases <- confirmed_cases_json %>% select(Country, Cases, Status, Date) #%>% rename(ConfirmedCases =  Cases) 
+  return(covid_confirmed_cases)
      }
         else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
@@ -124,10 +143,6 @@ get_confirmed_cases <- function(country){
 }
 ```
 
-confirmed &lt;- get\_confirmed\_cases()
-
-confirmed
-
 ## `Death Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
 \#This function interacts with the `By Country Total` endpoint, but
@@ -136,10 +151,11 @@ modified the status as deaths.
 ``` r
 get_deaths_cases <- function(country){
     if(country %in% countryName$Slug){
-  full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-03-01T00:00:00Z&to=2021-09-21T00:00:00Z")
+  full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-03-01T00:00:00Z&to=2021-09-30T00:00:00Z")
   deaths_cases_text = content(GET(url=full_url),"text")
   deaths_cases_json = fromJSON(deaths_cases_text)
-  return(deaths_cases_json)
+       covid_deaths_cases <- deaths_cases_json  %>% select(Country, Cases, Status, Date) #%>% rename(DeathsCases =  Cases) 
+  return(covid_deaths_cases)
     }
         else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
@@ -149,12 +165,6 @@ get_deaths_cases <- function(country){
 }
 ```
 
-deaths &lt;- get\_deaths\_cases(“india”)
-
-deaths
-
-get\_deaths\_cases(“canada”)
-
 ## `Recovered Cases by different contries` from March 1st, 2020 to September 21st, 2021
 
 \#This function interacts with the `By Country Total` endpoint, but
@@ -163,10 +173,11 @@ modified the status as recovered.
 ``` r
 get_recovered_cases <- function(country){
   if(country %in% countryName$Slug){
-  full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-03-01T00:00:00Z&to=2021-09-21T00:00:00Z")
+  full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-03-01T00:00:00Z&to=2021-09-30T00:00:00Z")
   recovered_cases_text = content(GET(url=full_url),"text")
   recovered_cases_json = fromJSON(recovered_cases_text)
-  return(recovered_cases_json)
+       covid_recovered_cases <- recovered_cases_json  %>% select(Country, Cases, Status, Date) #%>% rename(RecoveredCases =  Cases)
+  return(covid_recovered_cases)
   }
       else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
@@ -175,8 +186,6 @@ get_recovered_cases <- function(country){
     }
 }
 ```
-
-recovered &lt;- get\_recovered\_cases(“united-states”) recovered
 
 ## `U.S.A cases by state`
 
@@ -202,13 +211,8 @@ get_cases_bystate <- function(state_name){
   return(covid_cases_by_states)
 }
 
-stateCases <- get_cases_bystate("North Carolina")
-```
-
-    ## No encoding supplied: defaulting to UTF-8.
-
-``` r
-stateCases
+nc_stateData <- get_cases_bystate("North Carolina")
+nc_stateData 
 ```
 
     ##                      Country       Province         City Cases    Status                 Date
@@ -380,200 +384,54 @@ stateCases
     ## 166 United States of America North Carolina       Graham   268 confirmed 2020-11-23T00:00:00Z
     ##  [ reached 'max' / getOption("max.print") -- omitted 31434 rows ]
 
-%&gt;% select(Country, NewConfirmed, TotalConfirmed, NewDeaths,
-TotalDeaths, Date) %&gt;% as\_tibble()
+## `Summary cases by Countries`
+
+covid\_summary\_cases &lt;- function(){ full\_url =
+paste0(base\_url,“/summary”) covid\_summary &lt;- GET(url=full\_url)
+covid\_cases\_summary &lt;-
+fromJSON(rawToChar(covid\_summary*c**o**n**t**e**n**t*))*c**o**v**i**d*<sub>*c*</sub>*a**s**e**s*<sub>*s*</sub>*u**m**m**a**r**y*1 &lt;  − *d**a**t**a*.*f**r**a**m**e*(*c**o**v**i**d*<sub>*c*</sub>*a**s**e**s*<sub>*s*</sub>*u**m**m**a**r**y*Countries)
+\#covid\_cases\_summary2 &lt;- data.frame(covid\_cases\_summary1)
+return(covid\_cases\_summary1) }
+
+covidSum &lt;- covid\_summary\_cases() covidSum
 
 ``` r
 covid_summary_cases <- function(){
    full_url = paste0(base_url,"/summary")
-   covid_summary <- GET(url=full_url)
-   covid_cases_summary <- fromJSON(rawToChar(covid_summary$content))
-   covid_cases_summary1 <- covid_cases_summary$Countries %>% select(Country, NewConfirmed, TotalConfirmed, NewDeaths, TotalDeaths, Date) 
-   return(covid_cases_summary1)
+   covid_summary_text <- content(GET(url=full_url),"text")
+   covid_cases_summary_json <- fromJSON(covid_summary_text)
+   covid_cases_summary1 <- data.frame(covid_cases_summary_json$Countries)  
+   covid_cases_summary2 <- as_tibble(covid_cases_summary1)
+   return(covid_cases_summary2)
 }
 
-covidSummary <- covid_summary_cases()
-covidSummary
+covidSum <- covid_summary_cases()
+covidSum
 ```
 
-    ##                             Country NewConfirmed TotalConfirmed NewDeaths TotalDeaths                     Date
-    ## 1                       Afghanistan            0         155191         0        7206 2021-10-02T06:19:02.949Z
-    ## 2                           Albania            0         170778         0        2705 2021-10-02T06:19:02.949Z
-    ## 3                           Algeria            0         203517         0        5815 2021-10-02T06:19:02.949Z
-    ## 4                           Andorra            0          15222         0         130 2021-10-02T06:19:02.949Z
-    ## 5                            Angola            0          58076         0        1567 2021-10-02T06:19:02.949Z
-    ## 6               Antigua and Barbuda            0           3336         0          81 2021-10-02T06:19:02.949Z
-    ## 7                         Argentina            0        5258466         0      115225 2021-10-02T06:19:02.949Z
-    ## 8                           Armenia            0         262631         0        5339 2021-10-02T06:19:02.949Z
-    ## 9                         Australia         2335         109516        10        1321 2021-10-02T06:19:02.949Z
-    ## 10                          Austria            0         744964         0       11014 2021-10-02T06:19:02.949Z
-    ## 11                       Azerbaijan            0         484591         0        6543 2021-10-02T06:19:02.949Z
-    ## 12                          Bahamas            0          21114         0         533 2021-10-02T06:19:02.949Z
-    ## 13                          Bahrain            0         275130         0        1389 2021-10-02T06:19:02.949Z
-    ## 14                       Bangladesh            0        1556758         0       27531 2021-10-02T06:19:02.949Z
-    ## 15                         Barbados            0           8609         0          78 2021-10-02T06:19:02.949Z
-    ## 16                          Belarus            0         540079         0        4159 2021-10-02T06:19:02.949Z
-    ## 17                          Belgium         2243        1247197        10       25612 2021-10-02T06:19:02.949Z
-    ## 18                           Belize            0          21003         0         418 2021-10-02T06:19:02.949Z
-    ## 19                            Benin            0          23890         0         159 2021-10-02T06:19:02.949Z
-    ## 20                           Bhutan            0           2601         0           3 2021-10-02T06:19:02.949Z
-    ## 21                          Bolivia            0         500823         0       18750 2021-10-02T06:19:02.949Z
-    ## 22           Bosnia and Herzegovina            0         235536         0       10635 2021-10-02T06:19:02.949Z
-    ## 23                         Botswana            0         179220         0        2368 2021-10-02T06:19:02.949Z
-    ## 24                           Brazil        18578       21445651       506      597255 2021-10-02T06:19:02.949Z
-    ## 25                Brunei Darussalam            0           7326         0          43 2021-10-02T06:19:02.949Z
-    ## 26                         Bulgaria            0         504253         0       20969 2021-10-02T06:19:02.949Z
-    ## 27                     Burkina Faso            0          14262         0         184 2021-10-02T06:19:02.949Z
-    ## 28                          Burundi            0          17979         0          38 2021-10-02T06:19:02.949Z
-    ## 29                         Cambodia            0         112883         0        2336 2021-10-02T06:19:02.949Z
-    ## 30                         Cameroon            0          92303         0        1459 2021-10-02T06:19:02.949Z
-    ## 31                           Canada         4164        1337613        46       25242 2021-10-02T06:19:02.949Z
-    ## 32                       Cape Verde            0          37604         0         340 2021-10-02T06:19:02.949Z
-    ## 33         Central African Republic            0          11371         0         100 2021-10-02T06:19:02.949Z
-    ## 34                             Chad            0           5042         0         174 2021-10-02T06:19:02.949Z
-    ## 35                            Chile          807        1655071         8       37476 2021-10-02T06:19:02.949Z
-    ## 36                            China           45         108495         0        4849 2021-10-02T06:19:02.949Z
-    ## 37                         Colombia         1867        4959144        37      126336 2021-10-02T06:19:02.949Z
-    ## 38                          Comoros            0           4147         0         147 2021-10-02T06:19:02.949Z
-    ## 39              Congo (Brazzaville)            0          14359         0         197 2021-10-02T06:19:02.949Z
-    ## 40                 Congo (Kinshasa)            0          56997         0        1084 2021-10-02T06:19:02.949Z
-    ## 41                       Costa Rica            0         533873         0        6413 2021-10-02T06:19:02.949Z
-    ## 42                          Croatia            0         406307         0        8650 2021-10-02T06:19:02.949Z
-    ## 43                             Cuba            0         882477         0        7486 2021-10-02T06:19:02.949Z
-    ## 44                           Cyprus            0         120272         0         552 2021-10-02T06:19:02.949Z
-    ## 45                   Czech Republic            0        1692412         0       30475 2021-10-02T06:19:02.949Z
-    ## 46                   CÃ´te d'Ivoire            0          60335         0         631 2021-10-02T06:19:02.949Z
-    ## 47                          Denmark            0         360999         0        2661 2021-10-02T06:19:02.949Z
-    ## 48                         Djibouti            0          12870         0         167 2021-10-02T06:19:02.949Z
-    ## 49                         Dominica            0           3555         0          21 2021-10-02T06:19:02.949Z
-    ## 50               Dominican Republic            0         359597         0        4049 2021-10-02T06:19:02.949Z
-    ## 51                          Ecuador            0         509238         0       32762 2021-10-02T06:19:02.949Z
-    ## 52                            Egypt            0         305269         0       17367 2021-10-02T06:19:02.949Z
-    ## 53                      El Salvador            0         104348         0        3245 2021-10-02T06:19:02.949Z
-    ## 54                Equatorial Guinea            0          12362         0         147 2021-10-02T06:19:02.949Z
-    ## 55                          Eritrea            0           6722         0          42 2021-10-02T06:19:02.949Z
-    ## 56                          Estonia            0         156986         0        1357 2021-10-02T06:19:02.949Z
-    ## 57                         Ethiopia            0         347084         0        5630 2021-10-02T06:19:02.949Z
-    ## 58                             Fiji            0          51130         0         631 2021-10-02T06:19:02.949Z
-    ## 59                          Finland            0         142114         0        1078 2021-10-02T06:19:02.949Z
-    ## 60                           France            0        7111154         0      117535 2021-10-02T06:19:02.949Z
-    ## 61                            Gabon            0          30648         0         190 2021-10-02T06:19:02.949Z
-    ## 62                           Gambia            0           9935         0         338 2021-10-02T06:19:02.949Z
-    ## 63                          Georgia            0         614763         0        8976 2021-10-02T06:19:02.949Z
-    ## 64                          Germany         9288        4249061        66       93781 2021-10-02T06:19:02.949Z
-    ## 65                            Ghana            0         127482         0        1156 2021-10-02T06:19:02.949Z
-    ## 66                           Greece            0         658368         0       14860 2021-10-02T06:19:02.949Z
-    ## 67                          Grenada            0           5236         0         150 2021-10-02T06:19:02.949Z
-    ## 68                        Guatemala            0         563257         0       13625 2021-10-02T06:19:02.949Z
-    ## 69                           Guinea            0          30420         0         379 2021-10-02T06:19:02.949Z
-    ## 70                    Guinea-Bissau            0           6110         0         135 2021-10-02T06:19:02.949Z
-    ## 71                           Guyana            0          32055         0         792 2021-10-02T06:19:02.949Z
-    ## 72                            Haiti            0          21916         0         611 2021-10-02T06:19:02.949Z
-    ## 73    Holy See (Vatican City State)            0             27         0           0 2021-10-02T06:19:02.949Z
-    ## 74                         Honduras            0         367275         0        9854 2021-10-02T06:19:02.949Z
-    ## 75                          Hungary            0         823384         0       30199 2021-10-02T06:19:02.949Z
-    ## 76                          Iceland            0          11839         0          33 2021-10-02T06:19:02.949Z
-    ## 77                            India        24354       33791061       234      448573 2021-10-02T06:19:02.949Z
-    ## 78                        Indonesia            0        4216728         0      142026 2021-10-02T06:19:02.949Z
-    ## 79        Iran, Islamic Republic of            0        5601565         0      120663 2021-10-02T06:19:02.949Z
-    ## 80                             Iraq            0        2005991         0       22302 2021-10-02T06:19:02.949Z
-    ## 81                          Ireland            0         390989         0        5249 2021-10-02T06:19:02.949Z
-    ## 82                           Israel            0        1285570         0        7766 2021-10-02T06:19:02.949Z
-    ## 83                            Italy         3403        4675758        52      130973 2021-10-02T06:19:02.949Z
-    ## 84                          Jamaica            0          84069         0        1877 2021-10-02T06:19:02.949Z
-    ## 85                            Japan         1451        1703706        34       17698 2021-10-02T06:19:02.949Z
-    ## 86                           Jordan            0         824697         0       10727 2021-10-02T06:19:02.949Z
-    ## 87                       Kazakhstan            0         965080         0       15907 2021-10-02T06:19:02.949Z
-    ## 88                            Kenya            0         249725         0        5128 2021-10-02T06:19:02.949Z
-    ## 89                         Kiribati            0              2         0           0 2021-10-02T06:19:02.949Z
-    ## 90                    Korea (South)            0         316020         0        2504 2021-10-02T06:19:02.949Z
-    ## 91                           Kuwait            0         411690         0        2450 2021-10-02T06:19:02.949Z
-    ## 92                       Kyrgyzstan            0         178608         0        2607 2021-10-02T06:19:02.949Z
-    ## 93                          Lao PDR            0          24310         0          20 2021-10-02T06:19:02.949Z
-    ## 94                           Latvia            0         159418         0        2721 2021-10-02T06:19:02.949Z
-    ## 95                          Lebanon            0         624743         0        8333 2021-10-02T06:19:02.949Z
-    ## 96                          Lesotho            0          21320         0         633 2021-10-02T06:19:02.949Z
-    ## 97                          Liberia            0           5799         0         286 2021-10-02T06:19:02.949Z
-    ## 98                            Libya            0         341091         0        4664 2021-10-02T06:19:02.949Z
-    ## 99                    Liechtenstein            0           3448         0          60 2021-10-02T06:19:02.949Z
-    ## 100                       Lithuania            0         333690         0        5014 2021-10-02T06:19:02.949Z
-    ## 101                      Luxembourg            0          78326         0         835 2021-10-02T06:19:02.949Z
-    ## 102          Macedonia, Republic of            0         191820         0        6683 2021-10-02T06:19:02.949Z
-    ## 103                      Madagascar            0          42898         0         958 2021-10-02T06:19:02.949Z
-    ## 104                          Malawi            0          61597         0        2282 2021-10-02T06:19:02.949Z
-    ## 105                        Malaysia        11889        2257584       121       26456 2021-10-02T06:19:02.949Z
-    ## 106                        Maldives            0          84866         0         231 2021-10-02T06:19:02.949Z
-    ## 107                            Mali            0          15255         0         549 2021-10-02T06:19:02.949Z
-    ## 108                           Malta            0          37163         0         458 2021-10-02T06:19:02.949Z
-    ## 109                Marshall Islands            0              4         0           0 2021-10-02T06:19:02.949Z
-    ## 110                      Mauritania            0          36079         0         776 2021-10-02T06:19:02.949Z
-    ## 111                       Mauritius            0          15695         0          84 2021-10-02T06:19:02.949Z
-    ## 112                          Mexico         7388        3671611       471      277978 2021-10-02T06:19:02.949Z
-    ## 113 Micronesia, Federated States of            0              1         0           0 2021-10-02T06:19:02.949Z
-    ## 114                         Moldova            0         295681         0        6803 2021-10-02T06:19:02.949Z
-    ## 115                          Monaco            0           3314         0          33 2021-10-02T06:19:02.949Z
-    ## 116                        Mongolia            0         306603         0        1295 2021-10-02T06:19:02.949Z
-    ## 117                      Montenegro            0         131946         0        1928 2021-10-02T06:19:02.949Z
-    ## 118                         Morocco            0         934007         0       14290 2021-10-02T06:19:02.949Z
-    ## 119                      Mozambique            0         150759         0        1918 2021-10-02T06:19:02.949Z
-    ## 120                         Myanmar            0         465922         0       17789 2021-10-02T06:19:02.949Z
-    ## 121                         Namibia            0         127680         0        3514 2021-10-02T06:19:02.949Z
-    ## 122                           Nepal            0         795959         0       11148 2021-10-02T06:19:02.949Z
-    ## 123                     Netherlands         1713        2004763         6       18176 2021-10-02T06:19:02.949Z
-    ## 124                     New Zealand            0           4320         0          27 2021-10-02T06:19:02.949Z
-    ## 125                       Nicaragua            0          14448         0         204 2021-10-02T06:19:02.949Z
-    ## 126                           Niger            0           6025         0         203 2021-10-02T06:19:02.949Z
-    ## 127                         Nigeria            0         205940         0        2724 2021-10-02T06:19:02.949Z
-    ## 128                          Norway            0         189915         0         861 2021-10-02T06:19:02.949Z
-    ## 129                            Oman            0         303769         0        4096 2021-10-02T06:19:02.949Z
-    ## 130                        Pakistan         1664        1248202        46       27831 2021-10-02T06:19:02.949Z
-    ## 131                           Palau            0              5         0           0 2021-10-02T06:19:02.949Z
-    ## 132           Palestinian Territory            0         405056         0        4120 2021-10-02T06:19:02.949Z
-    ## 133                          Panama            0         467338         0        7230 2021-10-02T06:19:02.949Z
-    ## 134                Papua New Guinea            0          20455         0         234 2021-10-02T06:19:02.949Z
-    ## 135                        Paraguay            0         459967         0       16198 2021-10-02T06:19:02.949Z
-    ## 136                            Peru         1978        2177283        56      199423 2021-10-02T06:19:02.949Z
-    ## 137                     Philippines            0        2565487         0       38493 2021-10-02T06:19:02.949Z
-    ## 138                          Poland            0        2908432         0       75666 2021-10-02T06:19:02.949Z
-    ## 139                        Portugal            0        1069975         0       17979 2021-10-02T06:19:02.949Z
-    ## 140                           Qatar            0         236735         0         606 2021-10-02T06:19:02.949Z
-    ## 141              Republic of Kosovo            0         160114         0        2955 2021-10-02T06:19:02.949Z
-    ## 142                         Romania            0        1244555         0       37210 2021-10-02T06:19:02.949Z
-    ## 143              Russian Federation        23953        7425057       875      204424 2021-10-02T06:19:02.949Z
-    ## 144                          Rwanda            0          97695         0        1276 2021-10-02T06:19:02.949Z
-    ## 145           Saint Kitts and Nevis            0           1965         0          13 2021-10-02T06:19:02.949Z
-    ## 146                     Saint Lucia            0          11573         0         207 2021-10-02T06:19:02.949Z
-    ## 147    Saint Vincent and Grenadines            0           3563         0          26 2021-10-02T06:19:02.949Z
-    ## 148                           Samoa            0              3         0           0 2021-10-02T06:19:02.949Z
-    ## 149                      San Marino            0           5440         0          91 2021-10-02T06:19:02.949Z
-    ## 150           Sao Tome and Principe            0           3504         0          51 2021-10-02T06:19:02.949Z
-    ## 151                    Saudi Arabia            0         547134         0        8716 2021-10-02T06:19:02.949Z
-    ## 152                         Senegal            0          73782         0        1858 2021-10-02T06:19:02.949Z
-    ## 153                          Serbia            0         949260         0        8280 2021-10-02T06:19:02.949Z
-    ## 154                      Seychelles            0          21507         0         112 2021-10-02T06:19:02.949Z
-    ## 155                    Sierra Leone            0           6394         0         121 2021-10-02T06:19:02.949Z
-    ## 156                       Singapore            0          99430         0         103 2021-10-02T06:19:02.949Z
-    ## 157                        Slovakia            0         413723         0       12649 2021-10-02T06:19:02.949Z
-    ## 158                        Slovenia            0         294335         0        4565 2021-10-02T06:19:02.949Z
-    ## 159                 Solomon Islands            0             20         0           0 2021-10-02T06:19:02.949Z
-    ## 160                         Somalia            0          19980         0        1111 2021-10-02T06:19:02.949Z
-    ## 161                    South Africa            0        2904307         0       87705 2021-10-02T06:19:02.949Z
-    ## 162                     South Sudan            0          12021         0         130 2021-10-02T06:19:02.949Z
-    ## 163                           Spain         2037        4961128        48       86463 2021-10-02T06:19:02.949Z
-    ## 164                       Sri Lanka            0         518775         0       12964 2021-10-02T06:19:02.949Z
-    ## 165                           Sudan            0          38283         0        2902 2021-10-02T06:19:02.949Z
-    ## 166                        Suriname            0          41631         0         884 2021-10-02T06:19:02.949Z
-    ##  [ reached 'max' / getOption("max.print") -- omitted 26 rows ]
-
-covid\_cases\_summary1 &lt;- covid\_cases\_summary$Countries
+    ## # A tibble: 192 x 12
+    ##    ID                                   Country             CountryCode Slug      NewConfirmed TotalConfirmed NewDeaths TotalDeaths NewRecovered TotalRecovered Date      Premium 
+    ##    <chr>                                <chr>               <chr>       <chr>            <int>          <int>     <int>       <int>        <int>          <int> <chr>     <named >
+    ##  1 15aa5e35-b345-4173-98ab-9b61888cdb04 Afghanistan         AF          afghanis~            0         155191         0        7206            0              0 2021-10-~ <NULL>  
+    ##  2 26cb4723-635f-4a65-a900-d7aa5237799b Albania             AL          albania            549         171327         5        2710            0              0 2021-10-~ <NULL>  
+    ##  3 2553b71f-393f-47cd-b2da-cdfd6b8ed9d0 Algeria             DZ          algeria            140         203657         4        5819            0              0 2021-10-~ <NULL>  
+    ##  4 a6647cef-ac64-4516-91b5-905c37a9ac6b Andorra             AD          andorra              0          15222         0         130            0              0 2021-10-~ <NULL>  
+    ##  5 9403ffd5-2fa0-4b0d-9fbf-ea5eaf635f5d Angola              AO          angola             527          58603         7        1574            0              0 2021-10-~ <NULL>  
+    ##  6 c3991c09-522c-4452-be78-8df67e347a6d Antigua and Barbuda AG          antigua-~            0           3336         0          81            0              0 2021-10-~ <NULL>  
+    ##  7 2e53a35b-e709-4f69-a764-d75de9201869 Argentina           AR          argentina          886        5259352        14      115239            0              0 2021-10-~ <NULL>  
+    ##  8 3bc3f309-52ab-4473-aa39-26d1837adb15 Armenia             AM          armenia           1152         263783        15        5354            0              0 2021-10-~ <NULL>  
+    ##  9 4aca024c-18c6-4916-9e29-0fb76675b6e2 Australia           AU          australia         2335         109516        10        1321            0              0 2021-10-~ <NULL>  
+    ## 10 fe8adf3e-8876-48ee-8c4d-6e63da6d7d4d Austria             AT          austria           1416         746380         7       11021            0              0 2021-10-~ <NULL>  
+    ## # ... with 182 more rows
 
 ``` r
 get_live_cases <- function(country){
        if(country %in% countryName$Slug){
-   full_url = paste0(base_url,"/live/country/",country,"/status/confirmed/date/2021-08-31T00:00:00Z")
+   full_url = paste0(base_url,"/live/country/",country,"/status/confirmed/date/2021-07-01T00:00:00Z")
     covid_cases_live_text = content(GET(url=full_url),"text")
     covid_cases_live_json = fromJSON(covid_cases_live_text)
-  return(covid_cases_live_json)
+      covid_state_cases <- covid_cases_live_json  %>% select(Country, Province, Confirmed, Deaths, Active, Date) #%>% rename(RecoveredCases =  Cases)
+      return(covid_state_cases)
        }
       else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
@@ -582,196 +440,462 @@ get_live_cases <- function(country){
     }
 }
 
-liveCase <- get_live_cases("united-states")
-liveCase
+us_liveCases <- get_live_cases("united-states")
+us_liveCases
 ```
 
-    ##                                      ID                  Country CountryCode                 Province City CityCode   Lat     Lon Confirmed Deaths Recovered  Active
-    ## 1  05cb350d-c864-47f2-ba35-3f1f37692714 United States of America          US                   Oregon               44.57 -122.07    276176   3190         0  272986
-    ## 2  073ff190-666e-473a-a517-eb9059ee59e9 United States of America          US                Minnesota               45.69   -93.9    649964   7904         0  642060
-    ## 3  0a4101da-72c4-40a4-8ee5-79fe8dd2f459 United States of America          US                  Indiana               39.85  -86.26    858566  14491         0  844075
-    ## 4  0fc2be26-aef2-4339-92c6-ec7f719af04d United States of America          US                 Kentucky               37.67  -84.67    577051   7764         0  569287
-    ## 5  0fe58c58-92d7-4588-8f42-d58438961262 United States of America          US            Massachusetts               42.23  -71.53    759869  18246         0  741623
-    ## 6  120163fd-159e-4cd2-8360-6d3183c9f4bb United States of America          US               New Mexico               34.84 -106.25    232614   4518         0  228096
-    ## 7  1674d4c4-ec0d-404d-b8d0-b5a806bdc1b5 United States of America          US               Washington                47.4 -121.49    563041   6574         0  556467
-    ## 8  18f09433-30ec-4f36-8ee1-0c985144c752 United States of America          US                    Idaho               44.24 -114.48    221373   2360         0  219013
-    ## 9  19ad2640-e377-4c63-8866-451590704a15 United States of America          US             South Dakota                44.3  -99.44    132259   2071         0  130188
-    ## 10 2a46a683-aba7-4a55-a37c-3eb806e210a7 United States of America          US               New Jersey                40.3  -74.52   1091966  26882         0 1065084
-    ## 11 2b6addc4-4b9e-478f-bb34-82b4482d4a76 United States of America          US                   Kansas               38.53  -96.73    369916   5560         0  364356
-    ## 12 2e112000-ccd2-455a-b4a0-feb9ac083857 United States of America          US                     Ohio               40.39  -82.76   1220900  20866         0 1200034
-    ## 13 355d864e-5371-423d-8fdd-4be7f02e5764 United States of America          US              Puerto Rico               18.22  -66.59    170452   2860         0  167592
-    ## 14 37702eb5-4afc-484d-bc59-17f51dc9a75b United States of America          US                 Maryland               39.06   -76.8    497002  10014         0  486988
-    ## 15 38f2ab57-48c3-495b-a0e0-db8070c8eaaf United States of America          US                 Michigan               43.33  -84.54   1060343  21547         0 1038796
-    ## 16 3c7136d9-3e66-44c8-8aa0-f673f4cd13dc United States of America          US           South Carolina               33.86  -80.95    735287  10598         0  724689
-    ## 17 48188a56-d574-4b99-aced-a7e479fe12a1 United States of America          US               California               36.12 -119.68   4358735  65855         0 4292880
-    ## 18 4c6c4d1d-d501-4b3d-a55d-191a5644fe31 United States of America          US                  Montana               46.92 -110.45    127223   1798         0  125425
-    ## 19 4eef166f-006a-45fc-9cd2-7073f8693372 United States of America          US            West Virginia               38.49  -80.95    189690   3084         0  186606
-    ## 20 53d89046-91e4-45f3-a974-e67d21675bd8 United States of America          US            New Hampshire               43.45  -71.56    107689   1417         0  106272
-    ## 21 5b6516d4-3c46-4e6b-abcb-c87af63b1d9b United States of America          US Northern Mariana Islands                15.1  145.67       183      2         0     181
-    ## 22 5d227f66-73c6-46fe-a981-c45d4f73a551 United States of America          US           Virgin Islands               18.34   -64.9      5864     54         0    5810
-    ## 23 5db64ec4-c171-4106-96aa-f4000f900c74 United States of America          US                   Nevada               38.31 -117.06    390600   6510         0  384090
-    ## 24 5e92a55d-dc1e-4281-8125-2d26d81eae66 United States of America          US                 Colorado               39.06 -105.31    615873   7140         0  608733
-    ## 25 667c13c3-a668-462e-829b-791da169c902 United States of America          US                Tennessee               35.75  -86.69   1051809  13478         0 1038331
-    ## 26 6d15893d-95fa-4ff6-9411-9cc623ae4d19 United States of America          US             Pennsylvania               40.59  -77.21   1300368  28235         0 1272133
-    ## 27 74f59bf3-e471-42de-b4b1-1f50c3835e58 United States of America          US                Wisconsin               44.27  -89.62    733940   8462         0  725478
-    ## 28 79f6c9d2-d699-4426-a9af-9184bb654251 United States of America          US                 New York               42.17  -74.95   2278590  54254         0 2224336
-    ## 29 7a8f0ccf-a96d-49d6-98e0-bbdbf4dfdc8f United States of America          US                     Guam               13.44  144.79     10559    149         0   10410
-    ## 30 7da497d3-da5c-4569-8273-e4fbad53ac69 United States of America          US                     Utah               40.15 -111.86    464422   2634         0  461788
-    ## 31 824a8a60-c28d-4528-93e5-03fdfec0df71 United States of America          US           North Carolina               35.63  -79.81   1213627  14462         0 1199165
-    ## 32 83fca3a5-fed7-45de-b416-578d483c84c4 United States of America          US                  Wyoming               42.76  -107.3     75117    855         0   74262
-    ## 33 88cf3698-952f-4882-9ce3-2878d5b3e506 United States of America          US                Louisiana               31.17  -91.87    679796  12359         0  667437
-    ## 34 8c9a2e6e-3c46-41b1-9cb2-3a796e384053 United States of America          US                 Illinois               40.35  -88.99   1522942  26386         0 1496556
-    ## 35 8cfee6d9-3290-4310-9ffb-b19276dca9f0 United States of America          US                  Florida               27.77  -81.69   3223249  43979         0 3179270
-    ## 36 95b7e9af-5de3-4186-bf15-5d99eaddba84 United States of America          US                   Hawaii               21.09  -157.5     63502    589         0   62913
-    ## 37 a704baec-aa0d-4a5a-8b3c-a284d01fe1ae United States of America          US             Rhode Island               41.68  -71.51    162617   2770         0  159847
-    ## 38 a9efa79d-21d3-4eec-865e-23849bc9a870 United States of America          US                 Virginia               37.77  -78.17    766435  11842         0  754593
-    ## 39 ad4538f9-e959-4590-8719-3b7d28b308ed United States of America          US              Connecticut                41.6  -72.76    373072   8358         0  364714
-    ## 40 ad94afba-aae4-4663-b553-97b975f992e4 United States of America          US                    Maine               44.69  -69.38     75856    932         0   74924
-    ## 41 aec1b1a3-afc4-45f4-80bf-f45a7b7457e5 United States of America          US                  Georgia               33.04  -83.64   1403582  22740         0 1380842
-    ## 42 b60c5c70-651a-4cef-ac14-3fcc95484bc1 United States of America          US                     Iowa               42.01  -93.21    400082   6268         0  393814
-    ## 43 b6cc7d68-d1c6-46cc-bfb8-b11a0b5d5534 United States of America          US                    Texas               31.05  -97.56   3612119  57042         0 3555077
-    ## 44 bdf8100e-f1db-4480-a1ea-9986bed186d0 United States of America          US                 Nebraska               41.13  -98.27    244254   2322         0  241932
-    ## 45 c788652c-41b5-47e0-8bc4-a05629ff32d0 United States of America          US              Mississippi               32.74  -89.68    436722   8409         0  428313
-    ## 46 d123dc26-e58e-4891-adea-6cccf66a259f United States of America          US             North Dakota               47.53  -99.78    117497   1592         0  115905
-    ## 47 d1c65832-0caa-4186-9a13-090da4475c75 United States of America          US                  Arizona               33.73 -111.43   1011923  18786         0  993137
-    ## 48 d6450683-8ca7-4e01-b5aa-24a1db65ac3e United States of America          US                 Arkansas               34.97  -92.37    452891   6934         0  445957
-    ## 49 db60a648-fa97-4578-8d1e-e68310715035 United States of America          US                   Alaska               61.37  -152.4     88547    444         0   88103
-    ## 50 dfb48b66-8bad-4b1e-81d8-76237132c880 United States of America          US     District of Columbia                38.9  -77.03     55431   1160         0   54271
-    ## 51 e5649ebb-b7c3-45b8-a45e-57596065eb40 United States of America          US                 Delaware               39.32  -75.51    119852   1880         0  117972
-    ## 52 e7d270cf-557d-469e-8df5-4ae2ad29eb2f United States of America          US                 Missouri               38.46  -92.29    763799  11048         0  752751
-    ## 53 ef15acae-523c-425f-8059-2f0357a0f58f United States of America          US                  Alabama               32.32   -86.9    699729  12283         0  687446
-    ## 54 f6a9fe5b-564c-4b8d-a324-3f28d85eda31 United States of America          US                  Vermont               44.05  -72.71     28200    276         0   27924
-    ## 55 f6eda084-fd1f-444f-bfd5-de2de33af3b3 United States of America          US                 Oklahoma               35.57  -96.93    551958   7812         0  544146
-    ## 56 04333d21-b96b-4211-a6e1-677c7ab9db7a United States of America          US                  Wyoming               42.76  -107.3     76007    858         0   75149
-    ## 57 08c5719c-9e23-4981-9234-33ea3ecb6674 United States of America          US                 Delaware               39.32  -75.51    120180   1887         0  118293
-    ## 58 119b83a6-2024-4d9c-af8d-219e545d91ed United States of America          US                  Montana               46.92 -110.45    128098   1803         0  126295
-    ## 59 137b8f75-130a-4fef-8b2f-63c968d86dd0 United States of America          US               California               36.12 -119.68   4377219  65968         0 4311251
-    ## 60 18b6b483-f8be-4b1a-8a18-3d77f6e07a77 United States of America          US                   Hawaii               21.09  -157.5     63957    602         0   63355
-    ## 61 25051143-f8b6-40a1-9f25-fd795d86c4dd United States of America          US                 New York               42.17  -74.95   2282836  54282         0 2228554
-    ## 62 297c9792-f0ec-4ec7-83d6-133842bed1ef United States of America          US                 Colorado               39.06 -105.31    618072   7151         0  610921
-    ## 63 29c0227e-efa1-4dc1-ac83-5813fa1b331c United States of America          US                 Arkansas               34.97  -92.37    455781   6969         0  448812
-    ## 64 29ca2ab3-1518-442b-9bb2-934710046eb0 United States of America          US             Rhode Island               41.68  -71.51    162969   2772         0  160197
-    ## 65 2ac5c2f3-d2fa-4fc0-8ede-9a66fd3e2a25 United States of America          US                     Guam               13.44  144.79     10740    150         0   10590
-    ## 66 38809035-282f-4812-91fd-51c231f1f511 United States of America          US                  Florida               27.77  -81.69   3223249  43979         0 3179270
-    ## 67 3a9de205-901a-4cc5-a04d-56f34fc7b35d United States of America          US                 Michigan               43.33  -84.54   1065671  21616         0 1044055
-    ## 68 3bfa3752-7f35-4f62-8fc5-fb68ff3f72fb United States of America          US               New Jersey                40.3  -74.52   1094249  26902         0 1067347
-    ## 69 405de324-b279-4f25-b71a-f5f1f9ed810e United States of America          US                  Alabama               32.32   -86.9    704420  12291         0  692129
-    ## 70 449e3f3d-d6af-42ec-88b6-bd81d2941c22 United States of America          US            Massachusetts               42.23  -71.53    761906  18257         0  743649
-    ## 71 47769a8d-8441-46ae-b06a-1a31dcfdbad6 United States of America          US                  Georgia               33.04  -83.64   1413284  22870         0 1390414
-    ## 72 4ac2bc43-226c-48fc-a249-fb103443452e United States of America          US                   Kansas               38.53  -96.73    374122   5584         0  368538
-    ## 73 4bf42510-ca72-4f2f-bdf8-d648e7da32ff United States of America          US                Wisconsin               44.27  -89.62    736263   8496         0  727767
-    ## 74 4fcb8413-b48f-4bc5-9561-a979811b45f0 United States of America          US                    Idaho               44.24 -114.48    222552   2371         0  220181
-    ## 75 53ed766f-97c5-4c58-b790-362dd35a432c United States of America          US                 Virginia               37.77  -78.17    769842  11861         0  757981
-    ## 76 64ad5ccc-aa1a-4976-87e7-af12dffaf7aa United States of America          US           South Carolina               33.86  -80.95    740634  10684         0  729950
-    ##                    Date
-    ## 1  2021-09-01T00:00:00Z
-    ## 2  2021-09-01T00:00:00Z
-    ## 3  2021-09-01T00:00:00Z
-    ## 4  2021-09-01T00:00:00Z
-    ## 5  2021-09-01T00:00:00Z
-    ## 6  2021-09-01T00:00:00Z
-    ## 7  2021-09-01T00:00:00Z
-    ## 8  2021-09-01T00:00:00Z
-    ## 9  2021-09-01T00:00:00Z
-    ## 10 2021-09-01T00:00:00Z
-    ## 11 2021-09-01T00:00:00Z
-    ## 12 2021-09-01T00:00:00Z
-    ## 13 2021-09-01T00:00:00Z
-    ## 14 2021-09-01T00:00:00Z
-    ## 15 2021-09-01T00:00:00Z
-    ## 16 2021-09-01T00:00:00Z
-    ## 17 2021-09-01T00:00:00Z
-    ## 18 2021-09-01T00:00:00Z
-    ## 19 2021-09-01T00:00:00Z
-    ## 20 2021-09-01T00:00:00Z
-    ## 21 2021-09-01T00:00:00Z
-    ## 22 2021-09-01T00:00:00Z
-    ## 23 2021-09-01T00:00:00Z
-    ## 24 2021-09-01T00:00:00Z
-    ## 25 2021-09-01T00:00:00Z
-    ## 26 2021-09-01T00:00:00Z
-    ## 27 2021-09-01T00:00:00Z
-    ## 28 2021-09-01T00:00:00Z
-    ## 29 2021-09-01T00:00:00Z
-    ## 30 2021-09-01T00:00:00Z
-    ## 31 2021-09-01T00:00:00Z
-    ## 32 2021-09-01T00:00:00Z
-    ## 33 2021-09-01T00:00:00Z
-    ## 34 2021-09-01T00:00:00Z
-    ## 35 2021-09-01T00:00:00Z
-    ## 36 2021-09-01T00:00:00Z
-    ## 37 2021-09-01T00:00:00Z
-    ## 38 2021-09-01T00:00:00Z
-    ## 39 2021-09-01T00:00:00Z
-    ## 40 2021-09-01T00:00:00Z
-    ## 41 2021-09-01T00:00:00Z
-    ## 42 2021-09-01T00:00:00Z
-    ## 43 2021-09-01T00:00:00Z
-    ## 44 2021-09-01T00:00:00Z
-    ## 45 2021-09-01T00:00:00Z
-    ## 46 2021-09-01T00:00:00Z
-    ## 47 2021-09-01T00:00:00Z
-    ## 48 2021-09-01T00:00:00Z
-    ## 49 2021-09-01T00:00:00Z
-    ## 50 2021-09-01T00:00:00Z
-    ## 51 2021-09-01T00:00:00Z
-    ## 52 2021-09-01T00:00:00Z
-    ## 53 2021-09-01T00:00:00Z
-    ## 54 2021-09-01T00:00:00Z
-    ## 55 2021-09-01T00:00:00Z
-    ## 56 2021-09-02T00:00:00Z
-    ## 57 2021-09-02T00:00:00Z
-    ## 58 2021-09-02T00:00:00Z
-    ## 59 2021-09-02T00:00:00Z
-    ## 60 2021-09-02T00:00:00Z
-    ## 61 2021-09-02T00:00:00Z
-    ## 62 2021-09-02T00:00:00Z
-    ## 63 2021-09-02T00:00:00Z
-    ## 64 2021-09-02T00:00:00Z
-    ## 65 2021-09-02T00:00:00Z
-    ## 66 2021-09-02T00:00:00Z
-    ## 67 2021-09-02T00:00:00Z
-    ## 68 2021-09-02T00:00:00Z
-    ## 69 2021-09-02T00:00:00Z
-    ## 70 2021-09-02T00:00:00Z
-    ## 71 2021-09-02T00:00:00Z
-    ## 72 2021-09-02T00:00:00Z
-    ## 73 2021-09-02T00:00:00Z
-    ## 74 2021-09-02T00:00:00Z
-    ## 75 2021-09-02T00:00:00Z
-    ## 76 2021-09-02T00:00:00Z
-    ##  [ reached 'max' / getOption("max.print") -- omitted 1629 rows ]
-
-URLencode() //Replace space with %20 for url to understand $new =
-str\_replace(’ ‘,’%20’, $your\_string);
+    ##                      Country                 Province Confirmed Deaths  Active                 Date
+    ## 1   United States of America             Rhode Island    152618   2730  149888 2021-07-02T00:00:00Z
+    ## 2   United States of America                  Florida   2365464  37772 2327692 2021-07-02T00:00:00Z
+    ## 3   United States of America                   Nevada    334255   5692  328563 2021-07-02T00:00:00Z
+    ## 4   United States of America                   Alaska     71275    377   70898 2021-07-02T00:00:00Z
+    ## 5   United States of America                  Wyoming     62353    747   61606 2021-07-02T00:00:00Z
+    ## 6   United States of America                  Georgia   1135093  21428 1113665 2021-07-02T00:00:00Z
+    ## 7   United States of America               Washington    452072   5938  446134 2021-07-02T00:00:00Z
+    ## 8   United States of America           South Carolina    597021   9826  587195 2021-07-02T00:00:00Z
+    ## 9   United States of America                  Vermont     24412    257   24155 2021-07-02T00:00:00Z
+    ## 10  United States of America           Virgin Islands      3895     30    3865 2021-07-02T00:00:00Z
+    ## 11  United States of America               New Mexico    205629   4343  201286 2021-07-02T00:00:00Z
+    ## 12  United States of America                 Michigan   1000241  21013  979228 2021-07-02T00:00:00Z
+    ## 13  United States of America                     Guam      8366    140    8226 2021-07-02T00:00:00Z
+    ## 14  United States of America             South Dakota    124570   2038  122532 2021-07-02T00:00:00Z
+    ## 15  United States of America                Louisiana    482035  10748  471287 2021-07-02T00:00:00Z
+    ## 16  United States of America                 Delaware    109770   1694  108076 2021-07-02T00:00:00Z
+    ## 17  United States of America Northern Mariana Islands       183      2     181 2021-07-02T00:00:00Z
+    ## 18  United States of America                 Virginia    680564  11419  669145 2021-07-02T00:00:00Z
+    ## 19  United States of America                 Missouri    627082   9731  617351 2021-07-02T00:00:00Z
+    ## 20  United States of America               California   3817211  63706 3753505 2021-07-02T00:00:00Z
+    ## 21  United States of America             Pennsylvania   1216965  27687 1189278 2021-07-02T00:00:00Z
+    ## 22  United States of America                  Montana    113821   1666  112155 2021-07-02T00:00:00Z
+    ## 23  United States of America                  Indiana    754317  13855  740462 2021-07-02T00:00:00Z
+    ## 24  United States of America                 Oklahoma    458180   7388  450792 2021-07-02T00:00:00Z
+    ## 25  United States of America     District of Columbia     49362   1141   48221 2021-07-02T00:00:00Z
+    ## 26  United States of America                  Arizona    895347  17939  877408 2021-07-02T00:00:00Z
+    ## 27  United States of America                 Nebraska    224488   2261  222227 2021-07-02T00:00:00Z
+    ## 28  United States of America           North Carolina   1013985  13434 1000551 2021-07-02T00:00:00Z
+    ## 29  United States of America                     Ohio   1111903  20309 1091594 2021-07-02T00:00:00Z
+    ## 30  United States of America                     Iowa    373960   6140  367820 2021-07-02T00:00:00Z
+    ## 31  United States of America                Wisconsin    677740   8134  669606 2021-07-02T00:00:00Z
+    ## 32  United States of America                 Kentucky    465330   7223  458107 2021-07-02T00:00:00Z
+    ## 33  United States of America            Massachusetts    710049  17995  692054 2021-07-02T00:00:00Z
+    ## 34  United States of America                    Maine     69055    859   68196 2021-07-02T00:00:00Z
+    ## 35  United States of America                Minnesota    605448   7692  597756 2021-07-02T00:00:00Z
+    ## 36  United States of America                 Maryland    462354   9744  452610 2021-07-02T00:00:00Z
+    ## 37  United States of America                  Alabama    550983  11352  539631 2021-07-02T00:00:00Z
+    ## 38  United States of America            New Hampshire     99527   1372   98155 2021-07-02T00:00:00Z
+    ## 39  United States of America                   Kansas    319149   5156  313993 2021-07-02T00:00:00Z
+    ## 40  United States of America             North Dakota    110718   1559  109159 2021-07-02T00:00:00Z
+    ## 41  United States of America                    Idaho    195089   2154  192935 2021-07-02T00:00:00Z
+    ## 42  United States of America                 Colorado    558321   6798  551523 2021-07-02T00:00:00Z
+    ## 43  United States of America                 Illinois   1392196  25670 1366526 2021-07-02T00:00:00Z
+    ## 44  United States of America                 Arkansas    350085   5909  344176 2021-07-02T00:00:00Z
+    ## 45  United States of America                   Oregon    208836   2778  206058 2021-07-02T00:00:00Z
+    ## 46  United States of America                     Utah    415679   2375  413304 2021-07-02T00:00:00Z
+    ## 47  United States of America            West Virginia    164097   2897  161200 2021-07-02T00:00:00Z
+    ## 48  United States of America                Tennessee    867157  12568  854589 2021-07-02T00:00:00Z
+    ## 49  United States of America              Mississippi    321944   7415  314529 2021-07-02T00:00:00Z
+    ## 50  United States of America                    Texas   3001682  52410 2949272 2021-07-02T00:00:00Z
+    ## 51  United States of America                 New York   2115377  53690 2061687 2021-07-02T00:00:00Z
+    ## 52  United States of America              Puerto Rico    140058   2549  137509 2021-07-02T00:00:00Z
+    ## 53  United States of America                   Hawaii     37807    518   37289 2021-07-02T00:00:00Z
+    ## 54  United States of America               New Jersey   1023613  26462  997151 2021-07-02T00:00:00Z
+    ## 55  United States of America              Connecticut    349387   8279  341108 2021-07-02T00:00:00Z
+    ## 56  United States of America              Mississippi    322186   7419  314767 2021-07-03T00:00:00Z
+    ## 57  United States of America               Washington    452483   5939  446544 2021-07-03T00:00:00Z
+    ## 58  United States of America            Massachusetts    710138  17997  692141 2021-07-03T00:00:00Z
+    ## 59  United States of America     District of Columbia     49378   1141   48237 2021-07-03T00:00:00Z
+    ## 60  United States of America                Wisconsin    677859   8135  669724 2021-07-03T00:00:00Z
+    ## 61  United States of America               New Jersey   1023923  26467  997456 2021-07-03T00:00:00Z
+    ## 62  United States of America              Puerto Rico    140106   2550  137556 2021-07-03T00:00:00Z
+    ## 63  United States of America                 Oklahoma    458483   7388  451095 2021-07-03T00:00:00Z
+    ## 64  United States of America                 Missouri    628255   9748  618507 2021-07-03T00:00:00Z
+    ## 65  United States of America                 Maryland    462439   9746  452693 2021-07-03T00:00:00Z
+    ## 66  United States of America                   Kansas    319541   5158  314383 2021-07-03T00:00:00Z
+    ## 67  United States of America                     Ohio   1112088  20344 1091744 2021-07-03T00:00:00Z
+    ## 68  United States of America                 New York   2115880  53692 2062188 2021-07-03T00:00:00Z
+    ## 69  United States of America                  Georgia   1135526  21443 1114083 2021-07-03T00:00:00Z
+    ## 70  United States of America                 Arkansas    350579   5913  344666 2021-07-03T00:00:00Z
+    ## 71  United States of America                    Texas   3003278  52453 2950825 2021-07-03T00:00:00Z
+    ## 72  United States of America              Connecticut    349476   8279  341197 2021-07-03T00:00:00Z
+    ## 73  United States of America                  Vermont     24419    258   24161 2021-07-03T00:00:00Z
+    ## 74  United States of America               California   3819204  63761 3755443 2021-07-03T00:00:00Z
+    ## 75  United States of America                     Guam      8373    140    8233 2021-07-03T00:00:00Z
+    ## 76  United States of America                   Alaska     71384    377   71007 2021-07-03T00:00:00Z
+    ## 77  United States of America             Pennsylvania   1217115  27695 1189420 2021-07-03T00:00:00Z
+    ## 78  United States of America                  Wyoming     62445    747   61698 2021-07-03T00:00:00Z
+    ## 79  United States of America                Louisiana    482560  10757  471803 2021-07-03T00:00:00Z
+    ## 80  United States of America                Tennessee    867407  12571  854836 2021-07-03T00:00:00Z
+    ## 81  United States of America                 Nebraska    224488   2261  222227 2021-07-03T00:00:00Z
+    ## 82  United States of America                   Oregon    209037   2781  206256 2021-07-03T00:00:00Z
+    ## 83  United States of America                 Delaware    109820   1695  108125 2021-07-03T00:00:00Z
+    ## 84  United States of America                 Colorado    558820   6802  552018 2021-07-03T00:00:00Z
+    ## 85  United States of America                 Kentucky    465490   7229  458261 2021-07-03T00:00:00Z
+    ## 86  United States of America                  Indiana    754724  13863  740861 2021-07-03T00:00:00Z
+    ## 87  United States of America                 Michigan   1000420  21013  979407 2021-07-03T00:00:00Z
+    ## 88  United States of America                     Utah    416110   2378  413732 2021-07-03T00:00:00Z
+    ## 89  United States of America            West Virginia    164149   2899  161250 2021-07-03T00:00:00Z
+    ## 90  United States of America                  Montana    113873   1666  112207 2021-07-03T00:00:00Z
+    ## 91  United States of America               New Mexico    205715   4344  201371 2021-07-03T00:00:00Z
+    ## 92  United States of America                  Florida   2365464  37772 2327692 2021-07-03T00:00:00Z
+    ## 93  United States of America                    Idaho    195172   2158  193014 2021-07-03T00:00:00Z
+    ## 94  United States of America                     Iowa    374054   6142  367912 2021-07-03T00:00:00Z
+    ## 95  United States of America                   Nevada    334763   5697  329066 2021-07-03T00:00:00Z
+    ## 96  United States of America                    Maine     69070    860   68210 2021-07-03T00:00:00Z
+    ## 97  United States of America                 Illinois   1392552  25678 1366874 2021-07-03T00:00:00Z
+    ## 98  United States of America                   Hawaii     37886    518   37368 2021-07-03T00:00:00Z
+    ## 99  United States of America            New Hampshire     99555   1372   98183 2021-07-03T00:00:00Z
+    ## 100 United States of America             Rhode Island    152643   2730  149913 2021-07-03T00:00:00Z
+    ## 101 United States of America                 Virginia    680744  11423  669321 2021-07-03T00:00:00Z
+    ## 102 United States of America           Virgin Islands      3895     30    3865 2021-07-03T00:00:00Z
+    ## 103 United States of America                Minnesota    605549   7698  597851 2021-07-03T00:00:00Z
+    ## 104 United States of America           South Carolina    597261   9830  587431 2021-07-03T00:00:00Z
+    ## 105 United States of America             North Dakota    110729   1559  109170 2021-07-03T00:00:00Z
+    ## 106 United States of America                  Arizona    895873  17961  877912 2021-07-03T00:00:00Z
+    ## 107 United States of America Northern Mariana Islands       183      2     181 2021-07-03T00:00:00Z
+    ## 108 United States of America           North Carolina   1014359  13434 1000925 2021-07-03T00:00:00Z
+    ## 109 United States of America             South Dakota    124592   2038  122554 2021-07-03T00:00:00Z
+    ## 110 United States of America                  Alabama    551298  11358  539940 2021-07-03T00:00:00Z
+    ## 111 United States of America              Mississippi    322186   7419  314767 2021-07-04T00:00:00Z
+    ## 112 United States of America                    Texas   3004465  52473 2951992 2021-07-04T00:00:00Z
+    ## 113 United States of America             South Dakota    124592   2038  122554 2021-07-04T00:00:00Z
+    ## 114 United States of America                   Nevada    334763   5697  329066 2021-07-04T00:00:00Z
+    ## 115 United States of America              Connecticut    349476   8279  341197 2021-07-04T00:00:00Z
+    ## 116 United States of America              Puerto Rico    140175   2552  137623 2021-07-04T00:00:00Z
+    ## 117 United States of America Northern Mariana Islands       183      2     181 2021-07-04T00:00:00Z
+    ## 118 United States of America                  Vermont     24419    258   24161 2021-07-04T00:00:00Z
+    ## 119 United States of America                     Iowa    374120   6146  367974 2021-07-04T00:00:00Z
+    ## 120 United States of America                 Michigan   1000375  21009  979366 2021-07-04T00:00:00Z
+    ## 121 United States of America                    Maine     69099    860   68239 2021-07-04T00:00:00Z
+    ## 122 United States of America                 Kentucky    465490   7229  458261 2021-07-04T00:00:00Z
+    ## 123 United States of America                 Maryland    462535   9749  452786 2021-07-04T00:00:00Z
+    ## 124 United States of America                 Delaware    109846   1695  108151 2021-07-04T00:00:00Z
+    ## 125 United States of America           South Carolina    597261   9830  587431 2021-07-04T00:00:00Z
+    ## 126 United States of America                 Arkansas    350579   5913  344666 2021-07-04T00:00:00Z
+    ## 127 United States of America                     Guam      8373    140    8233 2021-07-04T00:00:00Z
+    ## 128 United States of America                   Oregon    209037   2781  206256 2021-07-04T00:00:00Z
+    ## 129 United States of America                     Ohio   1112289  20344 1091945 2021-07-04T00:00:00Z
+    ## 130 United States of America                     Utah    416110   2378  413732 2021-07-04T00:00:00Z
+    ## 131 United States of America             Pennsylvania   1217288  27704 1189584 2021-07-04T00:00:00Z
+    ## 132 United States of America            Massachusetts    710138  17997  692141 2021-07-04T00:00:00Z
+    ## 133 United States of America                  Arizona    896518  17975  878543 2021-07-04T00:00:00Z
+    ## 134 United States of America                 Oklahoma    458483   7388  451095 2021-07-04T00:00:00Z
+    ## 135 United States of America               Washington    452483   5939  446544 2021-07-04T00:00:00Z
+    ## 136 United States of America                  Florida   2381148  37985 2343163 2021-07-04T00:00:00Z
+    ## 137 United States of America                  Alabama    551298  11358  539940 2021-07-04T00:00:00Z
+    ## 138 United States of America                 New York   2116166  53692 2062474 2021-07-04T00:00:00Z
+    ## 139 United States of America           Virgin Islands      3895     30    3865 2021-07-04T00:00:00Z
+    ## 140 United States of America                   Hawaii     37933    518   37415 2021-07-04T00:00:00Z
+    ## 141 United States of America                  Indiana    754724  13863  740861 2021-07-04T00:00:00Z
+    ## 142 United States of America                 Virginia    680904  11423  669481 2021-07-04T00:00:00Z
+    ## 143 United States of America               New Jersey   1024113  26472  997641 2021-07-04T00:00:00Z
+    ## 144 United States of America                   Alaska     71384    377   71007 2021-07-04T00:00:00Z
+    ## 145 United States of America           North Carolina   1014359  13434 1000925 2021-07-04T00:00:00Z
+    ## 146 United States of America               New Mexico    205715   4344  201371 2021-07-04T00:00:00Z
+    ## 147 United States of America     District of Columbia     49378   1141   48237 2021-07-04T00:00:00Z
+    ## 148 United States of America                    Idaho    195172   2158  193014 2021-07-04T00:00:00Z
+    ## 149 United States of America                Tennessee    867407  12571  854836 2021-07-04T00:00:00Z
+    ## 150 United States of America                Louisiana    482560  10757  471803 2021-07-04T00:00:00Z
+    ## 151 United States of America                  Georgia   1135526  21443 1114083 2021-07-04T00:00:00Z
+    ## 152 United States of America               California   3820301  63651 3756650 2021-07-04T00:00:00Z
+    ## 153 United States of America            New Hampshire     99555   1372   98183 2021-07-04T00:00:00Z
+    ## 154 United States of America                 Nebraska    224488   2261  222227 2021-07-04T00:00:00Z
+    ## 155 United States of America                   Kansas    319541   5158  314383 2021-07-04T00:00:00Z
+    ## 156 United States of America             Rhode Island    152643   2730  149913 2021-07-04T00:00:00Z
+    ## 157 United States of America                Wisconsin    677859   8135  669724 2021-07-04T00:00:00Z
+    ## 158 United States of America                  Wyoming     62445    747   61698 2021-07-04T00:00:00Z
+    ## 159 United States of America                  Montana    113873   1666  112207 2021-07-04T00:00:00Z
+    ## 160 United States of America             North Dakota    110734   1559  109175 2021-07-04T00:00:00Z
+    ## 161 United States of America            West Virginia    164149   2899  161250 2021-07-04T00:00:00Z
+    ## 162 United States of America                Minnesota    605660   7703  597957 2021-07-04T00:00:00Z
+    ## 163 United States of America                 Missouri    628484   9756  618728 2021-07-04T00:00:00Z
+    ## 164 United States of America                 Colorado    559272   6814  552458 2021-07-04T00:00:00Z
+    ## 165 United States of America                 Illinois   1392552  25678 1366874 2021-07-04T00:00:00Z
+    ## 166 United States of America                Tennessee    867407  12571  854836 2021-07-05T00:00:00Z
+    ##  [ reached 'max' / getOption("max.print") -- omitted 4948 rows ]
 
 ``` r
-countryName <- country_Name()
+#As of July 28,2012 CDC covid case map
+#https://twitter.com/cdcgov/status/1288609081696169990
 
-confirmed <- get_confirmed_cases("canada")
+#we can create a function that will manipulate our data to prepare for data summaries and visualization
+newcolumnData <- function(dataset){
+  dataset <- dataset %>% 
+            mutate("DeathRate"= (Deaths/Confirmed)*100, 
+                   "DeathRateStatus"= if_else(DeathRate > 10, "serious",
+                                  if_else(DeathRate > 5, "high", 
+                                          if_else(DeathRate >2, "medium", "low"))), 
+                   "RiskStatus" = if_else(Confirmed > 174973, "Veryhigh",
+                                    if_else(Confirmed > 82530, "high", 
+                                      if_else(Confirmed > 39337, "mediumhigh", 
+                                        if_else(Confirmed > 18725, "medium", 
+                                          if_else(Confirmed > 6173, "mediumlow","low")))))
+                                          
+                                  )            
 
-deaths <- get_deaths_cases("india")
-
-recovered <- get_recovered_cases("united-states")
-
-stateCases <- get_cases_bystate("North Carolina")
+  return(dataset)
+}
 ```
 
-    ## No encoding supplied: defaulting to UTF-8.
+``` r
+new_live_07_28_2021 <- us_liveCases %>% filter(Date == "2021-07-28T00:00:00Z")
+
+newcolumnData1 <- newcolumnData(new_live_07_28_2021)
+newcolumnData1
+```
+
+    ##                     Country                 Province Confirmed Deaths  Active                 Date DeathRate DeathRateStatus RiskStatus
+    ## 1  United States of America              Mississippi    338079   7523  330556 2021-07-28T00:00:00Z 2.2252195          medium   Veryhigh
+    ## 2  United States of America                  Vermont     24760    259   24501 2021-07-28T00:00:00Z 1.0460420             low     medium
+    ## 3  United States of America             North Dakota    111331   1569  109762 2021-07-28T00:00:00Z 1.4093110             low       high
+    ## 4  United States of America           South Carolina    611594   9883  601711 2021-07-28T00:00:00Z 1.6159413             low   Veryhigh
+    ## 5  United States of America                Minnesota    610839   7749  603090 2021-07-28T00:00:00Z 1.2685830             low   Veryhigh
+    ## 6  United States of America               New Jersey   1035027  26586 1008441 2021-07-28T00:00:00Z 2.5686286          medium   Veryhigh
+    ## 7  United States of America             South Dakota    124960   2043  122917 2021-07-28T00:00:00Z 1.6349232             low       high
+    ## 8  United States of America               Washington    470332   6096  464236 2021-07-28T00:00:00Z 1.2961057             low   Veryhigh
+    ## 9  United States of America            Massachusetts    717284  18065  699219 2021-07-28T00:00:00Z 2.5185282          medium   Veryhigh
+    ## 10 United States of America     District of Columbia     50228   1147   49081 2021-07-28T00:00:00Z 2.2835868          medium mediumhigh
+    ## 11 United States of America                 Nebraska    226839   2284  224555 2021-07-28T00:00:00Z 1.0068815             low   Veryhigh
+    ## 12 United States of America               New Mexico    209356   4402  204954 2021-07-28T00:00:00Z 2.1026386          medium   Veryhigh
+    ## 13 United States of America                 Delaware    110943   1698  109245 2021-07-28T00:00:00Z 1.5305157             low       high
+    ## 14 United States of America             Pennsylvania   1226157  27831 1198326 2021-07-28T00:00:00Z 2.2697746          medium   Veryhigh
+    ## 15 United States of America           Virgin Islands      4450     36    4414 2021-07-28T00:00:00Z 0.8089888             low        low
+    ## 16 United States of America                 Michigan   1008429  21165  987264 2021-07-28T00:00:00Z 2.0988091          medium   Veryhigh
+    ## 17 United States of America                  Indiana    767409  13980  753429 2021-07-28T00:00:00Z 1.8217144             low   Veryhigh
+    ## 18 United States of America                   Kansas    329683   5245  324438 2021-07-28T00:00:00Z 1.5909222             low   Veryhigh
+    ## 19 United States of America                    Texas   3092405  53078 3039327 2021-07-28T00:00:00Z 1.7163987             low   Veryhigh
+    ## 20 United States of America                  Wyoming     64616    775   63841 2021-07-28T00:00:00Z 1.1993933             low mediumhigh
+    ## 21 United States of America Northern Mariana Islands       183      2     181 2021-07-28T00:00:00Z 1.0928962             low        low
+    ## 22 United States of America                 Arkansas    378023   6087  371936 2021-07-28T00:00:00Z 1.6102195             low   Veryhigh
+    ## 23 United States of America             Rhode Island    153802   2739  151063 2021-07-28T00:00:00Z 1.7808611             low       high
+    ## 24 United States of America                   Oregon    216875   2843  214032 2021-07-28T00:00:00Z 1.3108934             low   Veryhigh
+    ## 25 United States of America                Wisconsin    684119   8184  675935 2021-07-28T00:00:00Z 1.1962831             low   Veryhigh
+    ## 26 United States of America              Puerto Rico    144321   2569  141752 2021-07-28T00:00:00Z 1.7800597             low       high
+    ## 27 United States of America                  Georgia   1167405  21644 1145761 2021-07-28T00:00:00Z 1.8540267             low   Veryhigh
+    ## 28 United States of America                 Maryland    466514   9810  456704 2021-07-28T00:00:00Z 2.1028308          medium   Veryhigh
+    ## 29 United States of America                     Ohio   1123964  20490 1103474 2021-07-28T00:00:00Z 1.8230121             low   Veryhigh
+    ## 30 United States of America            West Virginia    166297   2936  163361 2021-07-28T00:00:00Z 1.7655159             low       high
+    ## 31 United States of America                   Hawaii     40984    529   40455 2021-07-28T00:00:00Z 1.2907476             low mediumhigh
+    ## 32 United States of America            New Hampshire    100398   1386   99012 2021-07-28T00:00:00Z 1.3805056             low       high
+    ## 33 United States of America                   Nevada    352567   5854  346713 2021-07-28T00:00:00Z 1.6603936             low   Veryhigh
+    ## 34 United States of America                 Missouri    673931  10043  663888 2021-07-28T00:00:00Z 1.4902119             low   Veryhigh
+    ## 35 United States of America              Connecticut    353114   8288  344826 2021-07-28T00:00:00Z 2.3471174          medium   Veryhigh
+    ## 36 United States of America                 New York   2140258  53611 2086647 2021-07-28T00:00:00Z 2.5048849          medium   Veryhigh
+    ## 37 United States of America                  Florida   2523510  38670 2484840 2021-07-28T00:00:00Z 1.5323894             low   Veryhigh
+    ## 38 United States of America                 Virginia    691018  11515  679503 2021-07-28T00:00:00Z 1.6663821             low   Veryhigh
+    ## 39 United States of America               California   3924756  64283 3860473 2021-07-28T00:00:00Z 1.6378853             low   Veryhigh
+    ## 40 United States of America                 Colorado    571958   6923  565035 2021-07-28T00:00:00Z 1.2104036             low   Veryhigh
+    ## 41 United States of America                Louisiana    527253  10934  516319 2021-07-28T00:00:00Z 2.0737672          medium   Veryhigh
+    ## 42 United States of America                  Arizona    920084  18183  901901 2021-07-28T00:00:00Z 1.9762326             low   Veryhigh
+    ## 43 United States of America           North Carolina   1038976  13590 1025386 2021-07-28T00:00:00Z 1.3080187             low   Veryhigh
+    ## 44 United States of America                     Utah    429300   2441  426859 2021-07-28T00:00:00Z 0.5686000             low   Veryhigh
+    ## 45 United States of America                  Montana    115665   1699  113966 2021-07-28T00:00:00Z 1.4688972             low       high
+    ## 46 United States of America                Tennessee    886519  12703  873816 2021-07-28T00:00:00Z 1.4329078             low   Veryhigh
+    ## 47 United States of America                     Iowa    376673   6170  370503 2021-07-28T00:00:00Z 1.6380256             low   Veryhigh
+    ## 48 United States of America                 Kentucky    477882   7323  470559 2021-07-28T00:00:00Z 1.5323867             low   Veryhigh
+    ## 49 United States of America                    Maine     70077    898   69179 2021-07-28T00:00:00Z 1.2814476             low mediumhigh
+    ## 50 United States of America                   Alaska     74383    384   73999 2021-07-28T00:00:00Z 0.5162470             low mediumhigh
+    ## 51 United States of America                     Guam      8514    143    8371 2021-07-28T00:00:00Z 1.6795866             low  mediumlow
+    ## 52 United States of America                 Illinois   1413490  25847 1387643 2021-07-28T00:00:00Z 1.8285945             low   Veryhigh
+    ## 53 United States of America                    Idaho    199158   2189  196969 2021-07-28T00:00:00Z 1.0991273             low   Veryhigh
+    ## 54 United States of America                  Alabama    574737  11492  563245 2021-07-28T00:00:00Z 1.9995233             low   Veryhigh
+    ## 55 United States of America                 Oklahoma    475578   7454  468124 2021-07-28T00:00:00Z 1.5673559             low   Veryhigh
 
 ``` r
-caseSum <- get_cases_summary() 
+#https://ourworldindata.org/grapher/biweekly-confirmed-covid-19-cases
+#we can create a function that will manipulate our data to prepare for data summaries and visualization
+newAddData_state <- function(dataset){
+  dataset1 <- dataset %>% 
+            mutate("TotalDeathRate"= (TotalDeaths/TotalConfirmed)*100, 
+                   "TotalDeathRateStatus"= if_else(TotalDeathRate > 10, "serious",
+                                  if_else(TotalDeathRate > 5, "high", 
+                                          if_else(TotalDeathRate >2, "medium", "low"))), 
+                   "Active" = (TotalConfirmed-TotalDeaths), 
+                   "RiskStatus" = if_else(TotalConfirmed > 100000, "Veryhigh",
+                                    if_else(TotalConfirmed > 50000, "high", 
+                                      if_else(TotalConfirmed > 10000, "mediumhigh", 
+                                        if_else(TotalConfirmed > 1000, "medium", 
+                                          if_else(TotalConfirmed > 100, "mediumlow","low")))))
+            )
 
-covidSummary <- covid_summary_cases()
+  return(dataset1)
+}
 
-caseWorld <- get_cases_world()
 
-country_liveCase <- get_live_cases("united-states")
+
+
+newCovidSummary <- newAddData_state(covidSum)
+newCovidSummary
+```
+
+    ## # A tibble: 192 x 16
+    ##    ID     Country  CountryCode Slug  NewConfirmed TotalConfirmed NewDeaths TotalDeaths NewRecovered TotalRecovered Date  Premium TotalDeathRate TotalDeathRateS~ Active RiskStatus
+    ##    <chr>  <chr>    <chr>       <chr>        <int>          <int>     <int>       <int>        <int>          <int> <chr> <named>          <dbl> <chr>             <int> <chr>     
+    ##  1 15aa5~ Afghani~ AF          afgh~            0         155191         0        7206            0              0 2021~ <NULL>           4.64  medium           1.48e5 Veryhigh  
+    ##  2 26cb4~ Albania  AL          alba~          549         171327         5        2710            0              0 2021~ <NULL>           1.58  low              1.69e5 Veryhigh  
+    ##  3 2553b~ Algeria  DZ          alge~          140         203657         4        5819            0              0 2021~ <NULL>           2.86  medium           1.98e5 Veryhigh  
+    ##  4 a6647~ Andorra  AD          ando~            0          15222         0         130            0              0 2021~ <NULL>           0.854 low              1.51e4 mediumhigh
+    ##  5 9403f~ Angola   AO          ango~          527          58603         7        1574            0              0 2021~ <NULL>           2.69  medium           5.70e4 high      
+    ##  6 c3991~ Antigua~ AG          anti~            0           3336         0          81            0              0 2021~ <NULL>           2.43  medium           3.26e3 medium    
+    ##  7 2e53a~ Argenti~ AR          arge~          886        5259352        14      115239            0              0 2021~ <NULL>           2.19  medium           5.14e6 Veryhigh  
+    ##  8 3bc3f~ Armenia  AM          arme~         1152         263783        15        5354            0              0 2021~ <NULL>           2.03  medium           2.58e5 Veryhigh  
+    ##  9 4aca0~ Austral~ AU          aust~         2335         109516        10        1321            0              0 2021~ <NULL>           1.21  low              1.08e5 Veryhigh  
+    ## 10 fe8ad~ Austria  AT          aust~         1416         746380         7       11021            0              0 2021~ <NULL>           1.48  low              7.35e5 Veryhigh  
+    ## # ... with 182 more rows
+
+``` r
+#countryName <- country_Name()
+
+indiaConfirmed <- get_confirmed_cases("india")
+
+usConfirmed <- get_confirmed_cases("united-states")
+brazilConfirmed <- get_confirmed_cases("brazil")
+ukConfirmed <- get_confirmed_cases("united-kingdom")
+russiaConfirmed <- get_confirmed_cases("russia")
+
+indiaDeaths <- get_deaths_cases("india")
+
+usDeaths <- get_deaths_cases("united-states") 
+
+inRecovered <- get_recovered_cases("india")
+usRecovered <- get_recovered_cases("united-states")
+
+#stateCases <- get_cases_bystate("North Carolina")
+
+#covidSummary <- covid_summary_cases()
+
+#us_liveCase <- get_live_cases("united-states")
+
+in_liveCase <- get_live_cases("india") 
 ```
 
 # Exploratory Data Analysis
 
 ## Contigency Tables/ Numerical Summaries
+
+``` r
+# combining three datasets
+
+#confirm_subset <- usConfirmed %>% select(Country, Cases,Status, Date)
+#death_subset <- usDeaths %>% select(Country, Cases,Status)
+#recover_subset <- usRecovered %>% select(Country, Cases,Status) 
+five_confirm <- rbind(usConfirmed, brazilConfirmed, indiaConfirmed, ukConfirmed, russiaConfirmed)
+
+
+five_com1 <- five_confirm %>% filter(Date == "2021-09-30T00:00:00Z")
+five_com1
+```
+
+    ##                    Country    Cases    Status                 Date
+    ## 1 United States of America 43460343 confirmed 2021-09-30T00:00:00Z
+    ## 2                   Brazil 21427073 confirmed 2021-09-30T00:00:00Z
+    ## 3                    India 33766707 confirmed 2021-09-30T00:00:00Z
+    ## 4           United Kingdom  7843887 confirmed 2021-09-30T00:00:00Z
+    ## 5       Russian Federation  7401104 confirmed 2021-09-30T00:00:00Z
+
+``` r
+five_confirm_table <- table(five_com1$Country)
+five_confirm_table
+```
+
+    ## 
+    ##                   Brazil                    India       Russian Federation           United Kingdom United States of America 
+    ##                        1                        1                        1                        1                        1
+
+``` r
+# Contingency table
+
+#Worldwide
+
+TotalDeathRate_status <- table(newCovidSummary$TotalDeathRateStatus) 
+
+TotalDeathRate_status1 <- TotalDeathRate_status[c(4,1,3,2)]
+
+kable(TotalDeathRate_status1) #col.names = c("Total DeathRate Status", "Count"))
+```
+
+| Var1    | Freq |
+|:--------|-----:|
+| serious |    2 |
+| high    |    8 |
+| medium  |   64 |
+| low     |  118 |
+
+``` r
+TotalRisk_status <- table(newCovidSummary$RiskStatus) 
+
+TotalRisk_status1 <- TotalRisk_status[c(5,1,4,3,2)]
+
+kable(TotalRisk_status1) #col.names = c("Risk Status", "Count"))
+```
+
+| Var1       | Freq |
+|:-----------|-----:|
+| Veryhigh   |  112 |
+| high       |   12 |
+| mediumhigh |   38 |
+| medium     |   22 |
+| low        |    8 |
+
+``` r
+# Contingency table 
+#United Status
+usDeathRate_status <- table(newcolumnData1$RiskStatus, newcolumnData1$DeathRateStatus)
+kable(usDeathRate_status)
+```
+
+|            | low | medium |
+|:-----------|----:|-------:|
+| high       |   8 |      0 |
+| low        |   2 |      0 |
+| medium     |   1 |      0 |
+| mediumhigh |   4 |      1 |
+| mediumlow  |   1 |      0 |
+| Veryhigh   |  28 |     10 |
+
+``` r
+Summarydata_World <- newCovidSummary %>% group_by(RiskStatus) %>% summarise(Avg = mean(TotalConfirmed), Med = median((TotalConfirmed), IQR = IQR(TotalConfirmed), Var = var(TotalConfirmed)) )
+
+Summarydata_World
+```
+
+    ## # A tibble: 5 x 3
+    ##   RiskStatus        Avg     Med
+    ##   <chr>           <dbl>   <dbl>
+    ## 1 high         70952.    67701 
+    ## 2 low              8.25      4 
+    ## 3 medium        5263.     5139 
+    ## 4 mediumhigh   23387.    21058.
+    ## 5 Veryhigh   2073425.   507360.
+
+``` r
+newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(TotalConfirmed), Med = median(TotalConfirmed))
+```
+
+    ## # A tibble: 4 x 3
+    ##   TotalDeathRateStatus      Avg     Med
+    ##   <chr>                   <dbl>   <dbl>
+    ## 1 high                  846671. 172156.
+    ## 2 low                  1233025. 158949 
+    ## 3 medium               1278127. 219596.
+    ## 4 serious                 4572.   4572.
+
+``` r
+newCovidSummary %>% group_by(TotalDeathRateStatus) %>% summarise(Avg = mean(TotalDeathRate), Med = median(TotalDeathRate), Var = var(TotalDeathRate), IQR = IQR(TotalDeathRate))
+```
+
+    ## # A tibble: 4 x 5
+    ##   TotalDeathRateStatus   Avg   Med    Var   IQR
+    ##   <chr>                <dbl> <dbl>  <dbl> <dbl>
+    ## 1 high                  6.71  6.48  1.76  1.92 
+    ## 2 low                   1.06  1.15  0.281 0.807
+    ## 3 medium                2.89  2.75  0.498 1.12 
+    ## 4 serious              22.0  22.0  18.2   3.01
+
+``` r
+cor(newCovidSummary$TotalConfirmed, newCovidSummary$TotalDeaths)
+```
+
+    ## [1] 0.9308892
 
 ``` r
 # kable(stateCases)
@@ -799,19 +923,33 @@ theme\_minimal()+ ggtitle(“Top 10 North Carolina Cities Confirmed Covid
 Cases on September 23rd, 2021.”)
 
 ``` r
+ggplot(data=newCovidSummary, aes(x=RiskStatus)) +
+  geom_bar(aes(fill = as.factor(TotalDeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 192 countries") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+``` r
+ggplot(data=newcolumnData1, aes(x=RiskStatus)) +
+  geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 52 states in the U.S") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+``` r
 # Bar plot
-top_country<- covidSummary %>% arrange(desc(TotalConfirmed))
+top_country<- newCovidSummary %>% arrange(desc(TotalConfirmed))
 top_10_country <- top_country[1:10,]
 
 ggplot(data=top_10_country, aes(x=Country, y=TotalConfirmed)) +
   geom_bar(stat="identity", fill="yellowgreen") + geom_text(aes(label=TotalConfirmed), vjust=1.6, color="black", size=3.5) + theme(axis.text.x = element_text(angle = 45, hjust=1)) + labs(x = "Country", title = "Top 10 countries on Total Confirmed case")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ``` r
 # Bar plot
-top_country<- covidSummary %>% arrange(desc(NewDeaths))
+top_country<- newCovidSummary %>% arrange(desc(NewDeaths))
 top_10_country <- top_country[1:10,]
 
 ggplot(data=top_10_country, aes(x=Country, y=NewDeaths)) +
@@ -820,11 +958,11 @@ ggplot(data=top_10_country, aes(x=Country, y=NewDeaths)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ``` r
 # Bar plot
-top_city_09_30_2021 <- stateCases %>% filter(Date == "2021-09-30T00:00:00Z") %>% arrange(desc(Cases))
+top_city_09_30_2021 <- nc_stateData %>% filter(Date == "2021-09-30T00:00:00Z") %>% arrange(desc(Cases))
 top_10_city_09_30_2021 <- top_city_09_30_2021[1:10,]
 
 ggplot(data=top_10_city_09_30_2021, aes(x=City, y=Cases)) +
@@ -832,7 +970,7 @@ ggplot(data=top_10_city_09_30_2021, aes(x=City, y=Cases)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) + labs(x = "NC CITY", title = "Top 10 City in North Carolina on Confirmed case")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 geom\_text(aes(label=Cases), vjust=1.6, color=“white”, size=3.5)+
 stat=“identity”, theme\_minimal()
@@ -843,15 +981,15 @@ stat=“identity”, theme\_minimal()
 # Histogram
 
 ``` r
-top_country<- covidSummary %>% arrange(desc(TotalConfirmed))
+top_country<- newCovidSummary %>% arrange(desc(TotalConfirmed))
 top_20_country <- top_country[1:20,]
 ```
 
 ``` r
-ggplot(covidSummary, aes(x=NewDeaths)) + geom_histogram(color="orange2", fill="red", size = 2, binwidth=40)+geom_vline(aes(xintercept=mean(NewDeaths)),color="blue", linetype="dashed", size=1) + labs(x = "New Death Case", title = "Histogram of new death cases today: 192 countries")
+ggplot(newCovidSummary, aes(x=NewDeaths)) + geom_histogram(color="orange2", fill="red", size = 1, binwidth=100)+geom_vline(aes(xintercept=mean(NewDeaths)),color="blue", linetype="dashed", size=1) + labs(x = "New Death Case", title = "Histogram of new death cases today: 192 countries")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 #Blue line is the mean line.
@@ -862,8 +1000,79 @@ ggplot(covidSummary, aes(x=NewDeaths)) + geom_histogram(color="orange2", fill="r
 ggplot(top_city_09_30_2021, aes(x=Cases)) + geom_histogram(color="darkblue",fill="red",binwidth=1000)+geom_vline(aes(xintercept=mean(Cases)),color="blue", linetype="dashed", size=1)+ggtitle("Histogram of Confirmed Cases in North Carolina Cities on September 30, 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 #Blue line is the mean line.
 ```
+
+``` r
+# Box plot
+us_subset <- usConfirmed %>% select(Country, Cases,Status)
+in_subset <- indiaConfirmed %>% select(Country, Cases,Status)
+us_in <- rbind(us_subset, in_subset)
+
+boxplot(Cases~Country,data=us_in, main="United States and India Covid Cases Comparison using Box plot",xlab="Country", ylab="Cases",col=(c("gold","darkgreen")))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+
+``` r
+uscaselive <- us_liveCases  %>% 
+  select(Country, Province, Active, Date) 
+incaselive <- in_liveCase %>%
+  select(Country, Province, Active, Date)
+uslive_inlive <- rbind(uscaselive, incaselive )
+
+boxplot(Active~Country,data=uslive_inlive, main="United States and India Covid live Cases Comparison using Box plot",xlab="Country", ylab="Active",col=(c("gold","darkgreen")))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+
+``` r
+# Box plot
+Summary_world <- newCovidSummary %>% select(Country, TotalConfirmed, RiskStatus)
+
+boxplot(TotalConfirmed~RiskStatus,data=Summary_world, main="World Covid Cases Box plot",
+   xlab="RiskStatus", ylab="TotalConfirmed",col=(c("darkgreen")))
+```
+
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+
+``` r
+# Scatter plot
+covid_cases_by_states2 <- nc_stateData
+
+covid_cases_by_states2 <- aggregate(list(Cases=covid_cases_by_states2$Cases),
+                              by=list(Date=cut(as.POSIXct(covid_cases_by_states2$Date),"month")),sum)
+
+ggplot(data = covid_cases_by_states2, aes(x = Date, y = Cases))+
+  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of Confirmed Covid Cases in North Carolina Cities from November 2020 to September 2021") 
+```
+
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+
+``` r
+# Scatter plot country summary
+ggplot(data = newCovidSummary, aes(x = TotalConfirmed, y = TotalDeaths))+
+  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of Confirmed Covid Cases by Death Covid Cases") + geom_smooth(method = lm, color = "blue")  
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+
+# Scatter plot - U.S. live case
+
+us\_covid\_cases &lt;- liveCase
+
+us\_covid\_cases &lt;- aggregate((activeCases =
+liveCase*A**c**t**i**v**e*), *b**y* = *l**i**s**t*(*D**a**t**e* = *c**u**t*(*a**s*.*P**O**S**I**X**c**t*(*l**i**v**e**C**a**s**e*Date),
+“month”)), sum)
+
+us\_covid\_cases
+
+stateCovidCase &lt;- stateCases stateCovidCase &lt;-
+aggregate(stateCovidCase$Cases by = list()
