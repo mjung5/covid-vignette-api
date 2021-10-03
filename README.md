@@ -47,7 +47,7 @@ Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), we need
 to get a URL with the name of the table and attributes we want to pull
 from it.
 
-Here is the base URL that I am going to use through out defining the
+Here is the base URL that I am going to use throughout defining the
 functions.
 
 ## Base url
@@ -56,16 +56,16 @@ functions.
 base_url = "https://api.covid19api.com"
 ```
 
-I wrote one function for set up,Contacting Covid19 API via different
+I wrote several functions to contact the Covid19 API via different
 endpoints.
 
 ## `countryName`
 
 This function is to generate `data.frame` of country name and Slug. In
-order to import different country dataset, I need to type the correct
-country name in URL. COVID19 AIP uses Slug instead of country name.
-Therefore, I can use the this table to find the correct name of the
-country for the URL.
+order to import different countries’ datasets, I needed to type the
+correct country name in URL. COVID19 AIP uses Slug instead of country
+name. Therefore, I can use the this table to find the correct name of
+the country for the URL.
 
 ``` r
 countryName <- function(){
@@ -85,11 +85,11 @@ countryName <- countryName()
 ## `covidSummary`
 
 This function interacts with the `Summary` endpoint. It returned a
-`list` of 5 variables showing like world total confirmed case numbers,
-and world total deaths case numbers. One of the variable was the
-country, which I called it out and returned a `data.frame` with most
-recent data of confirmed cases, death cases, recovered cases for each
-country.
+`list` of 5 variables showing information such as the world total of
+confirmed case numbers and the world total death numbers. One of the
+variables was the country, which I brought out and returned a
+`data.frame` with the most recent data of confirmed cases, death cases,
+and recovered cases for each country.
 
 ``` r
 covidSummary <- function(){
@@ -105,11 +105,11 @@ covidSummary <- function(){
 ## `confirmedCases`
 
 This function interacts with the `By Country Total` endpoint. This
-function returns a `data.frame` of daily confirmed cases number by
+function returns a `data.frame` of daily confirmed case numbers by a
 specific country during the specified dates (7/01/2020 - 09/30/2021).
-Users can select country to get different country dataset. I choose only
-4 variables to display, which I am going to mainly use. Users can use
-the countryName table to find countries you want to look up.
+Users can select the country to get a different country’s dataset. I
+chose only 4 variables to display, which I am going to mainly use. Users
+can use the countryName table to find countries to look up.
 
 ``` r
 confirmedCases <- function(country){
@@ -173,11 +173,11 @@ death_cases <- deathCases("united-states")
 
 This function interacts with the `By Country Total` endpoint with
 modification of status changed to recovered.This function returns a
-`data.frame` of daily recovered cases number by specific country during
-the specified dates (7/01/2020 - 09/30/2021). Users can select country
-to get different country dataset. I choose only 4 variables to display,
-which I am going to mainly use. Users can use the countryName table to
-find countries you want to look up.
+`data.frame` of daily recovered case numbers by specific countries
+during the specified dates (7/01/2020 - 09/30/2021). Users can select
+the country to get different countries’ datasets. I chose only 4
+variables to display, which I am going to primarily use. Users can use
+the countryName table to find countries to look up.
 
 ``` r
 recoveredCases <- function(country){
@@ -214,15 +214,15 @@ us_all_cases <- rbind(confirmed_cases, death_cases)
 
 This function interacts with the `Day One Live` endpoint with
 modification of status changed to confirmed. This function returns a
-`data.frame` of daily confirmed cases number by specific state from
-11/22/2020 to present. Users can select state name to get different
-state dataset. I choose only 6 variables to display, which I am going to
-mainly use.
+`data.frame` of daily confirmed case numbers by specific states from
+11/22/2020 to present. Users can select state names (encompassing states
+and other locations) to get different states’ datasets. I chose only 6
+variables to display, the ones I will mainly use.
 
 ``` r
 confirmedCasesState <- function(state_name){
-  # There are state name with one words and more than two words. 
-  # For one word state name, I set it up to be lower case.  
+  # There are state names with one word and more than two words. 
+  # For a one-word state name, I set it up to be lower case.  
   state_name <- tolower(state_name)
   two_word_states = list("new hampshire", "new jersey", "new mexico",
                          "new york","north carolina","north dakota",
@@ -230,7 +230,7 @@ confirmedCasesState <- function(state_name){
                          "distrct of columbia", "puerto rico",
                          "Northern Mariana Islands", "Virgin Islands", 
                          "Rhode Island")
-  # For two or more words state name, user will type two words state name with space.   
+  # For state names with two or more words, the user will type the state name with spaces.   
   # I set it the function to insert %20 automatically using URLendoe().
   if (state_name %in% two_word_states){
     full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
@@ -252,8 +252,12 @@ confirmedCasesState <- function(state_name){
 
 # 5.User(s) can select different state names.
 nc_confirmedData <- confirmedCasesState("North Carolina")
+```
 
-# 5-1.Last row was the sum of all confirmed case number of 55 states.
+    ## No encoding supplied: defaulting to UTF-8.
+
+``` r
+# 5-1.Last row was the sum of all confirmed case numbers of 55 states.
 # I deleted the last row to keep the state level data only.
 nc_confirmedData1 <- nc_confirmedData %>% filter(row_number() <= n()-1)
 ```
@@ -262,17 +266,17 @@ nc_confirmedData1 <- nc_confirmedData %>% filter(row_number() <= n()-1)
 
 This function interacts with the `Day One Live` endpoint with
 modification of status changed to deaths. This function returns a
-`data.frame` of daily deaths cases number by specific state from
+`data.frame` of daily deaths case numbers by specific states from
 11/22/2020 to present. Users can select state name to get different
-state dataset. I choose only 6 variables to display, which I am going to
+state datasets. I chose only 6 variables to display, the ones I will
 mainly use.
 
 ``` r
 deathsCasesState <- function(state_name){
-  # There are state name with one words and more than two words. 
+  # There are state names with one word and with two or more words. 
   # For one word state name, I set it up to be lower case.  
   state_name <- tolower(state_name)
-  # For two or more words state name, user will type two words state name with space. 
+  # For two or more words state name, user will type the names with spaces. 
   # I set it the function to insert %20 automatically using URLendoe().
   two_word_states = list("new hampshire", "new jersey", "new mexico",
                          "new york","north carolina","north dakota",
@@ -298,7 +302,11 @@ deathsCasesState <- function(state_name){
 
 # 6.User(s) can select different state names.
 nc_deathData <- deathsCasesState("North Carolina")
+```
 
+    ## No encoding supplied: defaulting to UTF-8.
+
+``` r
 # 6-1.Last row was the sum of all confirmed case number of 55 states.
 # I deleted the last row to keep the state level data only.
 nc_deathData1 <- nc_deathData %>% filter(row_number() <= n()-1)
@@ -315,10 +323,10 @@ nc_all_cases <- rbind(nc_confirmedData1, nc_deathData1)
 
 This function interacts with the `Live By Country And Status After Date`
 endpoint of modification of date as 07/01/2021. This function returns a
-`data.frame` of daily confirmed cases of specified country from set date
-to present. Users can select country name to get different country
-dataset. I choose only 6 variables to display, which I am going to
-mainly use.
+`data.frame` of daily confirmed cases of specified country from a set
+date to present. Users can select country name to get different country
+datasets. I chose only 6 variables to display, the ones I will mainly
+use.
 
 ``` r
 liveConfirmedCases <- function(country){
@@ -346,8 +354,9 @@ us_liveCases <- liveConfirmedCases("united-states")
 
 ## `dateManipulation`
 
-This function helps to manipulate date column(character format) to date
-formation and create one variable with time span with every quarter.
+This function helps to manipulate the date column(character format) to
+date formation and creates one variable with time span with every
+quarter.
 
 ``` r
 dateManipulation <- function(dataset){
@@ -375,12 +384,12 @@ nc_all_cases_month <- dateManipulation(nc_all_cases)
 ## `riskStatusManipulation`
 
 This function helps to manipulate data with creating three variables.
-Death rate, death rate status and risk status are the three variables.
+Death rate, death rate status, and risk status are the three variables.
 US [death rates](https://coronavirus.jhu.edu/data/mortality) is about
-1.6 %. I wanted to check how US states display its death rate. Also, I
-created Death Rate status variable based on the death rate into 4
-categories. Lastly, I created risk status variable based on the
-confirmed cases number in state level.
+1.6 %. I wanted to check on how US states display death rates. Also, I
+created a Death Rate status variable based on the death rate and divided
+it into 4 categories. Lastly, I created a risk status variable based on
+the confirmed case numbers at the state level.
 
 ``` r
 #I created this function for data summaries and visualization.
@@ -410,27 +419,27 @@ us_live_risk <- dateManipulation(us_newlive_risk)
 
 # Exploratory Data Analysis
 
-I pulled the several data using functions I created interacting with
-endpoints. After using manipulation function and merging different
-dataset, I mainly selected four data sets for the exploratory analysis.
-\* `us_live_risk` (Confirmed and death cases by 55 states on
-10/01/2021), \* `nc_all_cases_month` (Confirmed cases in 101 NC Counties
-from 11/22/2020 to present), \* `confirmed_month`(US confirmed cases
-from 07/01/2020 to 09/30/2021), \* `us_all_cases_month`(US confirmed and
+I pulled the data using functions I created interacting with endpoints.
+After using manipulation functions and merging different datasets, I
+mainly selected four data sets for the exploratory analysis. \*
+`us_live_risk` (Confirmed and death cases by 55 states on 10/01/2021),
+\* `nc_all_cases_month` (Confirmed cases in 101 NC Counties from
+11/22/2020 to present), \* `confirmed_month`(US confirmed cases from
+07/01/2020 to 09/30/2021), \* `us_all_cases_month`(US confirmed and
 death cases merged from 07/01/2020 to 09/30/2021).
 
-Let’s talk about the Covid-19 pandemic in the U.S and how the confirmed
-cases and death cases changes over time. In order to see the change
-patterns of both confirmed and death cases, I created scatterplot by
-date In the confirmed scatter plot, we see that the case increased
-rapidly at the end of 2020 and beginning of 2021 and then it slowed it
-down. However, it is rapidly increasing again since August of 2021. It
-may have been related to mask policy, vaccination, seasonal changes, but
-the fact is covid cases are increasing. Compared to confirmed cases,
-death cases seems increasing slowly in the plot. However, it is not
-really good comparison because the y axis scale is fitted to the
-confirmed cases. I will need to look at the confirmed plots and death
-plots separately.
+Let’s talk about the Covid-19 pandemic in the U.S and how confirmed
+cases and death cases change over time. In order to see the change
+patterns of both confirmed and death cases, I created a scatterplot by
+date. In the confirmed scatter plot, we see that the cases increased
+rapidly at the end of 2020 and beginning of 2021, and then it slowed
+down. However, it started rapidly increasing again since August 2021. It
+may have been related to mask policies, vaccination, or seasonal
+changes, but the fact is that covid cases are increasing. Compared to
+confirmed cases, deaths seem to be increasing slowly in the plot.
+However, it is not a really good comparison because the y axis scale is
+fitted to the confirmed cases. I will need to look at the confirmed
+plots and death plots separately.
 
 ``` r
 # Scatter plot for US
@@ -439,13 +448,13 @@ ggplot(data = us_all_cases_month, aes(x = Date, y = Cases))+
   ggtitle("Scatterplot of U.S. Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Therefore, I wanted to see how the confirmed cases are increasing by
-every quarter using side by side box plot. Similar to the scatter plot
+every quarter using side by side box plots. Similar to the scatter plot
 of confirmed cases, the median line of 2021 quarter 1 is a lot higher
-than 2020 quater 4. Also, the interquartile range of 2020 quarter 4 is
-big, which means that during 2020 quarter 4, case numbers are rapidly
+than 2020 quarter 4. Also, the interquartile range of 2020 quarter 4 is
+big, which means that during 2020 quarter 4, case numbers rapidly
 increased.
 
 ``` r
@@ -455,12 +464,12 @@ us_confirmed_states<- us_all_cases_month %>% filter(Status == "confirmed")
 boxplot(Cases~Time_span,data=us_confirmed_states, main="Us Covid confirmed Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-79-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
-Now, let’s look at how death cases are increasing by every quarter. I
-also created side by side box plot for the deaths cases and death cases
-increased rapidly between last quarter of 2020 and first quarter of
-2021.
+Now, let’s look at how death cases are increasing by quarter. I also
+created side by side box plots for the death cases, and death cases
+increased rapidly between the last quarter of 2020 and the first quarter
+of 2021.
 
 ``` r
 #Setting the data set with only deaths status
@@ -468,18 +477,16 @@ us_deaths_states<- us_all_cases_month %>% filter(Status == "deaths") #Box plot f
 boxplot(Cases~Time_span,data=us_deaths_states, main="Us Covid death Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-80-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
-Now, let’s move down to the state level. I want to begin with discussing
-about some summary statistics. First, `us_bystate` summary table using
-`us_live_risk` data shows interesting information. The difference
-between minimum (269) and maximum (4,718,816) scores are extremely big.
-Therefore, I had to look at the median scores where the state with
-median score is located. Median score is 508494, which I cannot assume
-where majority of states are located. Mean and IQR score help me to
-understand where the majority states are located and states with minimum
-and maximum scores are less likely to observe. The next summary table
-explain better understanding current state data.
+Now, let’s move down to the state level, beginning with discussing some
+summary statistics. First, `us_bystate` summary table using
+`us_live_risk` data shows interesting information. The average confirmed
+cases (790,137.1) is a little bit higher than the median score (508494),
+and the IQR score is also not extremely high. However, the difference
+between minimum (269) and maximum (4,718,816) numbers is extremely big.
+If I didn’t check the Minimum score or Maximum score, I would miss the
+gap between the two end values.
 
 ``` r
 #Summary table for us states
@@ -492,16 +499,16 @@ us_bystate
     ##   <int>   <int>   <dbl>  <int>  <dbl>
     ## 1   269 4718816 790137. 508494 753095
 
-`Summary_us_risk` table shows the average, median, and IQR score of each
-risk staus. I created a variable called RiskStatus based on the mean and
-median score. Five status set points of the number of confirmed cases
-are from “Very Low” (under 150,000 cases) to “Very High”(higher than
-1,250,000 cases). Similar to first summary table, this table also shows
-interesting results on very how status scores. The average score is
-significantly higher than median scores and IQR score in very high
-category is also large, which means that states with confirmed cases
-higher than 1,250,000 are more spread up, but majority are still round
-median scores.
+`Summary_us_risk` table shows the average, median, and IQR scores of
+each risk state. I created a variable called RiskStatus based on the
+mean and median score. Five status set points of the number of confirmed
+cases are from “Very Low” (under 150,000 cases) to “Very High”(higher
+than 1,250,000 cases). Similar to the first summary table, this table
+also shows interesting results on very high status scores. The average
+score is significantly higher than the median score, and the IQR score
+in the very high category is also large. This means that states with
+confirmed cases higher than 1,250,000 are more spread out, but the
+majority are still around the median scores.
 
 ``` r
 #two categorical variables
@@ -518,13 +525,13 @@ Summary_us_risk
     ## 4 4.High      959810.  866776   303044 
     ## 5 5.Veryhigh 2471329. 1627508  2152867
 
-`state_highrisk` contingency table shows where the top 10 most confirmed
-cases state are belong to in terms of their risk status. Nine out of 10
-states are in very high risk status and North Carolina is one of the
-high risk status state. One thing we should remember is that this risk
-status is not based on the population. It straightly looking at the
-confirmed cases only. Therefore, if considering state population, risk
-status may change.
+`state_highrisk` contingency table shows where the top 10 states with
+the most confirmed cases belong in terms of their risk status. Nine out
+of 10 states are in the very high risk group, and North Carolina is one
+of the staes in the high risk group. One thing we should remember is
+that this grouping is not based on the population. It directly looks at
+the confirmed cases only. Therefore, if considering state populations,
+risk categories may change.
 
 ``` r
 us_live_risk1 <- us_live_risk %>% arrange(desc(Confirmed))
@@ -547,10 +554,10 @@ state_highrisk
     ##   Tennessee           1          0
     ##   Texas               0          1
 
-While state\_highrisk contingency table shows where each states belong
-to in terms of risk status category, bar plot shows the number of
-confirmed cases. We now know that California is the top state with the
-most confirmed cases followed by Texas, Florida, and New york.
+While state\_highrisk contingency table shows where each states belongs
+in terms of risk category, the bar plot shows the number of confirmed
+cases. We now know that California is the top state with the most
+confirmed cases followed by Texas, Florida, and New york.
 
 ``` r
 #Bar plot for top 10 states
@@ -561,15 +568,15 @@ ggplot(data=top10states, aes(x=Province, y=Confirmed)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-84-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
-Now, let’s look at the both confirmed cases and deaths cases and it’s
-relationship. Is deaths cases higher in the higher confirmed cases
-states? We cam use correlation score to see the relationship.
-Correlation score between confirmed cases and deaths cases is 0.975,
-which is really high close to 1. The scatter plot shows the pattern of
-the relationship as well. Based on the results, the top 10 confirmed
-case states are more like to show higher death cases.
+Now, let’s look at both confirmed cases and death cases and their
+relationship. Are deaths higher in the states with higher confirmed
+cases? We can use the correlation score to see the relationship. The
+correlation between confirmed cases and death cases is 0.975, which is
+really high being close to 1. The scatter plot shows the pattern of the
+relationship, as well. Based on the results, the top 10 confirmed case
+states are more likely to show higher death cases.
 
 ``` r
 #correlation summary
@@ -586,14 +593,15 @@ ggplot(data = us_live_risk, aes(x = Confirmed, y = Deaths))+
   ggtitle("Scatterplot of correlation between death Cases and confirmed cases") + geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-85-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
-Below bar plot shows the top 10 states on deaths cases. As the
+The bar plot below shows the top 10 states on death cases. As the
 prediction of the correlation between confirmed cases and death cases,
-California is again the top state showing the highest deaths cases
+California is again the top state showing the highest number of deaths
 followed by Texas, Florida, and New York. Interestingly, Death cases in
-New York is similar to Florida, which infers that death rate in New York
-is higher. Let’s move on to see the death rate of the top 10 states.
+New York are similar to Florida, which infers that the death rate in New
+York is higher. Let’s move on to see the death rate of the top 10
+states.
 
 ``` r
 # Subsetting top 10 states of deaths cases
@@ -607,18 +615,18 @@ ggplot(data=top10statesdeath, aes(x=Province, y=Deaths)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-86-1.png)<!-- -->
-`top10statesDeathRate` table shows top 10 states with death rates.
-Surprisingly, California and Texas is not one the top 10 list, but New
-Jersey, Massachusetts, and New York states ranked top 3. This results
-shows more dynamics of confirmed cases and deaths cases and the death
-rates are not always going by the number of cases. Then, it will be
-interesting to see the relationship between deathrate and confirmed
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+`top10statesDeathRate` table shows top 10 states for death rates.
+Surprisingly, California and Texas are not on this top 10 list. New
+Jersey, Massachusetts, and New York states ranked in the top 3. These
+results show more dynamics between confirmed cases and deaths cases, and
+the death rates do not always go by the number of cases. Then, it will
+be interesting to see the relationship between deathrate and confirmed
 cases. I created `DeathRateStatus` variable to see how many states are
-in high, medium low death rate group. Therefore, instead of directly
-comparing the two numbers, I would like to use categorical variables
-(RiskStatus and DeathRateStatus) to see how many states are belong to
-where in the contingency table.
+in high, medium, and low death rate groups. Therefore, instead of
+directly comparing the two numbers, I used categorical variables
+(RiskStatus and DeathRateStatus) to see how many states belong to each
+group in the contingency table.
 
 ``` r
 # Subsetting top 10 states of death rate
@@ -640,11 +648,12 @@ kable(top10statesDeathRate)
 | District of Columbia |  1.919775 |
 | New Mexico           |  1.897449 |
 
-When looking at the contingency table with confirmed cases Risk status
-and death rate status, it still shows the consistent results. The very
-high risk group in terms of confirmed cases continue to in the medium
-and high death rate group. Similarly, very low and low risk group in
-terms of the confirmed cases shows low and medium death rate group.
+When looking at the contingency table with confirmed cases risk groups
+and death rate groups, it still shows consistent results. The very high
+risk category in terms of confirmed cases grouped in the medium and high
+death rate categories. Similarly, the very low and low risk category in
+terms of the confirmed cases grouped in the low and medium death rate
+categories.
 
 ``` r
 # Contingency table 
@@ -663,8 +672,8 @@ usDeathRate_status
 
 This bar plot shows the contingency table more visually. You will see
 that the low death rate states are mainly in medium to low and very low
-risk status (low confirmed cases) and high death rate states are in
-medium to high and very high risk status(high confirmed cases).
+risk groups (low confirmed cases) and high death rate states are in the
+medium to high and very high risk groups (high confirmed cases).
 
 ``` r
 #Bar plot of risk status in 55 states
@@ -673,14 +682,14 @@ ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 55 states") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-89-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 Lastly, I wanted to see how confirmed cases and death cases are changing
-in wake county. Looking at the multi-panel scatter plot, confirmed
-scatterplot reveals that beginning of 2021 the cases increased rapidly
-and then the cases are increasing fast again since September. Again, it
-is hard to look at the pattern of deaths cases, so I will need to create
-separate scatter plot for the deaths cases.
+in wake county. Looking at the multi-panel scatter plot, the confirmed
+scatterplot reveals that in the beginning of 2021 the cases increased
+rapidly. Then the cases increased rapidly again since September. Again,
+it is hard to look at the pattern of death cases, so I will need to
+create a separate scatter plot for this.
 
 ``` r
 # subsetting rows by two counties
@@ -692,19 +701,28 @@ ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
   ggtitle("Scatterplot of  Wake county Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-90-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
-These histograms can also show how confirmed and deaths cases are
-changing slowly or quickly by frequency of same case numbers.  
-in other words, in confirmed histogram, there are most 80,000s cases. So
-the time period when the confirmed cases are in their 80,000 are most
-frequent and changed slowly during earlier month of this year. However,
-confirm cases are rapidly increasing again seeing that the frequencies
-of cases of smaller ranges are less likely to happen. In deaths
-histogram, death cases were stagnated when they were between 730 and
-750. In other words, death case is slowly increasing later months of
-2021. It is good to know that in the midst of fast increasing of
-confirmed cases, the deaths cases are slowing down in Wake county.
+These histograms can also show how quickly confirmed cases and death
+cases are changing by frequency of the same case numbers. The confirmed
+histogram shows how many confirmed cases were in Wake County by number
+of counts (days), so the longer the number of cases remained the same,
+the larger the bar on the histogram, which means the slower the increase
+in number of cases. In other words, in the confirmed histogram, the
+highest bar is at 80,000 confirmed cases. The time period when the
+confirmed cases were 80,000 was most frequent, and we can interpret this
+as during those 62 counts (62 days), the confirmed cases increased
+slowly, which occurred around the second quarter of the year. However,
+confirmed cases are rapidly increasing again because the histogram shows
+that later this year, the frequency of confirmed cases at a given number
+count was much lower, meaning that the number of counts with that number
+of cases was smaller. This shows that the cases changed more quickly. In
+the deaths histogram, death cases stagnated between 730 and 750, which
+means that there were a higher number of days in which the total death
+cases remained about the same. In other words, death cases are more
+slowly increasing in the later months of 2021. It is good to know that
+in the midst of the more quickly increasing of confirmed cases, death
+cases are slowing down in Wake county.
 
 ``` r
 # Histogram plot
@@ -717,23 +735,24 @@ ncst_deaths_cases <- nc_all_cases_month %>% filter(Status == "deaths") %>% filte
 ggplot(ncst_confirmed_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-91-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 ggplot(ncst_deaths_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-91-2.png)<!-- --> \# Wrap-Up
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- --> \# Wrap-Up
 
 In this vignette, I built several functions to interact with some of the
 COVID19 API’s endpoints to retrieve data for the exploratory analysis. I
 used tables, numerical summaries, and four different types of graphs to
-explain what I found. With an analysis, I found that Covid confirm cases
-are still increasing with death cases, but there are variations between
-states in the U.S. Sadly, North Carolina is one of the top 10 states of
-confirmed cases. Also, confirmed cases are increasing fast in wake
-county.
+explain what I found. With an analysis, I found that Covid confirmed
+cases are still increasing with death cases, but there are variations
+between states in the U.S. Sadly, North Carolina is one of the top 10
+states of confirmed cases. Also, confirmed cases are increasing fast in
+wake county.
 
-I selectively focused on the US cases in this vignette because US is top
-country of all the confirmed cases, but it will be very interesting to
-see how other countries are doing navigating functions I created here.
+I selectively focused on the US cases in this vignette because US is the
+top country of all the confirmed cases, but it will be very interesting
+to see how other countries are doing navigating functions I created
+here.
