@@ -248,6 +248,7 @@ nc_deathData1 <- nc_deathData %>% filter(row_number() <= n()-1)
 ```
 
 ``` r
+#created one data set merging confirmed and death data sets
 nc_all_cases <- rbind(nc_confirmedData1, nc_deathData1)
 ```
 
@@ -351,7 +352,7 @@ usDeathRate_status
 ``` r
 us_live_risk1 <- us_live_risk %>% arrange(desc(Confirmed))
 us_live_risk2 <- us_live_risk1[1:10,]
-
+#Top10 states by death rate status
 state_deathrate <- table(us_live_risk2$Province, us_live_risk2$DeathRateStatus)
 state_deathrate
 ```
@@ -372,51 +373,31 @@ state_deathrate
 ## Numerical Summaries
 
 ``` r
-#summary table
-summary_us_state <- us_live_risk %>% summarise(Min = min(Confirmed), Max = max(Confirmed), Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed), Var = var(Confirmed))
-summary_us_state
+#Summary table for us states
+us_bystate <- us_live_risk %>% summarise(Min = min(Confirmed), Max = max(Confirmed), Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed))
+us_bystate
 ```
 
-    ## # A tibble: 1 x 6
-    ##     Min     Max     Avg    Med    IQR           Var
-    ##   <int>   <int>   <dbl>  <int>  <dbl>         <dbl>
-    ## 1   269 4718816 790137. 508494 753095 922760829412.
+    ## # A tibble: 1 x 5
+    ##     Min     Max     Avg    Med    IQR
+    ##   <int>   <int>   <dbl>  <int>  <dbl>
+    ## 1   269 4718816 790137. 508494 753095
 
 ``` r
-Summary_us_all <- us_all_cases_month %>% group_by(Status) %>% summarise(Avg = mean(Cases), Med = median(Cases), IQR = IQR(Cases), Var = var(Cases)) 
-
+#summary by status(deaths vs confirmed)
+Summary_us_all <- us_all_cases_month %>% group_by(Status) %>% summarise(Avg = mean(Cases), Med = median(Cases), IQR = IQR(Cases)) 
 Summary_us_all
 ```
 
-    ## # A tibble: 2 x 5
-    ##   Status          Avg      Med      IQR     Var
-    ##   <chr>         <dbl>    <int>    <dbl>   <dbl>
-    ## 1 confirmed 22878859. 27762171 24926891 1.60e14
-    ## 2 deaths      423587.   487599   373278 3.45e10
+    ## # A tibble: 2 x 4
+    ##   Status          Avg      Med      IQR
+    ##   <chr>         <dbl>    <int>    <dbl>
+    ## 1 confirmed 22878859. 27762171 24926891
+    ## 2 deaths      423587.   487599   373278
 
 ``` r
-Summary_nc_all <- nc_all_cases_month %>% group_by(City) %>% summarise(Avg = mean(Cases), Med = median(Cases), IQR = IQR(Cases), Var = var(Cases)) 
-Summary_nc_all
-```
-
-    ## # A tibble: 101 x 5
-    ##    City        Avg   Med    IQR       Var
-    ##    <chr>     <dbl> <dbl>  <dbl>     <dbl>
-    ##  1 Alamance  8490. 3462  17467. 77628520.
-    ##  2 Alexander 2067.  783   4240.  4519739.
-    ##  3 Alleghany  487.  190    999    265211.
-    ##  4 Anson     1210.  470   2464.  1551427.
-    ##  5 Ashe      1020.  378   2028.  1124366.
-    ##  6 Avery      977.  448.  2070.   997500.
-    ##  7 Beaufort  2194.  872.  4417   5086720.
-    ##  8 Bertie     857.  450   1700.   722017.
-    ##  9 Bladen    1621.  678.  3168.  2969086.
-    ## 10 Brunswick 4362. 1492   8826. 22190292.
-    ## # ... with 91 more rows
-
-``` r
+#two categorical variables
 Summary_us_risk <- us_live_risk %>% group_by(RiskStatus) %>% summarise(Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed), Var = var(Confirmed)) 
-
 Summary_us_risk
 ```
 
@@ -430,104 +411,89 @@ Summary_us_risk
     ## 5 5.Veryhigh 2471329. 1627508  2152867  1.71e12
 
 ``` r
-Summary_us_DR <- us_live_risk %>% group_by(DeathRateStatus) %>% summarise(Avg = mean(Confirmed), Med = median(Confirmed), Var = var(Confirmed), IQR = IQR(Confirmed))
+#two categorical variables
+Summary_us_DR <- us_live_risk %>% group_by(DeathRateStatus) %>% summarise(Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed), Var = var(Confirmed))
 Summary_us_DR
 ```
 
     ## # A tibble: 3 x 5
-    ##   DeathRateStatus      Avg      Med     Var     IQR
+    ##   DeathRateStatus      Avg      Med     IQR     Var
     ##   <chr>              <dbl>    <dbl>   <dbl>   <dbl>
-    ## 1 2.Low            167124.   96936. 3.65e10 183455 
-    ## 2 3.Medium         823666   573052. 1.02e12 711804.
-    ## 3 4.High          1242698. 1154570  5.89e11 617989
+    ## 1 2.Low            167124.   96936. 183455  3.65e10
+    ## 2 3.Medium         823666   573052. 711804. 1.02e12
+    ## 3 4.High          1242698. 1154570  617989  5.89e11
 
 ``` r
-summary_us_deathRate <- us_live_risk %>% group_by(DeathRateStatus) %>% summarise(Avg = mean(DeathRate), Med = median(DeathRate), Var = var(DeathRate), IQR = IQR(DeathRate))
-summary_us_deathRate
-```
-
-    ## # A tibble: 3 x 5
-    ##   DeathRateStatus   Avg   Med    Var    IQR
-    ##   <chr>           <dbl> <dbl>  <dbl>  <dbl>
-    ## 1 2.Low           0.777 0.827 0.0411 0.316 
-    ## 2 3.Medium        1.48  1.47  0.0747 0.426 
-    ## 3 4.High          2.24  2.28  0.0144 0.0835
-
-``` r
-cor(us_live_risk$Confirmed, us_live_risk$Deaths)
+#correlation
+corr_us <- cor(us_live_risk$Confirmed, us_live_risk$Deaths)
+corr_us
 ```
 
     ## [1] 0.975353
 
-``` r
-cov(us_live_risk$Confirmed, us_live_risk$Deaths)
-```
-
-    ## [1] 14895461139
-
 ## Graphical Summaries
 
 ``` r
-#Scatter plot country summary
+#Scatter plot US COVID-19 confirmed cases by time
 ggplot(data = confirmed_month, aes(x = Date, y = Cases))+
   geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of Confirmed Covid Cases by Confirmed Covid Cases") + geom_smooth(method = lm, color = "blue")  
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ``` r
-#Bar plot
-top_states<- nc_all_cases_month %>% filter(Status == "confirmed") %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
-top_10counties <- top_states[1:10,]
+#Scatter plot: confirmed cases by death cases
+ggplot(data = us_live_risk, aes(x = Confirmed, y = Deaths))+
+  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of correlation between death Cases and confirmed cases") + geom_smooth(method = lm, color = "blue")  
+```
 
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+``` r
+#Subsetting data by specific date and confirmed status
+top_states<- nc_all_cases_month %>% filter(Status == "confirmed") %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
+top_10counties <- top_states[1:10,] #Only using top 10 confirmed counties
+#Bar plot for top 10 counties
 ggplot(data=top_10counties, aes(x=City, y=Cases)) +
   geom_bar(stat="identity", fill="orange") +
   labs(x = "City", title = "Top 10 Counties on Confirmed case") + geom_text(aes(label=Cases), vjust=1.6, color="black", size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ``` r
-#Bar plot
+#Bar plot of risk status in 55 states
 
 ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 55 states") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
-# Scatter plot 
-
+# Scatter plot for US
 ggplot(data = us_all_cases_month, aes(x = Date, y = Cases))+
   geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of U.S. Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
-# Scatter plot county
+# subsetting rows by two counties
 Wake_cases <- nc_all_cases_month %>% filter(City=="Wake") 
 Mecklenburg_cases <- nc_all_cases_month %>% filter(City=="Mecklenburg") 
-ncst_cases <- nc_all_cases_month %>% filter(Date == "2021-10-01") %>% arrange(desc(Cases))
 
-top10_ncst_cases <- ncst_cases[1:10,]
-# Scatter plot nc state summary
+# Scatter plots for wake and Meck country
 ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
   geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of  Wake county Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 ggplot(data = Mecklenburg_cases, aes(x = Date, y = Cases))+
@@ -535,37 +501,24 @@ ggplot(data = Mecklenburg_cases, aes(x = Date, y = Cases))+
   ggtitle("Scatterplot of  Mecklenburg county Cases by date") + geom_smooth(method = lm, color = "blue") 
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-![](README_files/figure-gfm/unnamed-chunk-27-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
 
 ``` r
 # Box plot
 us_confirmed_states<- us_all_cases_month %>% filter(Status == "confirmed") 
-
-
+#Box plot for confirmed cases by time line.
 boxplot(Cases~Time_span,data=us_confirmed_states, main="Us Covid confirmed Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ``` r
-us_deaths_states<- us_all_cases_month %>% filter(Status == "deaths") 
-
-
+#Setting the data set with only deaths status
+us_deaths_states<- us_all_cases_month %>% filter(Status == "deaths") #Box plot for death cases by timeline
 boxplot(Cases~Time_span,data=us_deaths_states, main="Us Covid death Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
-
-``` r
-# Box plot
-
-
-boxplot(Cases~Status,data=us_all_cases_month, main="Us Covid Cases Comparison by Status using Box plot",xlab="Status", ylab="Cases",col=(c("gold","darkgreen")))
-```
-
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 ``` r
 # Histogram plot
@@ -578,18 +531,10 @@ ncst_deaths_cases <- nc_all_cases_month %>% filter(Status == "deaths") %>% filte
 ggplot(ncst_confirmed_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
 ```
 
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 ``` r
 ggplot(ncst_deaths_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
 ```
 
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](README_files/figure-gfm/unnamed-chunk-31-2.png)<!-- -->
-
-``` r
-#boxplot(Cases~City,data=ncst_confirmed_cases, main="Us Covid Cases Comparison by City using Box plot",xlab="City", ylab="Cases",col=(c("gold","darkgreen")))
-```
+![](README_files/figure-gfm/unnamed-chunk-32-2.png)<!-- -->
