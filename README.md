@@ -357,7 +357,7 @@ dateManipulation <- function(dataset){
                           if_else(Date <= as.Date("2020-12-31"), "2020Q4",
                            if_else(Date <= as.Date("2021-03-31"), "2021Q1", 
                             if_else(Date <= as.Date("2021-06-30"), "2021Q2", 
-                             if_else(Date <=   as.Date("2021-09-30"),"2021Q3","2021Q4")))))
+                             if_else(Date <=   as.Date("2021-09-30"),"2021Q3", "2021Q4")))))
     )
   dataset$Time_span <- as.factor(dataset$Time_span)
   return(dataset)
@@ -389,7 +389,8 @@ riskStatusManipulation <- function(dataset){
     mutate("DeathRate"= (Deaths/Confirmed)*100, 
            "DeathRateStatus"= if_else(DeathRate > 2, "4.High",
                                if_else(DeathRate > 1, "3.Medium", 
-                                if_else(DeathRate >0.5, "2.Low", "1.Very low"))), 
+                                if_else(DeathRate >0.5, "2.Low", "1.Very low"))
+                               ), 
            "RiskStatus" = if_else(Confirmed > 1250000, "5.Veryhigh",
                            if_else(Confirmed > 750000, "4.High", 
                             if_else(Confirmed > 350000, "3.Medium", 
@@ -404,7 +405,8 @@ riskStatusManipulation <- function(dataset){
 us_newlive <- us_liveCases %>% filter(Date == "2021-10-01T00:00:00Z")
 
 # 12.US live data using riskStatusManipulation function.
-us_newlive_risk <- riskStatusManipulation(us_newlive) %>% as_tibble()
+us_newlive_risk <- riskStatusManipulation(us_newlive) %>% 
+                    as_tibble()
 us_live_risk <- dateManipulation(us_newlive_risk)
 ```
 
@@ -429,12 +431,16 @@ date.
 
 ``` r
 # Scatter plot for US
-ggplot(data = us_all_cases_month, aes(x = Date, y = Cases))+
-  geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of U.S. Cases by date") + geom_smooth(method = lm, color = "blue")  
+ggplot(data = us_all_cases_month, aes(x = Date, 
+                                      y = Cases)) +
+  geom_point(alpha=0.50) + 
+  facet_wrap(~ Status) + 
+  theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of US confirmed cases") + 
+  geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-192-1.png)<!-- -->
 
 In the confirmed scatter plot, we see that the cases increased rapidly
 at the end of 2020 and beginning of 2021, and then it slowed down.
@@ -446,17 +452,51 @@ not a really good comparison because the y axis scale is fitted to the
 confirmed cases. I will need to look at the confirmed plots and death
 plots separately.
 
-Therefore, I wanted to see how the confirmed cases are increasing by
-every quarter using side by side box plots.
+``` r
+us_all_cases_month_wide <- us_all_cases_month %>%
+                            pivot_wider(names_from = "Status",
+                                        values_from = "Cases")
+
+ggplot(data = us_all_cases_month_wide, aes(x = Date, 
+                                           y = deaths)) +
+  geom_point(alpha=0.50) + 
+  theme(axis.text.x = element_text(angle = 45,hjust=1)) +
+  ggtitle("Scatterplot of  US deaths cases") + 
+  geom_smooth(method = lm, color = "blue")  
+```
+
+![](README_files/figure-gfm/unnamed-chunk-193-1.png)<!-- -->
+
+Bases on US death cases scatter plot, deaths cases are increasing over
+time, but not as fast as confirmed cases. It is good to see this pattern
+that even though many people are having a covid, they are less likely to
+die.
+
+Now, I wanted to see how the confirmed cases are increasing by every
+quarter using side by side box plots.
 
 ``` r
 # Box plot
-us_confirmed_states<- us_all_cases_month %>% filter(Status == "confirmed") 
+us_confirmed_states<- us_all_cases_month %>% 
+                        filter(Status == "confirmed") 
 #Box plot for confirmed cases by time line.
-boxplot(Cases~Time_span,data=us_confirmed_states, main="Us Covid confirmed Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
+ggplot(us_confirmed_states, aes(x = Time_span, 
+                                y= Cases, 
+                                fill=Time_span)) +
+  geom_boxplot() +
+  scale_x_discrete("Time Span") +
+  ggtitle("US Covid confirmed cases comparison by time span") +
+  scale_fill_brewer(palette="Dark2") +
+  scale_fill_discrete(name = "Time Span", 
+                      labels = c("2020Q3" = "2020 Q3", 
+                                 "2020Q4" = "2020 Q4", 
+                                 "2021Q1" = "2021 Q1", 
+                                 "2021Q2" = "2021 Q2", 
+                                 "2021Q3" = "2021 Q3")
+                                ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-194-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -467,11 +507,27 @@ Now, let’s look at how death cases are increasing by quarter.
 
 ``` r
 #Setting the data set with only deaths status
-us_deaths_states<- us_all_cases_month %>% filter(Status == "deaths") #Box plot for death cases by timeline
-boxplot(Cases~Time_span,data=us_deaths_states, main="Us Covid death Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
+us_deaths_states<- us_all_cases_month %>% 
+                    filter(Status == "deaths") 
+#Box plot for death cases by timeline
+ggplot(us_deaths_states, aes(x = Time_span, 
+                                y= Cases, 
+                                fill=Time_span)
+                            ) +
+  geom_boxplot() +
+  scale_x_discrete("Time Span") +
+  ggtitle("US Covid deaths cases comparison by time span") +
+  scale_fill_brewer(palette="BuPu") +
+  scale_fill_discrete(name = "Time Span", 
+                      labels = c("2020Q3" = "2020 Q3", 
+                                 "2020Q4" = "2020 Q4", 
+                                 "2021Q1" = "2021 Q1", 
+                                 "2021Q2" = "2021 Q2", 
+                                 "2021Q3" = "2021 Q3")
+                                ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-195-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -481,15 +537,24 @@ Now, let’s move down to the state level, beginning with discussing some
 summary statistics.
 
 ``` r
-#Summary table for us states
-us_bystate <- us_live_risk %>% summarise(Min = min(Confirmed), Max = max(Confirmed), Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed))
-us_bystate
+# Summary table for US states
+us_bystate <- us_live_risk %>% 
+                summarise(Min = min(Confirmed), 
+                          Median = median(Confirmed),
+                          Average = mean(Confirmed),
+                          Max = max(Confirmed),
+                          IQR = IQR(Confirmed)
+                          )
+
+# Display a table of the summary stats.
+kable(us_bystate, caption = " Summary Stat by US States")
 ```
 
-    ## # A tibble: 1 x 5
-    ##     Min     Max     Avg    Med    IQR
-    ##   <int>   <int>   <dbl>  <int>  <dbl>
-    ## 1   269 4718816 790137. 508494 753095
+| Min | Median |  Average |     Max |    IQR |
+|----:|-------:|---------:|--------:|-------:|
+| 269 | 508494 | 790137.1 | 4718816 | 753095 |
+
+Summary Stat by US States
 
 First, `us_bystate` summary table using `us_live_risk` data shows
 interesting information. The average confirmed cases (790,137.1) is a
@@ -500,19 +565,27 @@ Minimum score or Maximum score, I would miss the gap between the two end
 values.
 
 ``` r
-#two categorical variables
-Summary_us_risk <- us_live_risk %>% group_by(RiskStatus) %>% summarise(Avg = mean(Confirmed), Med = median(Confirmed), IQR = IQR(Confirmed)) 
-Summary_us_risk
+# Summary stats for two categorical variables
+Summary_us_risk <- us_live_risk %>% 
+                    group_by(RiskStatus) %>% 
+                    summarise(Average = mean(Confirmed),
+                              Median = median(Confirmed), 
+                              IQR = IQR(Confirmed)
+                              )
+
+# Display a table of the summary stats.
+kable(Summary_us_risk, caption = " Summary Stat by Risk Status")
 ```
 
-    ## # A tibble: 5 x 4
-    ##   RiskStatus      Avg      Med      IQR
-    ##   <chr>         <dbl>    <dbl>    <dbl>
-    ## 1 1.Very Low   78554.   89989    86058 
-    ## 2 2.Low       231486.  246742.   80623.
-    ## 3 3.Medium    556041.  520417   206788.
-    ## 4 4.High      959810.  866776   303044 
-    ## 5 5.Veryhigh 2471329. 1627508  2152867
+| RiskStatus |    Average |    Median |        IQR |
+|:-----------|-----------:|----------:|-----------:|
+| 1.Very Low |   78554.15 |   89989.0 |   86058.00 |
+| 2.Low      |  231486.12 |  246741.5 |   80623.25 |
+| 3.Medium   |  556041.43 |  520417.0 |  206787.50 |
+| 4.High     |  959809.55 |  866776.0 |  303044.00 |
+| 5.Veryhigh | 2471328.89 | 1627508.0 | 2152867.00 |
+
+Summary Stat by Risk Status
 
 `Summary_us_risk` table shows the average, median, and IQR scores of
 each risk state. I created a variable called RiskStatus based on the
@@ -526,25 +599,34 @@ confirmed cases higher than 1,250,000 are more spread out, but the
 majority are still around the median scores.
 
 ``` r
-us_live_risk1 <- us_live_risk %>% arrange(desc(Confirmed))
+# Arrange data by descender order
+us_live_risk1 <- us_live_risk %>% 
+                  arrange(desc(Confirmed))
+
+# Select 10 top rows
 top10states <- us_live_risk1[1:10,]
+
 #Top10 states by risk status
 state_highrisk <- table(top10states$Province, top10states$RiskStatus)
-state_highrisk
+kable(state_highrisk, 
+      col.names = c('High risk', 'VeryHigh risk'), 
+      caption = "Top 10 States Risk Status")
 ```
 
-    ##                 
-    ##                  4.High 5.Veryhigh
-    ##   California          0          1
-    ##   Florida             0          1
-    ##   Georgia             0          1
-    ##   Illinois            0          1
-    ##   New York            0          1
-    ##   North Carolina      0          1
-    ##   Ohio                0          1
-    ##   Pennsylvania        0          1
-    ##   Tennessee           1          0
-    ##   Texas               0          1
+|                | High risk | VeryHigh risk |
+|:---------------|----------:|--------------:|
+| California     |         0 |             1 |
+| Florida        |         0 |             1 |
+| Georgia        |         0 |             1 |
+| Illinois       |         0 |             1 |
+| New York       |         0 |             1 |
+| North Carolina |         0 |             1 |
+| Ohio           |         0 |             1 |
+| Pennsylvania   |         0 |             1 |
+| Tennessee      |         1 |             0 |
+| Texas          |         0 |             1 |
+
+Top 10 States Risk Status
 
 `state_highrisk` contingency table shows where the top 10 states with
 the most confirmed cases belong in terms of their risk status. Nine out
@@ -556,14 +638,19 @@ risk categories may change.
 
 ``` r
 #Bar plot for top 10 states
-
-ggplot(data=top10states, aes(x=Province, y=Confirmed)) +
+ggplot(data=top10states, aes(x=Province, 
+                             y=Confirmed)) +
   geom_bar(stat="identity", fill="orange") +
-  labs(x = "State", title = "Top 10 US states on Confirmed cases") + geom_text(aes(label=Confirmed), vjust=1.6, color="black", size=3.5) +
+  labs(x = "Top 10 States", 
+       title = "Top 10 US states on confirmed cases") +
+  geom_text(aes(label=Confirmed), 
+            vjust=1.6, 
+            color="black", 
+            size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-199-1.png)<!-- -->
 
 While state\_highrisk contingency table shows where each states belongs
 in terms of risk category, the bar plot shows the number of confirmed
@@ -575,21 +662,31 @@ relationship. Are deaths higher in the states with higher confirmed
 cases? We can use the correlation score to see the relationship.
 
 ``` r
-#correlation summary
+# Correlation summary
 corr_us <- cor(us_live_risk$Confirmed, us_live_risk$Deaths)
-corr_us
+
+# Display correlation summary
+kable(corr_us, caption = "Correlation")
 ```
 
-    ## [1] 0.975353
+|        x |
+|---------:|
+| 0.975353 |
+
+Correlation
 
 ``` r
 #Scatter plot: confirmed cases by death cases
-ggplot(data = us_live_risk, aes(x = Confirmed, y = Deaths))+
-  geom_point() + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of correlation between death Cases and confirmed cases") + geom_smooth(method = lm, color = "blue")  
+ggplot(data = us_live_risk, aes(x = Confirmed, 
+                                y = Deaths)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of correlation between death and confirmed cases") + 
+  geom_smooth(method = lm, 
+              color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-200-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.975, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -599,18 +696,24 @@ case states are more likely to show higher death cases.
 The bar plot below shows the top 10 states on death cases.
 
 ``` r
-# Subsetting top 10 states of deaths cases
-us_live_death1 <- us_live_risk %>% arrange(desc(Deaths))
+# Sub setting top 10 states of deaths cases.
+# Descender order
+us_live_death1 <- us_live_risk %>% 
+                    arrange(desc(Deaths))
+
+# Filter top 10 states
 top10statesdeath <- us_live_death1[1:10,]
 
-#Bar plot for 10 10 states by death cases
-ggplot(data=top10statesdeath, aes(x=Province, y=Deaths)) +
+# Bar plot for top 10 states by deaths cases.
+ggplot(data=top10statesdeath, aes(x=Province, 
+                                  y=Deaths)) +
   geom_bar(stat="identity", fill="orange") +
-  labs(x = "State", title = "Top 10 US states on Deaths cases") + geom_text(aes(label=Deaths), vjust=1.6, color="black", size=3.5) +
+  labs(x = "State", title = "Top 10 US states on deaths cases") +
+  geom_text(aes(label=Deaths), vjust=1.6, color="black", size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-201-1.png)<!-- -->
 
 As the prediction of the correlation between confirmed cases and death
 cases, California is again the top state showing the highest number of
@@ -620,24 +723,35 @@ rate in New York is higher. Let’s move on to see the death rate of the
 top 10 states.
 
 ``` r
-# Subsetting top 10 states of death rate
-us_live_deathrate <- us_live_risk %>% arrange(desc(DeathRate))
-top10statesDeathRate <- us_live_deathrate[1:10,] %>% select (Province, DeathRate)
-kable(top10statesDeathRate)
+# Sub setting top 10 states by deaths rate.
+# Descender order
+us_live_deathrate <- us_live_risk %>% 
+                      arrange(desc(DeathRate))
+
+# Filter top 10 states and select Province and DeathRate columns. 
+top10statesDeathRate <- us_live_deathrate[1:10,] %>% 
+                          select (Province, DeathRate)
+
+# Display top 10 states by death rate.
+kable(top10statesDeathRate, 
+      col.names = c("States", "Death Rate"),
+      caption = "Death rate by top 10 states")
 ```
 
-| Province             | DeathRate |
-|:---------------------|----------:|
-| New Jersey           |  2.375516 |
-| Massachusetts        |  2.294104 |
-| New York             |  2.281221 |
-| Connecticut          |  2.210609 |
-| Pennsylvania         |  2.056030 |
-| Mississippi          |  1.965626 |
-| Maryland             |  1.961528 |
-| Michigan             |  1.943805 |
-| District of Columbia |  1.919775 |
-| New Mexico           |  1.897449 |
+| States               | Death Rate |
+|:---------------------|-----------:|
+| New Jersey           |   2.375516 |
+| Massachusetts        |   2.294104 |
+| New York             |   2.281221 |
+| Connecticut          |   2.210609 |
+| Pennsylvania         |   2.056030 |
+| Mississippi          |   1.965626 |
+| Maryland             |   1.961528 |
+| Michigan             |   1.943805 |
+| District of Columbia |   1.919775 |
+| New Mexico           |   1.897449 |
+
+Death rate by top 10 states
 
 `top10statesDeathRate` table shows top 10 states for death rates.
 Surprisingly, California and Texas are not on this top 10 list. New
@@ -655,16 +769,27 @@ group in the contingency table.
 # Contingency table 
 #United Status
 usDeathRate_status <- table(us_live_risk$RiskStatus, us_live_risk$DeathRateStatus)
-usDeathRate_status
+
+# change row names.
+rownames(usDeathRate_status) <- c("VeryLow risk", "Low risk", 
+                                  "Medium risk", "High risk", 
+                                  "VeryHigh risk")
+
+# Display contingency table.
+kable(usDeathRate_status, 
+      col.names = c('Low deathrate', 'Medium deathrate', 'High deathrate'),
+      caption = "US states: Risk status by death rate")
 ```
 
-    ##             
-    ##              2.Low 3.Medium 4.High
-    ##   1.Very Low     4        9      0
-    ##   2.Low          1        7      0
-    ##   3.Medium       1       12      1
-    ##   4.High         0        9      2
-    ##   5.Veryhigh     0        7      2
+|               | Low deathrate | Medium deathrate | High deathrate |
+|:--------------|--------------:|-----------------:|---------------:|
+| VeryLow risk  |             4 |                9 |              0 |
+| Low risk      |             1 |                7 |              0 |
+| Medium risk   |             1 |               12 |              1 |
+| High risk     |             0 |                9 |              2 |
+| VeryHigh risk |             0 |                7 |              2 |
+
+US states: Risk status by death rate
 
 When looking at the contingency table with confirmed cases risk groups
 and death rate groups, it still shows consistent results. The very high
@@ -679,10 +804,20 @@ This bar plot shows the contingency table more visually.
 #Bar plot of risk status in 55 states
 
 ggplot(data = us_live_risk, aes(x=RiskStatus)) +
-  geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 55 states") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
+  geom_bar(aes(fill = as.factor(DeathRateStatus))) + 
+  labs(x = "Risk Status", 
+       title = "Bar plot of risk status in 55 states") +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  scale_fill_discrete(name = "Death Rate Status", 
+                      labels = c("2.Low" = "Low", "3.Medium" = "Medium", 
+                                 "4.High" = "High")) +
+  scale_x_discrete(labels = c("1.Verylow" = "Very Low","2.Low" = "Low",
+                              "3.Medium" = "Medium", "4.High" = "High",
+                              "5.Veryhigh" = "Very High")
+                   )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-204-1.png)<!-- -->
 
 You will see that the low death rate states are mainly in medium to low
 and very low risk groups (low confirmed cases) and high death rate
@@ -693,22 +828,47 @@ Lastly, I wanted to see how confirmed cases and death cases are changing
 in wake county.
 
 ``` r
-# sub setting rows by two counties
-Wake_cases <- nc_all_cases_month %>% filter(City=="Wake") 
+# sub setting rows of Wake county
+Wake_cases <- nc_all_cases_month %>% 
+                filter(City =="Wake") 
+
+# Making status column to two columns (deaths and confirmed)
+wake_cases_wide <- Wake_cases %>% 
+                    pivot_wider(names_from = "Status", values_from = "Cases")
 
 # Scatter plots for wake county
-ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
-  geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of  Wake county Cases by date") + geom_smooth(method = lm, color = "blue")  
+ggplot(data = Wake_cases, aes(x = Date, y = Cases)) +
+  geom_point(alpha=0.50) + 
+  facet_wrap(~ Status) + 
+  theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("Scatterplot of  Wake county Cases by date") +
+  geom_smooth(method = lm, color = "blue") +
+  labs(x = "Month in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-205-1.png)<!-- -->
+
+``` r
+# Scatter plots of death cases for wake county
+ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
+  geom_point(alpha=0.50) + 
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) + 
+  ggtitle("Scatterplot of  Wake county deaths cases") +
+  geom_smooth(method = lm, 
+              color = "blue") +
+  labs(x = "Month in 2021", y = "Deaths cases")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-205-2.png)<!-- -->
 
 Looking at the multi-panel scatter plot, the confirmed scatterplot
 reveals that in the beginning of 2021 the cases increased rapidly. Then
 the cases increased rapidly again since September. Again, it is hard to
-look at the pattern of death cases, so I will need to create a separate
-scatter plot for this.
+look at the pattern of death cases, so I needed to create a separate
+scatter plot for this. Looking at the deaths cases scatter plot, the
+deaths cases also increased as confirmed cases increased. However, Since
+April 2021 it has been slow down, which is a good news. Since flue
+season is coming, we will see how the pattern changes.
 
 These histograms can also show how quickly confirmed cases and death
 cases are changing by frequency of the same case numbers.
@@ -716,21 +876,34 @@ cases are changing by frequency of the same case numbers.
 ``` r
 # Histogram plot
 
-#need to change title and name of the x axis
+# Wake county confirmed cases in 2021
+wake_confirmed_cases <- nc_all_cases_month %>% 
+                          filter(Status == "confirmed") %>% 
+                          filter(City == "Wake")
 
-ncst_confirmed_cases <- nc_all_cases_month %>% filter(Status == "confirmed") %>% filter(City == "Wake")
-ncst_deaths_cases <- nc_all_cases_month %>% filter(Status == "deaths") %>% filter(City == "Wake")
+# Wake county deaths cases in 2021
+wake_deaths_cases <- nc_all_cases_month %>% 
+                        filter(Status == "deaths") %>% 
+                        filter(City == "Wake")
 
-ggplot(ncst_confirmed_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
+# Histogram of confirmed cases in 2021
+ggplot(wake_confirmed_cases, aes(Cases)) + 
+  geom_histogram(color = "brown4", fill = "brown1") +
+  labs(x = "Confirmed Cases", 
+       title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-206-1.png)<!-- -->
 
 ``` r
-ggplot(ncst_deaths_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
+# Histogram of deaths cases in 2021
+ggplot(wake_deaths_cases, aes(Cases)) + 
+  geom_histogram(color = "darkorange4", fill = "darkorange1") +
+  labs(x = "Deaths Cases", 
+       title = "Deaths cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-206-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
