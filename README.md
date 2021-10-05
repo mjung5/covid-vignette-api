@@ -114,7 +114,8 @@ can use the countryName table to find countries to look up.
 confirmedCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+    full_url = paste0(base_url,"/total/country/",country,
+                      "/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     confirmed_cases_text = content(GET(url=full_url),"text")
     confirmed_cases_json = fromJSON(confirmed_cases_text)
   # I choose 4 columns to display.
@@ -149,10 +150,12 @@ find countries you want to look up.
 deathCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+    full_url = paste0(base_url,"/total/country/",country,
+                      "/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     deaths_cases_text = content(GET(url=full_url),"text")
     deaths_cases_json = fromJSON(deaths_cases_text)
-    covid_deaths_cases <- deaths_cases_json  %>% select(Country, Cases, Status, Date) 
+    covid_deaths_cases <- deaths_cases_json  %>% 
+                            select(Country, Cases, Status, Date) 
     return(covid_deaths_cases)
   }
   # Otherwise, it will throw an error.
@@ -182,7 +185,8 @@ the countryName table to find countries to look up.
 recoveredCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+    full_url = paste0(base_url,"/total/country/", country,
+                      "/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     recovered_cases_text = content(GET(url=full_url),"text")
     recovered_cases_json = fromJSON(recovered_cases_text)
     covid_recovered_cases <- recovered_cases_json  %>% 
@@ -232,7 +236,9 @@ confirmedCasesState <- function(state_name){
   # For state names with two or more words, the user will type the state name with spaces.   
   # I set it the function to insert %20 automatically using URLendoe().
   if (state_name %in% two_word_states){
-    full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
+    full_url = paste0(base_url,
+                      "/dayone/country/united-states/status/confirmed/live?province=",
+                      state_name)
   # This function will insert %20 in the space between two words or more state name.
     URLencode(full_url)
     covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
@@ -240,7 +246,9 @@ confirmedCasesState <- function(state_name){
   }
   # Otherwise, one word state name will work. 
   else{
-    full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
+    full_url = paste0(base_url,
+                      "/dayone/country/united-states/status/confirmed/live?province=",
+                      state_name)
     covid_cases_by_states_text = content(GET(url=full_url),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
   }
@@ -281,17 +289,22 @@ deathsCasesState <- function(state_name){
                          "Rhode Island")
 
   if (state_name %in% two_word_states){
-     full_url = paste0(base_url,"/dayone/country/united-states/status/deaths/live?province=",state_name)
+     full_url = paste0(base_url,
+                       "/dayone/country/united-states/status/deaths/live?province=",
+                       state_name)
      URLencode(full_url)
     covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
   }
     else{
-    full_url = paste0(base_url,"/dayone/country/united-states/status/deaths/live?province=",state_name)
+    full_url = paste0(base_url,
+                      "/dayone/country/united-states/status/deaths/live?province=",
+                      state_name)
     covid_cases_by_states_text = content(GET(url=full_url),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
     }
-     covid_cases_by_states <- covid_cases_by_states_json %>% select(Country, Province, City, Cases, Status, Date) 
+     covid_cases_by_states <- covid_cases_by_states_json %>% 
+                                select(Country, Province, City, Cases, Status, Date) 
     return(covid_cases_by_states)
 }
 
@@ -323,7 +336,8 @@ use.
 liveConfirmedCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/live/country/",country,"/status/confirmed/date/2021-07-01T00:00:00Z")
+    full_url = paste0(base_url,"/live/country/", country,
+                      "/status/confirmed/date/2021-07-01T00:00:00Z")
     covid_cases_live_text = content(GET(url=full_url),"text")
     covid_cases_live_json = fromJSON(covid_cases_live_text)
     covid_state_cases <- covid_cases_live_json %>% 
@@ -364,10 +378,13 @@ dateManipulation <- function(dataset){
 }              
 
 # 9.data manipulation using `dateManipulation` function
+
 # confirmed case data
 confirmed_month <- dateManipulation(confirmed_cases)
+
 # 10.US all cases (confirmed and death) data
 us_all_cases_month <- dateManipulation(us_all_cases)
+
 # 11.NC all cases (confirmed and death) data
 nc_all_cases_month <- dateManipulation(nc_all_cases)
 ```
@@ -389,9 +406,9 @@ riskStatusManipulation <- function(dataset){
     mutate("DeathRate"= (Deaths/Confirmed)*100, 
            "DeathRateStatus"= if_else(DeathRate > 2, "4.High",
                                if_else(DeathRate > 1, "3.Medium", 
-                                if_else(DeathRate >0.5, "2.Low", "1.Very low"))
+                                if_else(DeathRate >0.5, "2.Low", "1.Very Low"))
                                ), 
-           "RiskStatus" = if_else(Confirmed > 1250000, "5.Veryhigh",
+           "RiskStatus" = if_else(Confirmed > 1250000, "5.Very High",
                            if_else(Confirmed > 750000, "4.High", 
                             if_else(Confirmed > 350000, "3.Medium", 
                              if_else(Confirmed > 150000, "2.Low", "1.Very Low"))))
@@ -440,7 +457,7 @@ ggplot(data = us_all_cases_month, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-192-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 In the confirmed scatter plot, we see that the cases increased rapidly
 at the end of 2020 and beginning of 2021, and then it slowed down.
@@ -465,7 +482,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-193-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 Bases on US death cases scatter plot, deaths cases are increasing over
 time, but not as fast as confirmed cases. It is good to see this pattern
@@ -496,7 +513,7 @@ ggplot(us_confirmed_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-194-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -527,7 +544,7 @@ ggplot(us_deaths_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-195-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -577,13 +594,13 @@ Summary_us_risk <- us_live_risk %>%
 kable(Summary_us_risk, caption = " Summary Stat by Risk Status")
 ```
 
-| RiskStatus |    Average |    Median |        IQR |
-|:-----------|-----------:|----------:|-----------:|
-| 1.Very Low |   78554.15 |   89989.0 |   86058.00 |
-| 2.Low      |  231486.12 |  246741.5 |   80623.25 |
-| 3.Medium   |  556041.43 |  520417.0 |  206787.50 |
-| 4.High     |  959809.55 |  866776.0 |  303044.00 |
-| 5.Veryhigh | 2471328.89 | 1627508.0 | 2152867.00 |
+| RiskStatus  |    Average |    Median |        IQR |
+|:------------|-----------:|----------:|-----------:|
+| 1.Very Low  |   78554.15 |   89989.0 |   86058.00 |
+| 2.Low       |  231486.12 |  246741.5 |   80623.25 |
+| 3.Medium    |  556041.43 |  520417.0 |  206787.50 |
+| 4.High      |  959809.55 |  866776.0 |  303044.00 |
+| 5.Very High | 2471328.89 | 1627508.0 | 2152867.00 |
 
 Summary Stat by Risk Status
 
@@ -650,7 +667,7 @@ ggplot(data=top10states, aes(x=Province,
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-199-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 While state\_highrisk contingency table shows where each states belongs
 in terms of risk category, the bar plot shows the number of confirmed
@@ -686,7 +703,7 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
               color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-200-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.975, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -713,7 +730,7 @@ ggplot(data=top10statesdeath, aes(x=Province,
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-201-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 As the prediction of the correlation between confirmed cases and death
 cases, California is again the top state showing the highest number of
@@ -811,13 +828,13 @@ ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   scale_fill_discrete(name = "Death Rate Status", 
                       labels = c("2.Low" = "Low", "3.Medium" = "Medium", 
                                  "4.High" = "High")) +
-  scale_x_discrete(labels = c("1.Verylow" = "Very Low","2.Low" = "Low",
+  scale_x_discrete(labels = c("1.Very Low" = "Very Low","2.Low" = "Low",
                               "3.Medium" = "Medium", "4.High" = "High",
-                              "5.Veryhigh" = "Very High")
+                              "5.Very High" = "Very High")
                    )
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-204-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 You will see that the low death rate states are mainly in medium to low
 and very low risk groups (low confirmed cases) and high death rate
@@ -846,7 +863,7 @@ ggplot(data = Wake_cases, aes(x = Date, y = Cases)) +
   labs(x = "Month in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-205-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 ``` r
 # Scatter plots of death cases for wake county
@@ -859,7 +876,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
   labs(x = "Month in 2021", y = "Deaths cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-205-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-37-2.png)<!-- -->
 
 Looking at the multi-panel scatter plot, the confirmed scatterplot
 reveals that in the beginning of 2021 the cases increased rapidly. Then
@@ -893,7 +910,7 @@ ggplot(wake_confirmed_cases, aes(Cases)) +
        title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-206-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 ``` r
 # Histogram of deaths cases in 2021
@@ -903,7 +920,7 @@ ggplot(wake_deaths_cases, aes(Cases)) +
        title = "Deaths cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-206-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-38-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases

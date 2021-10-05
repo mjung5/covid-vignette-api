@@ -90,7 +90,8 @@ This function interacts with the `By Country Total` endpoint. This function retu
 confirmedCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/",country,"/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+    full_url = paste0(base_url,"/total/country/",country,
+                      "/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     confirmed_cases_text = content(GET(url=full_url),"text")
     confirmed_cases_json = fromJSON(confirmed_cases_text)
   # I choose 4 columns to display.
@@ -119,10 +120,12 @@ This function interacts with the `By Country Total` endpoint with modification o
 deathCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/",country,"/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+    full_url = paste0(base_url,"/total/country/",country,
+                      "/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     deaths_cases_text = content(GET(url=full_url),"text")
     deaths_cases_json = fromJSON(deaths_cases_text)
-    covid_deaths_cases <- deaths_cases_json  %>% select(Country, Cases, Status, Date) 
+    covid_deaths_cases <- deaths_cases_json  %>% 
+                            select(Country, Cases, Status, Date) 
     return(covid_deaths_cases)
   }
   # Otherwise, it will throw an error.
@@ -146,7 +149,8 @@ This function interacts with the `By Country Total` endpoint with modification o
 recoveredCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/", country,"/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
+    full_url = paste0(base_url,"/total/country/", country,
+                      "/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     recovered_cases_text = content(GET(url=full_url),"text")
     recovered_cases_json = fromJSON(recovered_cases_text)
     covid_recovered_cases <- recovered_cases_json  %>% 
@@ -191,7 +195,9 @@ confirmedCasesState <- function(state_name){
   # For state names with two or more words, the user will type the state name with spaces.   
   # I set it the function to insert %20 automatically using URLendoe().
   if (state_name %in% two_word_states){
-    full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
+    full_url = paste0(base_url,
+                      "/dayone/country/united-states/status/confirmed/live?province=",
+                      state_name)
   # This function will insert %20 in the space between two words or more state name.
     URLencode(full_url)
     covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
@@ -199,7 +205,9 @@ confirmedCasesState <- function(state_name){
   }
   # Otherwise, one word state name will work. 
   else{
-    full_url = paste0(base_url,"/dayone/country/united-states/status/confirmed/live?province=",state_name)
+    full_url = paste0(base_url,
+                      "/dayone/country/united-states/status/confirmed/live?province=",
+                      state_name)
     covid_cases_by_states_text = content(GET(url=full_url),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
   }
@@ -236,17 +244,22 @@ deathsCasesState <- function(state_name){
                          "Rhode Island")
 
   if (state_name %in% two_word_states){
-     full_url = paste0(base_url,"/dayone/country/united-states/status/deaths/live?province=",state_name)
+     full_url = paste0(base_url,
+                       "/dayone/country/united-states/status/deaths/live?province=",
+                       state_name)
      URLencode(full_url)
     covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
   }
     else{
-    full_url = paste0(base_url,"/dayone/country/united-states/status/deaths/live?province=",state_name)
+    full_url = paste0(base_url,
+                      "/dayone/country/united-states/status/deaths/live?province=",
+                      state_name)
     covid_cases_by_states_text = content(GET(url=full_url),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
     }
-     covid_cases_by_states <- covid_cases_by_states_json %>% select(Country, Province, City, Cases, Status, Date) 
+     covid_cases_by_states <- covid_cases_by_states_json %>% 
+                                select(Country, Province, City, Cases, Status, Date) 
     return(covid_cases_by_states)
 }
 
@@ -275,7 +288,8 @@ This function interacts with the `Live By Country And Status After Date` endpoin
 liveConfirmedCases <- function(country){
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/live/country/",country,"/status/confirmed/date/2021-07-01T00:00:00Z")
+    full_url = paste0(base_url,"/live/country/", country,
+                      "/status/confirmed/date/2021-07-01T00:00:00Z")
     covid_cases_live_text = content(GET(url=full_url),"text")
     covid_cases_live_json = fromJSON(covid_cases_live_text)
     covid_state_cases <- covid_cases_live_json %>% 
@@ -315,10 +329,13 @@ dateManipulation <- function(dataset){
 }              
 
 # 9.data manipulation using `dateManipulation` function
+
 # confirmed case data
 confirmed_month <- dateManipulation(confirmed_cases)
+
 # 10.US all cases (confirmed and death) data
 us_all_cases_month <- dateManipulation(us_all_cases)
+
 # 11.NC all cases (confirmed and death) data
 nc_all_cases_month <- dateManipulation(nc_all_cases)
 
@@ -335,9 +352,9 @@ riskStatusManipulation <- function(dataset){
     mutate("DeathRate"= (Deaths/Confirmed)*100, 
            "DeathRateStatus"= if_else(DeathRate > 2, "4.High",
                                if_else(DeathRate > 1, "3.Medium", 
-                                if_else(DeathRate >0.5, "2.Low", "1.Very low"))
+                                if_else(DeathRate >0.5, "2.Low", "1.Very Low"))
                                ), 
-           "RiskStatus" = if_else(Confirmed > 1250000, "5.Veryhigh",
+           "RiskStatus" = if_else(Confirmed > 1250000, "5.Very High",
                            if_else(Confirmed > 750000, "4.High", 
                             if_else(Confirmed > 350000, "3.Medium", 
                              if_else(Confirmed > 150000, "2.Low", "1.Very Low"))))
@@ -613,9 +630,9 @@ ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   scale_fill_discrete(name = "Death Rate Status", 
                       labels = c("2.Low" = "Low", "3.Medium" = "Medium", 
                                  "4.High" = "High")) +
-  scale_x_discrete(labels = c("1.Verylow" = "Very Low","2.Low" = "Low",
+  scale_x_discrete(labels = c("1.Very Low" = "Very Low","2.Low" = "Low",
                               "3.Medium" = "Medium", "4.High" = "High",
-                              "5.Veryhigh" = "Very High")
+                              "5.Very High" = "Very High")
                    )
 
 ```
