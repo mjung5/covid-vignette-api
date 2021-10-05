@@ -430,7 +430,7 @@ state_highrisk
 
 ggplot(data=top10states, aes(x=Province, y=Confirmed)) +
   geom_bar(stat="identity", fill="orange") +
-  labs(x = "State", title = "Top 10 US states on Confirmed caseS") + geom_text(aes(label=Confirmed), vjust=1.6, color="black", size=3.5) +
+  labs(x = "State", title = "Top 10 US states on Confirmed cases") + geom_text(aes(label=Confirmed), vjust=1.6, color="black", size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
@@ -501,10 +501,10 @@ You will see that the low death rate states are mainly in medium to low and very
 Lastly, I wanted to see how confirmed cases and death cases are changing in wake county.  
 
 ```{r message=FALSE}
-# subsetting rows by two counties
+# sub setting rows by two counties
 Wake_cases <- nc_all_cases_month %>% filter(City=="Wake") 
 
-# Scatter plots for wake and Meck country
+# Scatter plots for wake county
 ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
   geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of  Wake county Cases by date") + geom_smooth(method = lm, color = "blue")  

@@ -434,7 +434,7 @@ ggplot(data = us_all_cases_month, aes(x = Date, y = Cases))+
   ggtitle("Scatterplot of U.S. Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 In the confirmed scatter plot, we see that the cases increased rapidly
 at the end of 2020 and beginning of 2021, and then it slowed down.
@@ -456,7 +456,7 @@ us_confirmed_states<- us_all_cases_month %>% filter(Status == "confirmed")
 boxplot(Cases~Time_span,data=us_confirmed_states, main="Us Covid confirmed Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -471,7 +471,7 @@ us_deaths_states<- us_all_cases_month %>% filter(Status == "deaths") #Box plot f
 boxplot(Cases~Time_span,data=us_deaths_states, main="Us Covid death Cases Comparison by Time span using Box plot",xlab="Timespan", ylab="Cases",col=(c("blue","orange","green","gold","purple")))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -559,11 +559,11 @@ risk categories may change.
 
 ggplot(data=top10states, aes(x=Province, y=Confirmed)) +
   geom_bar(stat="identity", fill="orange") +
-  labs(x = "State", title = "Top 10 US states on Confirmed caseS") + geom_text(aes(label=Confirmed), vjust=1.6, color="black", size=3.5) +
+  labs(x = "State", title = "Top 10 US states on Confirmed cases") + geom_text(aes(label=Confirmed), vjust=1.6, color="black", size=3.5) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 While state\_highrisk contingency table shows where each states belongs
 in terms of risk category, the bar plot shows the number of confirmed
@@ -589,7 +589,7 @@ ggplot(data = us_live_risk, aes(x = Confirmed, y = Deaths))+
   ggtitle("Scatterplot of correlation between death Cases and confirmed cases") + geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.975, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -610,7 +610,7 @@ ggplot(data=top10statesdeath, aes(x=Province, y=Deaths)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 As the prediction of the correlation between confirmed cases and death
 cases, California is again the top state showing the highest number of
@@ -682,7 +682,7 @@ ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   geom_bar(aes(fill = as.factor(DeathRateStatus))) + labs(x = " Risk Status", title = "Bar plot of Risk status in 55 states") + theme(axis.text.x = element_text(angle = 45, hjust=1)) + scale_fill_discrete(name = "DeathRate Status")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 You will see that the low death rate states are mainly in medium to low
 and very low risk groups (low confirmed cases) and high death rate
@@ -693,16 +693,16 @@ Lastly, I wanted to see how confirmed cases and death cases are changing
 in wake county.
 
 ``` r
-# subsetting rows by two counties
+# sub setting rows by two counties
 Wake_cases <- nc_all_cases_month %>% filter(City=="Wake") 
 
-# Scatter plots for wake and Meck country
+# Scatter plots for wake county
 ggplot(data = Wake_cases, aes(x = Date, y = Cases))+
   geom_point() + facet_wrap(~ Status) + theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
   ggtitle("Scatterplot of  Wake county Cases by date") + geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 Looking at the multi-panel scatter plot, the confirmed scatterplot
 reveals that in the beginning of 2021 the cases increased rapidly. Then
@@ -724,13 +724,13 @@ ncst_deaths_cases <- nc_all_cases_month %>% filter(Status == "deaths") %>% filte
 ggplot(ncst_confirmed_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 ggplot(ncst_deaths_cases, aes(Cases)) + geom_histogram(color = "blue", fill = "lightblue")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-30-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
