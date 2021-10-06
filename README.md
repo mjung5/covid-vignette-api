@@ -22,7 +22,7 @@ Min-Jung Jung
 
 This project is to create a vignette about contacting an API. I created
 functions to download data via interacting endpoints. I will show this
-process with COVID API.
+process with COVID19 API.
 
 # Reqired pakages
 
@@ -69,6 +69,7 @@ name. Therefore, I can use the this table to find the correct name of
 the country for the URL.
 
 ``` r
+# Create helper function to find country name and slug
 countryName <- function(){
   full_url = paste0(base_url,"/countries")
   country <- content(GET(url=full_url),"text")
@@ -79,23 +80,7 @@ countryName <- function(){
 }
 # This table will guide users to find specific country and slug.
 countryName <- countryName()
-countryName
 ```
-
-    ## # A tibble: 248 x 2
-    ##    Country        Slug          
-    ##    <chr>          <chr>         
-    ##  1 Australia      australia     
-    ##  2 Guam           guam          
-    ##  3 Rwanda         rwanda        
-    ##  4 Zimbabwe       zimbabwe      
-    ##  5 Austria        austria       
-    ##  6 Honduras       honduras      
-    ##  7 Lesotho        lesotho       
-    ##  8 Mauritius      mauritius     
-    ##  9 Norfolk Island norfolk-island
-    ## 10 Bahamas        bahamas       
-    ## # ... with 238 more rows
 
 ## `covidSummary`
 
@@ -128,6 +113,7 @@ can use the countryName table to find countries to look up.
 
 ``` r
 confirmedCases <- function(country){
+    country <- tolower(country)
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
     full_url = paste0(base_url,"/total/country/",country,
@@ -140,7 +126,7 @@ confirmedCases <- function(country){
     return(covid_confirmed_cases)
   } else {
     message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                    "Look up countryName to find the country you are looking",
+                    "Use countryName() function to find the country you are looking",
                     "for and use Slug.")
     stop(message)
   }
@@ -162,6 +148,7 @@ find countries you want to look up.
 
 ``` r
 deathCases <- function(country){
+  country <- tolower(country)
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
     full_url = paste0(base_url,"/total/country/",country,
@@ -173,7 +160,7 @@ deathCases <- function(country){
     return(covid_deaths_cases)
   } else {
     message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                     "Look up countryName to find the country you are looking",
+                     "Use countryName() to find the country you are looking",
                      "for and use Slug.")
     stop(message)
   }
@@ -195,6 +182,7 @@ the countryName table to find countries to look up.
 
 ``` r
 recoveredCases <- function(country){
+  country <- tolower(country)
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
     full_url = paste0(base_url,"/total/country/", country,
@@ -206,7 +194,7 @@ recoveredCases <- function(country){
     return(covid_recovered_cases)
   } else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                       "Look up countryName to find the country you are looking",
+                       "Use countryName() to find the country you are looking",
                        "for and use Slug.")
       stop(message)
   }
@@ -268,183 +256,183 @@ confirmedCasesState <- function(state_name){
 
 # 5.User(s) can select different state names.
 state_confirmedData <- confirmedCasesState("North Carolina")
+state_confirmedData
+```
 
+    ##                      Country       Province         City Cases    Status                 Date
+    ## 1   United States of America North Carolina        Union  7255 confirmed 2020-11-22T00:00:00Z
+    ## 2   United States of America North Carolina       Person   894 confirmed 2020-11-22T00:00:00Z
+    ## 3   United States of America North Carolina     Mitchell   472 confirmed 2020-11-22T00:00:00Z
+    ## 4   United States of America North Carolina      Robeson  7045 confirmed 2020-11-22T00:00:00Z
+    ## 5   United States of America North Carolina    Edgecombe  2404 confirmed 2020-11-22T00:00:00Z
+    ## 6   United States of America North Carolina       Craven  2924 confirmed 2020-11-22T00:00:00Z
+    ## 7   United States of America North Carolina       Greene  1146 confirmed 2020-11-22T00:00:00Z
+    ## 8   United States of America North Carolina         Polk   454 confirmed 2020-11-22T00:00:00Z
+    ## 9   United States of America North Carolina     Guilford 15355 confirmed 2020-11-22T00:00:00Z
+    ## 10  United States of America North Carolina      Jackson  1335 confirmed 2020-11-22T00:00:00Z
+    ## 11  United States of America North Carolina      Tyrrell   138 confirmed 2020-11-22T00:00:00Z
+    ## 12  United States of America North Carolina   Rockingham  2805 confirmed 2020-11-22T00:00:00Z
+    ## 13  United States of America North Carolina    Cleveland  4014 confirmed 2020-11-22T00:00:00Z
+    ## 14  United States of America North Carolina       Pender  1800 confirmed 2020-11-22T00:00:00Z
+    ## 15  United States of America North Carolina         Clay   275 confirmed 2020-11-22T00:00:00Z
+    ## 16  United States of America North Carolina   Cumberland  8868 confirmed 2020-11-22T00:00:00Z
+    ## 17  United States of America North Carolina       Orange  3704 confirmed 2020-11-22T00:00:00Z
+    ## 18  United States of America North Carolina        Surry  2589 confirmed 2020-11-22T00:00:00Z
+    ## 19  United States of America North Carolina         Ashe   710 confirmed 2020-11-22T00:00:00Z
+    ## 20  United States of America North Carolina    Alleghany   375 confirmed 2020-11-22T00:00:00Z
+    ## 21  United States of America North Carolina       Bladen  1265 confirmed 2020-11-22T00:00:00Z
+    ## 22  United States of America North Carolina        Wayne  5476 confirmed 2020-11-22T00:00:00Z
+    ## 23  United States of America North Carolina      Forsyth 12101 confirmed 2020-11-22T00:00:00Z
+    ## 24  United States of America North Carolina     Johnston  7133 confirmed 2020-11-22T00:00:00Z
+    ## 25  United States of America North Carolina      Halifax  1863 confirmed 2020-11-22T00:00:00Z
+    ## 26  United States of America North Carolina    Currituck   307 confirmed 2020-11-22T00:00:00Z
+    ## 27  United States of America North Carolina     Franklin  1838 confirmed 2020-11-22T00:00:00Z
+    ## 28  United States of America North Carolina        Macon   906 confirmed 2020-11-22T00:00:00Z
+    ## 29  United States of America North Carolina      Chatham  2270 confirmed 2020-11-22T00:00:00Z
+    ## 30  United States of America North Carolina       Wilkes  2489 confirmed 2020-11-22T00:00:00Z
+    ## 31  United States of America North Carolina        Swain   365 confirmed 2020-11-22T00:00:00Z
+    ## 32  United States of America North Carolina       Gaston  9555 confirmed 2020-11-22T00:00:00Z
+    ## 33  United States of America North Carolina        Jones   247 confirmed 2020-11-22T00:00:00Z
+    ## 34  United States of America North Carolina       Duplin  3218 confirmed 2020-11-22T00:00:00Z
+    ## 35  United States of America North Carolina     Caldwell  3278 confirmed 2020-11-22T00:00:00Z
+    ## 36  United States of America North Carolina     Scotland  1865 confirmed 2020-11-22T00:00:00Z
+    ## 37  United States of America North Carolina    Henderson  2976 confirmed 2020-11-22T00:00:00Z
+    ## 38  United States of America North Carolina   Unassigned    10 confirmed 2020-11-22T00:00:00Z
+    ## 39  United States of America North Carolina  Northampton   761 confirmed 2020-11-22T00:00:00Z
+    ## 40  United States of America North Carolina     McDowell  1698 confirmed 2020-11-22T00:00:00Z
+    ## 41  United States of America North Carolina   Perquimans   312 confirmed 2020-11-22T00:00:00Z
+    ## 42  United States of America North Carolina        Burke  3548 confirmed 2020-11-22T00:00:00Z
+    ## 43  United States of America North Carolina        Rowan  5243 confirmed 2020-11-22T00:00:00Z
+    ## 44  United States of America North Carolina      Lincoln  3175 confirmed 2020-11-22T00:00:00Z
+    ## 45  United States of America North Carolina Transylvania   503 confirmed 2020-11-22T00:00:00Z
+    ## 46  United States of America North Carolina     Cabarrus  6384 confirmed 2020-11-22T00:00:00Z
+    ## 47  United States of America North Carolina   Pasquotank  1022 confirmed 2020-11-22T00:00:00Z
+    ## 48  United States of America North Carolina   Rutherford  2211 confirmed 2020-11-22T00:00:00Z
+    ## 49  United States of America North Carolina     Alamance  6614 confirmed 2020-11-22T00:00:00Z
+    ## 50  United States of America North Carolina   Montgomery  1345 confirmed 2020-11-22T00:00:00Z
+    ## 51  United States of America North Carolina      Watauga  1733 confirmed 2020-11-22T00:00:00Z
+    ## 52  United States of America North Carolina          Lee  2380 confirmed 2020-11-22T00:00:00Z
+    ## 53  United States of America North Carolina        Moore  2730 confirmed 2020-11-22T00:00:00Z
+    ## 54  United States of America North Carolina       Bertie   851 confirmed 2020-11-22T00:00:00Z
+    ## 55  United States of America North Carolina       Lenoir  1965 confirmed 2020-11-22T00:00:00Z
+    ## 56  United States of America North Carolina         Hyde   182 confirmed 2020-11-22T00:00:00Z
+    ## 57  United States of America North Carolina       Martin   785 confirmed 2020-11-22T00:00:00Z
+    ## 58  United States of America North Carolina      Iredell  5066 confirmed 2020-11-22T00:00:00Z
+    ## 59  United States of America North Carolina       Durham 10743 confirmed 2020-11-22T00:00:00Z
+    ## 60  United States of America North Carolina         Dare   590 confirmed 2020-11-22T00:00:00Z
+    ## 61  United States of America North Carolina     Hertford   941 confirmed 2020-11-22T00:00:00Z
+    ## 62  United States of America North Carolina         Wake 26464 confirmed 2020-11-22T00:00:00Z
+    ## 63  United States of America North Carolina     Carteret  1592 confirmed 2020-11-22T00:00:00Z
+    ## 64  United States of America North Carolina      Sampson  3421 confirmed 2020-11-22T00:00:00Z
+    ## 65  United States of America North Carolina      Pamlico   373 confirmed 2020-11-22T00:00:00Z
+    ## 66  United States of America North Carolina  Mecklenburg 40754 confirmed 2020-11-22T00:00:00Z
+    ## 67  United States of America North Carolina     Randolph  5004 confirmed 2020-11-22T00:00:00Z
+    ## 68  United States of America North Carolina      Madison   457 confirmed 2020-11-22T00:00:00Z
+    ## 69  United States of America North Carolina        Vance  1585 confirmed 2020-11-22T00:00:00Z
+    ## 70  United States of America North Carolina     Buncombe  5193 confirmed 2020-11-22T00:00:00Z
+    ## 71  United States of America North Carolina       Graham   268 confirmed 2020-11-22T00:00:00Z
+    ## 72  United States of America North Carolina       Camden   169 confirmed 2020-11-22T00:00:00Z
+    ## 73  United States of America North Carolina       Wilson  3796 confirmed 2020-11-22T00:00:00Z
+    ## 74  United States of America North Carolina     Beaufort  1623 confirmed 2020-11-22T00:00:00Z
+    ## 75  United States of America North Carolina      Haywood  1001 confirmed 2020-11-22T00:00:00Z
+    ## 76  United States of America North Carolina    Brunswick  2768 confirmed 2020-11-22T00:00:00Z
+    ## 77  United States of America North Carolina       Yadkin  1374 confirmed 2020-11-22T00:00:00Z
+    ## 78  United States of America North Carolina    Granville  2405 confirmed 2020-11-22T00:00:00Z
+    ## 79  United States of America North Carolina        Davie  1125 confirmed 2020-11-22T00:00:00Z
+    ## 80  United States of America North Carolina       Chowan   586 confirmed 2020-11-22T00:00:00Z
+    ## 81  United States of America North Carolina        Gates   197 confirmed 2020-11-22T00:00:00Z
+    ## 82  United States of America North Carolina       Onslow  4769 confirmed 2020-11-22T00:00:00Z
+    ## 83  United States of America North Carolina         Pitt  7457 confirmed 2020-11-22T00:00:00Z
+    ## 84  United States of America North Carolina      Catawba  6261 confirmed 2020-11-22T00:00:00Z
+    ## 85  United States of America North Carolina     Davidson  4888 confirmed 2020-11-22T00:00:00Z
+    ## 86  United States of America North Carolina     Richmond  1758 confirmed 2020-11-22T00:00:00Z
+    ## 87  United States of America North Carolina       Yancey   497 confirmed 2020-11-22T00:00:00Z
+    ## 88  United States of America North Carolina  New Hanover  6564 confirmed 2020-11-22T00:00:00Z
+    ## 89  United States of America North Carolina     Cherokee   897 confirmed 2020-11-22T00:00:00Z
+    ## 90  United States of America North Carolina       Warren   591 confirmed 2020-11-22T00:00:00Z
+    ## 91  United States of America North Carolina       Stanly  2816 confirmed 2020-11-22T00:00:00Z
+    ## 92  United States of America North Carolina         Hoke  1880 confirmed 2020-11-22T00:00:00Z
+    ## 93  United States of America North Carolina         Nash  4206 confirmed 2020-11-22T00:00:00Z
+    ## 94  United States of America North Carolina   Washington   298 confirmed 2020-11-22T00:00:00Z
+    ## 95  United States of America North Carolina        Anson   866 confirmed 2020-11-22T00:00:00Z
+    ## 96  United States of America North Carolina       Stokes  1040 confirmed 2020-11-22T00:00:00Z
+    ## 97  United States of America North Carolina    Alexander  1455 confirmed 2020-11-22T00:00:00Z
+    ## 98  United States of America North Carolina        Avery   865 confirmed 2020-11-22T00:00:00Z
+    ## 99  United States of America North Carolina      Harnett  3709 confirmed 2020-11-22T00:00:00Z
+    ## 100 United States of America North Carolina     Columbus  2508 confirmed 2020-11-22T00:00:00Z
+    ## 101 United States of America North Carolina      Caswell   789 confirmed 2020-11-22T00:00:00Z
+    ## 102 United States of America North Carolina        Rowan  5316 confirmed 2020-11-23T00:00:00Z
+    ## 103 United States of America North Carolina       Warren   592 confirmed 2020-11-23T00:00:00Z
+    ## 104 United States of America North Carolina        Macon   905 confirmed 2020-11-23T00:00:00Z
+    ## 105 United States of America North Carolina        Swain   367 confirmed 2020-11-23T00:00:00Z
+    ## 106 United States of America North Carolina      Tyrrell   139 confirmed 2020-11-23T00:00:00Z
+    ## 107 United States of America North Carolina      Pamlico   376 confirmed 2020-11-23T00:00:00Z
+    ## 108 United States of America North Carolina     Columbus  2521 confirmed 2020-11-23T00:00:00Z
+    ## 109 United States of America North Carolina        Moore  2757 confirmed 2020-11-23T00:00:00Z
+    ## 110 United States of America North Carolina         Clay   276 confirmed 2020-11-23T00:00:00Z
+    ## 111 United States of America North Carolina  Mecklenburg 41073 confirmed 2020-11-23T00:00:00Z
+    ## 112 United States of America North Carolina      Chatham  2279 confirmed 2020-11-23T00:00:00Z
+    ## 113 United States of America North Carolina   Rockingham  2824 confirmed 2020-11-23T00:00:00Z
+    ## 114 United States of America North Carolina       Onslow  4809 confirmed 2020-11-23T00:00:00Z
+    ## 115 United States of America North Carolina        Burke  3589 confirmed 2020-11-23T00:00:00Z
+    ## 116 United States of America North Carolina       Gaston  9637 confirmed 2020-11-23T00:00:00Z
+    ## 117 United States of America North Carolina       Duplin  3228 confirmed 2020-11-23T00:00:00Z
+    ## 118 United States of America North Carolina   Cumberland  8933 confirmed 2020-11-23T00:00:00Z
+    ## 119 United States of America North Carolina     Scotland  1874 confirmed 2020-11-23T00:00:00Z
+    ## 120 United States of America North Carolina        Union  7319 confirmed 2020-11-23T00:00:00Z
+    ## 121 United States of America North Carolina       Person   904 confirmed 2020-11-23T00:00:00Z
+    ## 122 United States of America North Carolina   Pasquotank  1031 confirmed 2020-11-23T00:00:00Z
+    ## 123 United States of America North Carolina   Washington   300 confirmed 2020-11-23T00:00:00Z
+    ## 124 United States of America North Carolina       Yancey   499 confirmed 2020-11-23T00:00:00Z
+    ## 125 United States of America North Carolina         Hyde   182 confirmed 2020-11-23T00:00:00Z
+    ## 126 United States of America North Carolina    Henderson  2994 confirmed 2020-11-23T00:00:00Z
+    ## 127 United States of America North Carolina      Haywood  1012 confirmed 2020-11-23T00:00:00Z
+    ## 128 United States of America North Carolina         Polk   459 confirmed 2020-11-23T00:00:00Z
+    ## 129 United States of America North Carolina   Unassigned     4 confirmed 2020-11-23T00:00:00Z
+    ## 130 United States of America North Carolina      Catawba  6322 confirmed 2020-11-23T00:00:00Z
+    ## 131 United States of America North Carolina        Jones   251 confirmed 2020-11-23T00:00:00Z
+    ## 132 United States of America North Carolina       Camden   170 confirmed 2020-11-23T00:00:00Z
+    ## 133 United States of America North Carolina         Ashe   718 confirmed 2020-11-23T00:00:00Z
+    ## 134 United States of America North Carolina        Vance  1606 confirmed 2020-11-23T00:00:00Z
+    ## 135 United States of America North Carolina       Greene  1153 confirmed 2020-11-23T00:00:00Z
+    ## 136 United States of America North Carolina        Gates   197 confirmed 2020-11-23T00:00:00Z
+    ## 137 United States of America North Carolina   Perquimans   316 confirmed 2020-11-23T00:00:00Z
+    ## 138 United States of America North Carolina    Granville  2417 confirmed 2020-11-23T00:00:00Z
+    ## 139 United States of America North Carolina      Halifax  1874 confirmed 2020-11-23T00:00:00Z
+    ## 140 United States of America North Carolina     Cherokee   903 confirmed 2020-11-23T00:00:00Z
+    ## 141 United States of America North Carolina    Alleghany   376 confirmed 2020-11-23T00:00:00Z
+    ## 142 United States of America North Carolina     Guilford 15485 confirmed 2020-11-23T00:00:00Z
+    ## 143 United States of America North Carolina         Wake 26635 confirmed 2020-11-23T00:00:00Z
+    ## 144 United States of America North Carolina         Hoke  1885 confirmed 2020-11-23T00:00:00Z
+    ## 145 United States of America North Carolina       Bertie   857 confirmed 2020-11-23T00:00:00Z
+    ## 146 United States of America North Carolina     Franklin  1843 confirmed 2020-11-23T00:00:00Z
+    ## 147 United States of America North Carolina     Mitchell   472 confirmed 2020-11-23T00:00:00Z
+    ## 148 United States of America North Carolina      Iredell  5107 confirmed 2020-11-23T00:00:00Z
+    ## 149 United States of America North Carolina      Harnett  3741 confirmed 2020-11-23T00:00:00Z
+    ## 150 United States of America North Carolina      Jackson  1336 confirmed 2020-11-23T00:00:00Z
+    ## 151 United States of America North Carolina     Buncombe  5232 confirmed 2020-11-23T00:00:00Z
+    ## 152 United States of America North Carolina         Pitt  7498 confirmed 2020-11-23T00:00:00Z
+    ## 153 United States of America North Carolina       Craven  2934 confirmed 2020-11-23T00:00:00Z
+    ## 154 United States of America North Carolina     Hertford   948 confirmed 2020-11-23T00:00:00Z
+    ## 155 United States of America North Carolina    Edgecombe  2421 confirmed 2020-11-23T00:00:00Z
+    ## 156 United States of America North Carolina      Sampson  3442 confirmed 2020-11-23T00:00:00Z
+    ## 157 United States of America North Carolina      Caswell   795 confirmed 2020-11-23T00:00:00Z
+    ## 158 United States of America North Carolina   Montgomery  1350 confirmed 2020-11-23T00:00:00Z
+    ## 159 United States of America North Carolina    Currituck   309 confirmed 2020-11-23T00:00:00Z
+    ## 160 United States of America North Carolina     McDowell  1725 confirmed 2020-11-23T00:00:00Z
+    ## 161 United States of America North Carolina       Stokes  1059 confirmed 2020-11-23T00:00:00Z
+    ## 162 United States of America North Carolina       Orange  3714 confirmed 2020-11-23T00:00:00Z
+    ## 163 United States of America North Carolina       Pender  1817 confirmed 2020-11-23T00:00:00Z
+    ## 164 United States of America North Carolina        Davie  1131 confirmed 2020-11-23T00:00:00Z
+    ## 165 United States of America North Carolina        Wayne  5513 confirmed 2020-11-23T00:00:00Z
+    ## 166 United States of America North Carolina       Graham   268 confirmed 2020-11-23T00:00:00Z
+    ##  [ reached 'max' / getOption("max.print") -- omitted 31837 rows ]
+
+``` r
 # 5-1.Last row was the sum of all confirmed case numbers of 55 states.
 # I deleted the last row to keep the state level data only.
 state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
-
-ncf <- confirmedCasesState("district of columbia")
-ncf
 ```
-
-    ##                      Country             Province                 City Cases    Status                 Date
-    ## 1   United States of America District of Columbia District of Columbia 20151 confirmed 2020-11-22T00:00:00Z
-    ## 2   United States of America District of Columbia District of Columbia 20290 confirmed 2020-11-23T00:00:00Z
-    ## 3   United States of America District of Columbia District of Columbia 20409 confirmed 2020-11-24T00:00:00Z
-    ## 4   United States of America District of Columbia District of Columbia 20516 confirmed 2020-11-25T00:00:00Z
-    ## 5   United States of America District of Columbia District of Columbia 20736 confirmed 2020-11-26T00:00:00Z
-    ## 6   United States of America District of Columbia District of Columbia 20937 confirmed 2020-11-27T00:00:00Z
-    ## 7   United States of America District of Columbia District of Columbia 21308 confirmed 2020-11-28T00:00:00Z
-    ## 8   United States of America District of Columbia District of Columbia 21448 confirmed 2020-11-29T00:00:00Z
-    ## 9   United States of America District of Columbia District of Columbia 21552 confirmed 2020-11-30T00:00:00Z
-    ## 10  United States of America District of Columbia District of Columbia 21685 confirmed 2020-12-01T00:00:00Z
-    ## 11  United States of America District of Columbia District of Columbia 21842 confirmed 2020-12-02T00:00:00Z
-    ## 12  United States of America District of Columbia District of Columbia 22164 confirmed 2020-12-03T00:00:00Z
-    ## 13  United States of America District of Columbia District of Columbia 22480 confirmed 2020-12-04T00:00:00Z
-    ## 14  United States of America District of Columbia District of Columbia 22872 confirmed 2020-12-05T00:00:00Z
-    ## 15  United States of America District of Columbia District of Columbia 23136 confirmed 2020-12-06T00:00:00Z
-    ## 16  United States of America District of Columbia District of Columbia 23319 confirmed 2020-12-07T00:00:00Z
-    ## 17  United States of America District of Columbia District of Columbia 23589 confirmed 2020-12-08T00:00:00Z
-    ## 18  United States of America District of Columbia District of Columbia 23854 confirmed 2020-12-09T00:00:00Z
-    ## 19  United States of America District of Columbia District of Columbia 24098 confirmed 2020-12-10T00:00:00Z
-    ## 20  United States of America District of Columbia District of Columbia 24357 confirmed 2020-12-11T00:00:00Z
-    ## 21  United States of America District of Columbia District of Columbia 24643 confirmed 2020-12-12T00:00:00Z
-    ## 22  United States of America District of Columbia District of Columbia 24874 confirmed 2020-12-13T00:00:00Z
-    ## 23  United States of America District of Columbia District of Columbia 25038 confirmed 2020-12-14T00:00:00Z
-    ## 24  United States of America District of Columbia District of Columbia 25339 confirmed 2020-12-15T00:00:00Z
-    ## 25  United States of America District of Columbia District of Columbia 25602 confirmed 2020-12-16T00:00:00Z
-    ## 26  United States of America District of Columbia District of Columbia 25830 confirmed 2020-12-17T00:00:00Z
-    ## 27  United States of America District of Columbia District of Columbia 26104 confirmed 2020-12-18T00:00:00Z
-    ## 28  United States of America District of Columbia District of Columbia 26342 confirmed 2020-12-19T00:00:00Z
-    ## 29  United States of America District of Columbia District of Columbia 26601 confirmed 2020-12-20T00:00:00Z
-    ## 30  United States of America District of Columbia District of Columbia 26740 confirmed 2020-12-21T00:00:00Z
-    ## 31  United States of America District of Columbia District of Columbia 26900 confirmed 2020-12-22T00:00:00Z
-    ## 32  United States of America District of Columbia District of Columbia 27226 confirmed 2020-12-23T00:00:00Z
-    ## 33  United States of America District of Columbia District of Columbia 27436 confirmed 2020-12-24T00:00:00Z
-    ## 34  United States of America District of Columbia District of Columbia 27436 confirmed 2020-12-25T00:00:00Z
-    ## 35  United States of America District of Columbia District of Columbia 27710 confirmed 2020-12-26T00:00:00Z
-    ## 36  United States of America District of Columbia District of Columbia 28202 confirmed 2020-12-27T00:00:00Z
-    ## 37  United States of America District of Columbia District of Columbia 28342 confirmed 2020-12-28T00:00:00Z
-    ## 38  United States of America District of Columbia District of Columbia 28535 confirmed 2020-12-29T00:00:00Z
-    ## 39  United States of America District of Columbia District of Columbia 28758 confirmed 2020-12-30T00:00:00Z
-    ## 40  United States of America District of Columbia District of Columbia 28983 confirmed 2020-12-31T00:00:00Z
-    ## 41  United States of America District of Columbia District of Columbia 29252 confirmed 2021-01-01T00:00:00Z
-    ## 42  United States of America District of Columbia District of Columbia 29509 confirmed 2021-01-02T00:00:00Z
-    ## 43  United States of America District of Columbia District of Columbia 29764 confirmed 2021-01-03T00:00:00Z
-    ## 44  United States of America District of Columbia District of Columbia 29904 confirmed 2021-01-04T00:00:00Z
-    ## 45  United States of America District of Columbia District of Columbia 30166 confirmed 2021-01-05T00:00:00Z
-    ## 46  United States of America District of Columbia District of Columbia 30482 confirmed 2021-01-06T00:00:00Z
-    ## 47  United States of America District of Columbia District of Columbia 30750 confirmed 2021-01-07T00:00:00Z
-    ## 48  United States of America District of Columbia District of Columbia 31107 confirmed 2021-01-08T00:00:00Z
-    ## 49  United States of America District of Columbia District of Columbia 31457 confirmed 2021-01-09T00:00:00Z
-    ## 50  United States of America District of Columbia District of Columbia 31791 confirmed 2021-01-10T00:00:00Z
-    ## 51  United States of America District of Columbia District of Columbia 31993 confirmed 2021-01-11T00:00:00Z
-    ## 52  United States of America District of Columbia District of Columbia 32423 confirmed 2021-01-12T00:00:00Z
-    ## 53  United States of America District of Columbia District of Columbia 32600 confirmed 2021-01-13T00:00:00Z
-    ## 54  United States of America District of Columbia District of Columbia 32820 confirmed 2021-01-14T00:00:00Z
-    ## 55  United States of America District of Columbia District of Columbia 33140 confirmed 2021-01-15T00:00:00Z
-    ## 56  United States of America District of Columbia District of Columbia 33537 confirmed 2021-01-16T00:00:00Z
-    ## 57  United States of America District of Columbia District of Columbia 33851 confirmed 2021-01-17T00:00:00Z
-    ## 58  United States of America District of Columbia District of Columbia 34033 confirmed 2021-01-18T00:00:00Z
-    ## 59  United States of America District of Columbia District of Columbia 34259 confirmed 2021-01-19T00:00:00Z
-    ## 60  United States of America District of Columbia District of Columbia 34403 confirmed 2021-01-20T00:00:00Z
-    ## 61  United States of America District of Columbia District of Columbia 34612 confirmed 2021-01-21T00:00:00Z
-    ## 62  United States of America District of Columbia District of Columbia 34905 confirmed 2021-01-22T00:00:00Z
-    ## 63  United States of America District of Columbia District of Columbia 35077 confirmed 2021-01-23T00:00:00Z
-    ## 64  United States of America District of Columbia District of Columbia 35301 confirmed 2021-01-24T00:00:00Z
-    ## 65  United States of America District of Columbia District of Columbia 35505 confirmed 2021-01-25T00:00:00Z
-    ## 66  United States of America District of Columbia District of Columbia 35700 confirmed 2021-01-26T00:00:00Z
-    ## 67  United States of America District of Columbia District of Columbia 35865 confirmed 2021-01-27T00:00:00Z
-    ## 68  United States of America District of Columbia District of Columbia 36132 confirmed 2021-01-28T00:00:00Z
-    ## 69  United States of America District of Columbia District of Columbia 36414 confirmed 2021-01-29T00:00:00Z
-    ## 70  United States of America District of Columbia District of Columbia 36662 confirmed 2021-01-30T00:00:00Z
-    ## 71  United States of America District of Columbia District of Columbia 36872 confirmed 2021-01-31T00:00:00Z
-    ## 72  United States of America District of Columbia District of Columbia 37008 confirmed 2021-02-01T00:00:00Z
-    ## 73  United States of America District of Columbia District of Columbia 37008 confirmed 2021-02-02T00:00:00Z
-    ## 74  United States of America District of Columbia District of Columbia 37199 confirmed 2021-02-03T00:00:00Z
-    ## 75  United States of America District of Columbia District of Columbia 37365 confirmed 2021-02-04T00:00:00Z
-    ## 76  United States of America District of Columbia District of Columbia 37634 confirmed 2021-02-05T00:00:00Z
-    ## 77  United States of America District of Columbia District of Columbia 37877 confirmed 2021-02-06T00:00:00Z
-    ## 78  United States of America District of Columbia District of Columbia 38035 confirmed 2021-02-07T00:00:00Z
-    ## 79  United States of America District of Columbia District of Columbia 38136 confirmed 2021-02-08T00:00:00Z
-    ## 80  United States of America District of Columbia District of Columbia 38281 confirmed 2021-02-09T00:00:00Z
-    ## 81  United States of America District of Columbia District of Columbia 38348 confirmed 2021-02-10T00:00:00Z
-    ## 82  United States of America District of Columbia District of Columbia 38533 confirmed 2021-02-11T00:00:00Z
-    ## 83  United States of America District of Columbia District of Columbia 38670 confirmed 2021-02-12T00:00:00Z
-    ## 84  United States of America District of Columbia District of Columbia 38796 confirmed 2021-02-13T00:00:00Z
-    ## 85  United States of America District of Columbia District of Columbia 38918 confirmed 2021-02-14T00:00:00Z
-    ## 86  United States of America District of Columbia District of Columbia 39001 confirmed 2021-02-15T00:00:00Z
-    ## 87  United States of America District of Columbia District of Columbia 39131 confirmed 2021-02-16T00:00:00Z
-    ## 88  United States of America District of Columbia District of Columbia 39180 confirmed 2021-02-17T00:00:00Z
-    ## 89  United States of America District of Columbia District of Columbia 39301 confirmed 2021-02-18T00:00:00Z
-    ## 90  United States of America District of Columbia District of Columbia 39461 confirmed 2021-02-19T00:00:00Z
-    ## 91  United States of America District of Columbia District of Columbia 39553 confirmed 2021-02-20T00:00:00Z
-    ## 92  United States of America District of Columbia District of Columbia 39648 confirmed 2021-02-21T00:00:00Z
-    ## 93  United States of America District of Columbia District of Columbia 39755 confirmed 2021-02-22T00:00:00Z
-    ## 94  United States of America District of Columbia District of Columbia 39844 confirmed 2021-02-23T00:00:00Z
-    ## 95  United States of America District of Columbia District of Columbia 39943 confirmed 2021-02-24T00:00:00Z
-    ## 96  United States of America District of Columbia District of Columbia 40122 confirmed 2021-02-25T00:00:00Z
-    ## 97  United States of America District of Columbia District of Columbia 40284 confirmed 2021-02-26T00:00:00Z
-    ## 98  United States of America District of Columbia District of Columbia 40478 confirmed 2021-02-27T00:00:00Z
-    ## 99  United States of America District of Columbia District of Columbia 40598 confirmed 2021-02-28T00:00:00Z
-    ## 100 United States of America District of Columbia District of Columbia 40684 confirmed 2021-03-01T00:00:00Z
-    ## 101 United States of America District of Columbia District of Columbia 40767 confirmed 2021-03-02T00:00:00Z
-    ## 102 United States of America District of Columbia District of Columbia 40818 confirmed 2021-03-03T00:00:00Z
-    ## 103 United States of America District of Columbia District of Columbia 41014 confirmed 2021-03-04T00:00:00Z
-    ## 104 United States of America District of Columbia District of Columbia 41122 confirmed 2021-03-05T00:00:00Z
-    ## 105 United States of America District of Columbia District of Columbia 41273 confirmed 2021-03-06T00:00:00Z
-    ## 106 United States of America District of Columbia District of Columbia 41419 confirmed 2021-03-07T00:00:00Z
-    ## 107 United States of America District of Columbia District of Columbia 41579 confirmed 2021-03-08T00:00:00Z
-    ## 108 United States of America District of Columbia District of Columbia 41910 confirmed 2021-03-09T00:00:00Z
-    ## 109 United States of America District of Columbia District of Columbia 42006 confirmed 2021-03-10T00:00:00Z
-    ## 110 United States of America District of Columbia District of Columbia 42128 confirmed 2021-03-11T00:00:00Z
-    ## 111 United States of America District of Columbia District of Columbia 42282 confirmed 2021-03-12T00:00:00Z
-    ## 112 United States of America District of Columbia District of Columbia 42432 confirmed 2021-03-13T00:00:00Z
-    ## 113 United States of America District of Columbia District of Columbia 42511 confirmed 2021-03-14T00:00:00Z
-    ## 114 United States of America District of Columbia District of Columbia 42623 confirmed 2021-03-15T00:00:00Z
-    ## 115 United States of America District of Columbia District of Columbia 42730 confirmed 2021-03-16T00:00:00Z
-    ## 116 United States of America District of Columbia District of Columbia 42811 confirmed 2021-03-17T00:00:00Z
-    ## 117 United States of America District of Columbia District of Columbia 42892 confirmed 2021-03-18T00:00:00Z
-    ## 118 United States of America District of Columbia District of Columbia 43034 confirmed 2021-03-19T00:00:00Z
-    ## 119 United States of America District of Columbia District of Columbia 43175 confirmed 2021-03-20T00:00:00Z
-    ## 120 United States of America District of Columbia District of Columbia 43229 confirmed 2021-03-21T00:00:00Z
-    ## 121 United States of America District of Columbia District of Columbia 43383 confirmed 2021-03-22T00:00:00Z
-    ## 122 United States of America District of Columbia District of Columbia 43488 confirmed 2021-03-23T00:00:00Z
-    ## 123 United States of America District of Columbia District of Columbia 43595 confirmed 2021-03-24T00:00:00Z
-    ## 124 United States of America District of Columbia District of Columbia 43669 confirmed 2021-03-25T00:00:00Z
-    ## 125 United States of America District of Columbia District of Columbia 43825 confirmed 2021-03-26T00:00:00Z
-    ## 126 United States of America District of Columbia District of Columbia 44051 confirmed 2021-03-27T00:00:00Z
-    ## 127 United States of America District of Columbia District of Columbia 44175 confirmed 2021-03-28T00:00:00Z
-    ## 128 United States of America District of Columbia District of Columbia 44248 confirmed 2021-03-29T00:00:00Z
-    ## 129 United States of America District of Columbia District of Columbia 44413 confirmed 2021-03-30T00:00:00Z
-    ## 130 United States of America District of Columbia District of Columbia 44513 confirmed 2021-03-31T00:00:00Z
-    ## 131 United States of America District of Columbia District of Columbia 44656 confirmed 2021-04-01T00:00:00Z
-    ## 132 United States of America District of Columbia District of Columbia 44807 confirmed 2021-04-02T00:00:00Z
-    ## 133 United States of America District of Columbia District of Columbia 44932 confirmed 2021-04-03T00:00:00Z
-    ## 134 United States of America District of Columbia District of Columbia 45037 confirmed 2021-04-04T00:00:00Z
-    ## 135 United States of America District of Columbia District of Columbia 45112 confirmed 2021-04-05T00:00:00Z
-    ## 136 United States of America District of Columbia District of Columbia 45234 confirmed 2021-04-06T00:00:00Z
-    ## 137 United States of America District of Columbia District of Columbia 45328 confirmed 2021-04-07T00:00:00Z
-    ## 138 United States of America District of Columbia District of Columbia 45498 confirmed 2021-04-08T00:00:00Z
-    ## 139 United States of America District of Columbia District of Columbia 45634 confirmed 2021-04-09T00:00:00Z
-    ## 140 United States of America District of Columbia District of Columbia 45762 confirmed 2021-04-10T00:00:00Z
-    ## 141 United States of America District of Columbia District of Columbia 45830 confirmed 2021-04-11T00:00:00Z
-    ## 142 United States of America District of Columbia District of Columbia 45903 confirmed 2021-04-12T00:00:00Z
-    ## 143 United States of America District of Columbia District of Columbia 46016 confirmed 2021-04-13T00:00:00Z
-    ## 144 United States of America District of Columbia District of Columbia 46209 confirmed 2021-04-14T00:00:00Z
-    ## 145 United States of America District of Columbia District of Columbia 46315 confirmed 2021-04-15T00:00:00Z
-    ## 146 United States of America District of Columbia District of Columbia 46449 confirmed 2021-04-16T00:00:00Z
-    ## 147 United States of America District of Columbia District of Columbia 46579 confirmed 2021-04-17T00:00:00Z
-    ## 148 United States of America District of Columbia District of Columbia 46662 confirmed 2021-04-18T00:00:00Z
-    ## 149 United States of America District of Columbia District of Columbia 46740 confirmed 2021-04-19T00:00:00Z
-    ## 150 United States of America District of Columbia District of Columbia 46869 confirmed 2021-04-20T00:00:00Z
-    ## 151 United States of America District of Columbia District of Columbia 46941 confirmed 2021-04-21T00:00:00Z
-    ## 152 United States of America District of Columbia District of Columbia 47040 confirmed 2021-04-22T00:00:00Z
-    ## 153 United States of America District of Columbia District of Columbia 47141 confirmed 2021-04-23T00:00:00Z
-    ## 154 United States of America District of Columbia District of Columbia 47219 confirmed 2021-04-24T00:00:00Z
-    ## 155 United States of America District of Columbia District of Columbia 47323 confirmed 2021-04-25T00:00:00Z
-    ## 156 United States of America District of Columbia District of Columbia 47378 confirmed 2021-04-26T00:00:00Z
-    ## 157 United States of America District of Columbia District of Columbia 47471 confirmed 2021-04-27T00:00:00Z
-    ## 158 United States of America District of Columbia District of Columbia 47533 confirmed 2021-04-28T00:00:00Z
-    ## 159 United States of America District of Columbia District of Columbia 47614 confirmed 2021-04-29T00:00:00Z
-    ## 160 United States of America District of Columbia District of Columbia 47697 confirmed 2021-04-30T00:00:00Z
-    ## 161 United States of America District of Columbia District of Columbia 47697 confirmed 2021-05-01T00:00:00Z
-    ## 162 United States of America District of Columbia District of Columbia 47800 confirmed 2021-05-02T00:00:00Z
-    ## 163 United States of America District of Columbia District of Columbia 47903 confirmed 2021-05-03T00:00:00Z
-    ## 164 United States of America District of Columbia District of Columbia 47986 confirmed 2021-05-04T00:00:00Z
-    ## 165 United States of America District of Columbia District of Columbia 48041 confirmed 2021-05-05T00:00:00Z
-    ## 166 United States of America District of Columbia District of Columbia 48080 confirmed 2021-05-06T00:00:00Z
-    ##  [ reached 'max' / getOption("max.print") -- omitted 152 rows ]
 
 ## `deathsCasesState`
 
@@ -466,8 +454,8 @@ deathsCasesState <- function(state_name){
                          "new york","north carolina","north dakota",
                          "south carolina","south dakota", 
                          "distrct of columbia", "puerto rico",
-                         "Northern Mariana Islands", "Virgin Islands", 
-                         "Rhode Island")
+                         "northern mariana islands", "virgin islands", 
+                         "rhode island")
 
   if (state_name %in% two_word_states){
      full_url = paste0(base_url,
@@ -490,7 +478,11 @@ deathsCasesState <- function(state_name){
 
 # 6.User(s) can select different state names.
 state_deathData <- deathsCasesState("North Carolina")
+```
 
+    ## No encoding supplied: defaulting to UTF-8.
+
+``` r
 # 6-1.Last row was the sum of all confirmed case number of 55 states.
 # I deleted the last row to keep the state level data only.
 state_deathData1 <- state_deathData %>% filter(row_number() <= n()-1)
@@ -499,7 +491,7 @@ state_deathData1 <- state_deathData %>% filter(row_number() <= n()-1)
 ``` r
 # Data loading
 
-# 7.I created this dataset with two data.frame datasets by row merging.
+# 7.I created this data set for the EDA by row merging.
 state_all_cases <- rbind(state_confirmedData1, state_deathData1)
 ```
 

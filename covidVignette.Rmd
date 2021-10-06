@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This project is to create a vignette about contacting an API. I created functions to download data via interacting endpoints. I will show this process with COVID API. 
+This project is to create a vignette about contacting an API. I created functions to download data via interacting endpoints. I will show this process with COVID19 API. 
 
 # Reqired pakages
 
@@ -54,6 +54,7 @@ I wrote several functions to contact the Covid19 API via different endpoints.
 This function is to generate `data.frame` of country name and Slug. In order to import different countries' datasets, I needed to type the correct country name in URL. COVID19 AIP uses Slug instead of country name. Therefore, I can use the this table to find the correct name of the country for the URL. 
 
 ```{r message=FALSE}
+# Create helper function to find country name and slug
 countryName <- function(){
   full_url = paste0(base_url,"/countries")
   country <- content(GET(url=full_url),"text")
@@ -64,7 +65,7 @@ countryName <- function(){
 }
 # This table will guide users to find specific country and slug.
 countryName <- countryName()
-countryName
+
 ```
 
 ## `covidSummary`
@@ -89,6 +90,7 @@ This function interacts with the `By Country Total` endpoint. This function retu
 
 ```{r}
 confirmedCases <- function(country){
+    country <- tolower(country)
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
     full_url = paste0(base_url,"/total/country/",country,
@@ -101,7 +103,7 @@ confirmedCases <- function(country){
     return(covid_confirmed_cases)
   } else {
     message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                    "Look up countryName to find the country you are looking",
+                    "Use countryName() function to find the country you are looking",
                     "for and use Slug.")
     stop(message)
   }
@@ -117,6 +119,7 @@ This function interacts with the `By Country Total` endpoint with modification o
 
 ```{r}
 deathCases <- function(country){
+  country <- tolower(country)
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
     full_url = paste0(base_url,"/total/country/",country,
@@ -128,7 +131,7 @@ deathCases <- function(country){
     return(covid_deaths_cases)
   } else {
     message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                     "Look up countryName to find the country you are looking",
+                     "Use countryName() to find the country you are looking",
                      "for and use Slug.")
     stop(message)
   }
@@ -144,6 +147,7 @@ This function interacts with the `By Country Total` endpoint with modification o
 
 ```{r}
 recoveredCases <- function(country){
+  country <- tolower(country)
   # If you type in country name as slug, it will return the data correctly. 
   if(country %in% countryName$Slug){
     full_url = paste0(base_url,"/total/country/", country,
@@ -155,7 +159,7 @@ recoveredCases <- function(country){
     return(covid_recovered_cases)
   } else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                       "Look up countryName to find the country you are looking",
+                       "Use countryName() to find the country you are looking",
                        "for and use Slug.")
       stop(message)
   }
@@ -163,6 +167,7 @@ recoveredCases <- function(country){
 
 # 3.User(s) can select different countries.
 recovered_cases <- recoveredCases("united-states")
+
 ```
 
 ```{r}
@@ -212,13 +217,11 @@ confirmedCasesState <- function(state_name){
 
 # 5.User(s) can select different state names.
 state_confirmedData <- confirmedCasesState("North Carolina")
-
+state_confirmedData
 # 5-1.Last row was the sum of all confirmed case numbers of 55 states.
 # I deleted the last row to keep the state level data only.
 state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
 
-ncf <- confirmedCasesState("district of columbia")
-ncf
 ```
 
 ## `deathsCasesState`
@@ -236,8 +239,8 @@ deathsCasesState <- function(state_name){
                          "new york","north carolina","north dakota",
                          "south carolina","south dakota", 
                          "distrct of columbia", "puerto rico",
-                         "Northern Mariana Islands", "Virgin Islands", 
-                         "Rhode Island")
+                         "northern mariana islands", "virgin islands", 
+                         "rhode island")
 
   if (state_name %in% two_word_states){
      full_url = paste0(base_url,
@@ -270,7 +273,7 @@ state_deathData1 <- state_deathData %>% filter(row_number() <= n()-1)
 ```{r}
 # Data loading
 
-# 7.I created this dataset with two data.frame datasets by row merging.
+# 7.I created this data set for the EDA by row merging.
 state_all_cases <- rbind(state_confirmedData1, state_deathData1)
 
 ```
