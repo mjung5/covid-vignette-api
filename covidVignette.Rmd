@@ -54,14 +54,12 @@ I wrote several functions to contact the Covid19 API via different endpoints.
 This function is to generate `data.frame` of country name and Slug. In order to import different countries' datasets, I needed to type the correct country name in URL. COVID19 AIP uses Slug instead of country name. Therefore, I can use the this table to find the correct name of the country for the URL. 
 
 ```{r message=FALSE}
-# Create helper function to find country name and slug
+# Create function to find country name and slug
 countryName <- function(){
   full_url = paste0(base_url,"/countries")
   country <- content(GET(url=full_url),"text")
   countrylist <- fromJSON(country)
-  countrylist1 <- as_tibble(data.frame(Country = countrylist$Country,
-                                       Slug = countrylist$Slug))
-  return(countrylist1)
+  return(countrylist)
 }
 # This table will guide users to find specific country and slug.
 countryName <- countryName()
@@ -72,7 +70,7 @@ countryName <- countryName()
 
 This function interacts with the `Summary` endpoint. It returned a `list` of 5 variables showing information such as the world total of confirmed case numbers and the world total death numbers. One of the variables was the country, which I brought out and returned a `data.frame` with the most recent data of confirmed cases, death cases, and recovered cases for each country.    
 
-```{r}
+```{r message=FALSE}
 covidSummary <- function(){
    full_url = paste0(base_url,"/summary")
    covid_summary_text <- content(GET(url=full_url),"text")
@@ -88,85 +86,89 @@ covidSummary <- function(){
 
 This function interacts with the `By Country Total` endpoint. This function returns a `data.frame` of daily confirmed case numbers by a specific country during the specified dates (7/01/2020 - 09/30/2021). Users can select the country to get a different country's dataset. I chose only 4 variables to display, which I am going to mainly use. Users can use the countryName table to find countries to look up. 
 
-```{r}
+```{r message=FALSE}
 confirmedCases <- function(country){
     country <- tolower(country)
-  # If you type in country name as slug, it will return the data correctly. 
-  if(country %in% countryName$Slug){
+    country <- sub(" ", "-", country)
+ 
     full_url = paste0(base_url,"/total/country/",country,
                       "/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     confirmed_cases_text = content(GET(url=full_url),"text")
     confirmed_cases_json = fromJSON(confirmed_cases_text)
-  # I choose 4 columns to display.
-    covid_confirmed_cases <- confirmed_cases_json %>% 
-                           select(Country, Cases, Status, Date)  
-    return(covid_confirmed_cases)
-  } else {
-    message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                    "Use countryName() function to find the country you are looking",
+    covid_confirmed_cases <- confirmed_cases_json
+
+  if(country %in% countryName$Slug){
+    covid_confirmed_cases <- covid_confirmed_cases %>% 
+                           select(Country, Cases, Status, Date) # I choose 4 columns to display.
+  } else { 
+      message <- paste("ERROR: Argument for country was not found in the Slug column.", 
+                    "Use countryName() to find the country you are looking",
                     "for and use Slug.")
     stop(message)
   }
+return(covid_confirmed_cases)
 }
 
 # 1.User(s) can select different countries.
-confirmed_cases <- confirmedCases("united-states")
+confirmed_cases <- confirmedCases("United States")
 ```
 
 ## `deathCases`
 
 This function interacts with the `By Country Total` endpoint with modification of status changed to deaths. This function returns a `data.frame` of daily deaths cases number by specific country during the specified dates (7/01/2020 - 09/30/2021). Users can select country to get different country dataset. I choose only 4 variables to display, which I am going to mainly use. Users can use the countryName table to find countries you want to look up. 
 
-```{r}
+```{r message=FALSE}
 deathCases <- function(country){
   country <- tolower(country)
-  # If you type in country name as slug, it will return the data correctly. 
-  if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/",country,
+  country <- sub(" ", "-", country)
+ 
+  full_url = paste0(base_url,"/total/country/",country,
                       "/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
-    deaths_cases_text = content(GET(url=full_url),"text")
-    deaths_cases_json = fromJSON(deaths_cases_text)
-    covid_deaths_cases <- deaths_cases_json  %>% 
+  deaths_cases_text = content(GET(url=full_url),"text")
+  deaths_cases_json = fromJSON(deaths_cases_text)
+  if(country %in% countryName$Slug){
+      covid_deaths_cases <- deaths_cases_json  %>% 
                             select(Country, Cases, Status, Date) 
-    return(covid_deaths_cases)
   } else {
-    message <- paste("ERROR: Argument for country was not found in the Slug.", 
+    message <- paste("ERROR: Argument for country was not found in the Slug column.", 
                      "Use countryName() to find the country you are looking",
                      "for and use Slug.")
     stop(message)
   }
+return(covid_deaths_cases)
 }
 
 # 2. User(s) can select different countries.
-death_cases <- deathCases("united-states")
+death_cases <- deathCases("United States")
 ```
 
 ## `recoveredCases`
 
 This function interacts with the `By Country Total` endpoint with modification of status changed to recovered.This function returns a `data.frame` of daily recovered case numbers by specific countries during the specified dates (7/01/2020 - 09/30/2021). Users can select the country to get different countries' datasets. I chose only 4 variables to display, which I am going to primarily use. Users can use the countryName table to find countries to look up.   
 
-```{r}
+```{r message=FALSE}
 recoveredCases <- function(country){
   country <- tolower(country)
+  country <- sub(" ", "-", country)
   # If you type in country name as slug, it will return the data correctly. 
-  if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/", country,
+  full_url = paste0(base_url,"/total/country/", country,
                       "/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
-    recovered_cases_text = content(GET(url=full_url),"text")
-    recovered_cases_json = fromJSON(recovered_cases_text)
+  recovered_cases_text = content(GET(url=full_url),"text")
+  recovered_cases_json = fromJSON(recovered_cases_text)
+  if(country %in% countryName$Slug){
     covid_recovered_cases <- recovered_cases_json  %>% 
-                             select(Country, Cases, Status, Date)
-    return(covid_recovered_cases)
+                           select(Country, Cases, Status, Date)
   } else {
-      message <- paste("ERROR: Argument for country was not found in the Slug.", 
+      message <- paste("ERROR: Argument for country was not found in the Slug column.", 
                        "Use countryName() to find the country you are looking",
                        "for and use Slug.")
       stop(message)
   }
+return(covid_recovered_cases)
 }
 
 # 3.User(s) can select different countries.
-recovered_cases <- recoveredCases("united-states")
+recovered_cases <- recoveredCases("United States")
 
 ```
 
@@ -181,7 +183,7 @@ country_all_cases <- rbind(confirmed_cases, death_cases)
 
 This function interacts with the `Day One Live` endpoint with modification of status changed to confirmed. This function returns a `data.frame` of daily confirmed case numbers by specific states from 11/22/2020 to present. Users can select state names (encompassing states and other locations) to get different states' datasets. I chose only 6 variables to display, the ones I will mainly use. 
 
-```{r}
+```{r message=FALSE}
 
 confirmedCasesState <- function(state_name){
   # There are state names with one word and more than two words. You can simply type the full name of state with space between or type the abbreviated name (i.e. NC, GA, VA).  
@@ -214,7 +216,7 @@ state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
 
 This function interacts with the `Day One Live` endpoint with modification of status changed to deaths. This function returns a `data.frame` of daily deaths case numbers by specific states from 11/22/2020 to present. Users can select state name to get different state datasets. I chose only 6 variables to display, the ones I will mainly use.
 
-```{r}
+```{r message=FALSE}
 deathsCasesState <- function(state_name){
   # There are state names with one word and more than two words. 
   # You can simply type the full name of state with space between or type the abbreviated name (i.e. NC, GA, VA).  

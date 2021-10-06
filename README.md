@@ -69,14 +69,12 @@ name. Therefore, I can use the this table to find the correct name of
 the country for the URL.
 
 ``` r
-# Create helper function to find country name and slug
+# Create function to find country name and slug
 countryName <- function(){
   full_url = paste0(base_url,"/countries")
   country <- content(GET(url=full_url),"text")
   countrylist <- fromJSON(country)
-  countrylist1 <- as_tibble(data.frame(Country = countrylist$Country,
-                                       Slug = countrylist$Slug))
-  return(countrylist1)
+  return(countrylist)
 }
 # This table will guide users to find specific country and slug.
 countryName <- countryName()
@@ -114,26 +112,28 @@ can use the countryName table to find countries to look up.
 ``` r
 confirmedCases <- function(country){
     country <- tolower(country)
-  # If you type in country name as slug, it will return the data correctly. 
-  if(country %in% countryName$Slug){
+    country <- sub(" ", "-", country)
+ 
     full_url = paste0(base_url,"/total/country/",country,
                       "/status/confirmed?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
     confirmed_cases_text = content(GET(url=full_url),"text")
     confirmed_cases_json = fromJSON(confirmed_cases_text)
-  # I choose 4 columns to display.
-    covid_confirmed_cases <- confirmed_cases_json %>% 
-                           select(Country, Cases, Status, Date)  
-    return(covid_confirmed_cases)
-  } else {
-    message <- paste("ERROR: Argument for country was not found in the Slug.", 
-                    "Use countryName() function to find the country you are looking",
+    covid_confirmed_cases <- confirmed_cases_json
+
+  if(country %in% countryName$Slug){
+    covid_confirmed_cases <- covid_confirmed_cases %>% 
+                           select(Country, Cases, Status, Date) # I choose 4 columns to display.
+  } else { 
+      message <- paste("ERROR: Argument for country was not found in the Slug column.", 
+                    "Use countryName() to find the country you are looking",
                     "for and use Slug.")
     stop(message)
   }
+return(covid_confirmed_cases)
 }
 
 # 1.User(s) can select different countries.
-confirmed_cases <- confirmedCases("united-states")
+confirmed_cases <- confirmedCases("United States")
 ```
 
 ## `deathCases`
@@ -149,25 +149,26 @@ find countries you want to look up.
 ``` r
 deathCases <- function(country){
   country <- tolower(country)
-  # If you type in country name as slug, it will return the data correctly. 
-  if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/",country,
+  country <- sub(" ", "-", country)
+ 
+  full_url = paste0(base_url,"/total/country/",country,
                       "/status/deaths?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
-    deaths_cases_text = content(GET(url=full_url),"text")
-    deaths_cases_json = fromJSON(deaths_cases_text)
-    covid_deaths_cases <- deaths_cases_json  %>% 
+  deaths_cases_text = content(GET(url=full_url),"text")
+  deaths_cases_json = fromJSON(deaths_cases_text)
+  if(country %in% countryName$Slug){
+      covid_deaths_cases <- deaths_cases_json  %>% 
                             select(Country, Cases, Status, Date) 
-    return(covid_deaths_cases)
   } else {
-    message <- paste("ERROR: Argument for country was not found in the Slug.", 
+    message <- paste("ERROR: Argument for country was not found in the Slug column.", 
                      "Use countryName() to find the country you are looking",
                      "for and use Slug.")
     stop(message)
   }
+return(covid_deaths_cases)
 }
 
 # 2. User(s) can select different countries.
-death_cases <- deathCases("united-states")
+death_cases <- deathCases("United States")
 ```
 
 ## `recoveredCases`
@@ -183,25 +184,26 @@ the countryName table to find countries to look up.
 ``` r
 recoveredCases <- function(country){
   country <- tolower(country)
+  country <- sub(" ", "-", country)
   # If you type in country name as slug, it will return the data correctly. 
-  if(country %in% countryName$Slug){
-    full_url = paste0(base_url,"/total/country/", country,
+  full_url = paste0(base_url,"/total/country/", country,
                       "/status/recovered?from=2020-07-01T00:00:00Z&to=2021-09-30T00:00:00Z")
-    recovered_cases_text = content(GET(url=full_url),"text")
-    recovered_cases_json = fromJSON(recovered_cases_text)
+  recovered_cases_text = content(GET(url=full_url),"text")
+  recovered_cases_json = fromJSON(recovered_cases_text)
+  if(country %in% countryName$Slug){
     covid_recovered_cases <- recovered_cases_json  %>% 
-                             select(Country, Cases, Status, Date)
-    return(covid_recovered_cases)
+                           select(Country, Cases, Status, Date)
   } else {
-      message <- paste("ERROR: Argument for country was not found in the Slug.", 
+      message <- paste("ERROR: Argument for country was not found in the Slug column.", 
                        "Use countryName() to find the country you are looking",
                        "for and use Slug.")
       stop(message)
   }
+return(covid_recovered_cases)
 }
 
 # 3.User(s) can select different countries.
-recovered_cases <- recoveredCases("united-states")
+recovered_cases <- recoveredCases("United States")
 ```
 
 ``` r
@@ -276,11 +278,7 @@ deathsCasesState <- function(state_name){
 
 # 6.User(s) can select different state names.
 state_deathData <- deathsCasesState("North Carolina")
-```
 
-    ## No encoding supplied: defaulting to UTF-8.
-
-``` r
 # 6-1.When states have different county level information, last row is the sum of all confirmed case number of the specified state's counties.
 # I am using North Carolina which has county level information. 
 # Therefore, I deleted the last row to keep the state level data only.
@@ -440,7 +438,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->
 
 ``` r
 # Scatter plot deaths cases in US
@@ -452,7 +450,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-2.png)<!-- --> In the
+![](README_files/figure-gfm/unnamed-chunk-56-2.png)<!-- --> In the
 confirmed scatter plot, we see that the cases increased rapidly at the
 end of 2020 and beginning of 2021, and then it slowed down. However, it
 started increasing again since August 2021. It may have been related to
@@ -487,7 +485,7 @@ ggplot(us_confirmed_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -518,7 +516,7 @@ ggplot(us_deaths_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -640,7 +638,7 @@ ggplot(data=top10states, aes(x=Province,
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
 
 While state\_highrisk contingency table shows where each states belongs
 in terms of risk category, the bar plot shows the number of confirmed
@@ -673,7 +671,7 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.975, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -700,7 +698,7 @@ ggplot(data=top10statesdeath, aes(x=Province,
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
 
 As the prediction of the correlation between confirmed cases and death
 cases, California is again the top state showing the highest number of
@@ -799,7 +797,7 @@ ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   scale_fill_discrete(name = "Death Rate Status") 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-67-1.png)<!-- -->
 
 You will see that the low death rate states are mainly in medium to low
 and very low risk groups (low confirmed cases) and high death rate
@@ -827,7 +825,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = confirmed)) +
   labs(x = "Month in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
 
 ``` r
 # Scatter plots of death cases for wake county
@@ -839,7 +837,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
   labs(x = "Month in 2021", y = "Deaths cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-68-2.png)<!-- -->
 
 Looking at scatter plots, the confirmed scatter plot reveals that in the
 beginning of 2021 the cases increased rapidly. Then the cases increased
@@ -874,7 +872,7 @@ ggplot(wake_confirmed_cases, aes(Cases)) +
        title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-69-1.png)<!-- -->
 
 ``` r
 # Histogram of deaths cases in 2021
@@ -884,7 +882,7 @@ ggplot(wake_deaths_cases, aes(Cases)) +
        title = "Deaths cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-69-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
