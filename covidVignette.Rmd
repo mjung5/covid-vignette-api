@@ -182,44 +182,30 @@ country_all_cases <- rbind(confirmed_cases, death_cases)
 This function interacts with the `Day One Live` endpoint with modification of status changed to confirmed. This function returns a `data.frame` of daily confirmed case numbers by specific states from 11/22/2020 to present. Users can select state names (encompassing states and other locations) to get different states' datasets. I chose only 6 variables to display, the ones I will mainly use. 
 
 ```{r}
-#library(usdata)
+
 confirmedCasesState <- function(state_name){
-  # There are state names with one word and more than two words. 
-  # For a one-word state name, I set it up to be lower case.  
+  # There are state names with one word and more than two words. You can simply type the full name of state with space between or type the abbreviated name (i.e. NC, GA, VA).  
+  # I set it up to be lower case.  
   state_name <- tolower(state_name)
-  two_word_states = list("new hampshire", "new jersey", "new mexico",
-                         "new york","north carolina","north dakota",
-                         "south carolina","south dakota", 
-                         "district of columbia", "puerto rico",
-                         "northern mariana islands", "virgin islands", 
-                         "rhode island")
-  # For state names with two or more words, the user will type the state name with spaces.   
-  # I set it the function to insert %20 automatically using URLendoe().
-  if (state_name %in% two_word_states){
-    full_url = paste0(base_url,
-                      "/dayone/country/united-states/status/confirmed/live?province=",
-                      state_name)
+  
+  full_url = paste0(base_url,
+                    "/dayone/country/united-states/status/confirmed/live?province=",
+                    state_name)
   # This function will insert %20 in the space between two words or more state name.
-    URLencode(full_url)
-    covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
-    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-  } else{
-    full_url = paste0(base_url,
-                      "/dayone/country/united-states/status/confirmed/live?province=",
-                      state_name)
-    covid_cases_by_states_text = content(GET(url=full_url),"text")
-    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-  }
-    covid_cases_by_states <- covid_cases_by_states_json %>% 
-                           select(Country, Province, City, Cases, Status, Date) 
-    return(covid_cases_by_states)
+  URLencode(full_url)
+  covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
+  covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
+  covid_cases_by_states <- covid_cases_by_states_json %>% 
+                             select(Country, Province, City, Cases, Status, Date) 
+  return(covid_cases_by_states)
 }
 
 # 5.User(s) can select different state names.
 state_confirmedData <- confirmedCasesState("North Carolina")
 
-# 5-1.Last row was the sum of all confirmed case numbers of 55 states.
-# I deleted the last row to keep the state level data only.
+# 5-1.When states have different county level information, last row is the sum of all confirmed case number of the specified state's counties.
+# I am using North Carolina which has county level information. 
+# Therefore, I deleted the last row to keep the state level data only.
 state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
 
 ```
@@ -230,42 +216,28 @@ This function interacts with the `Day One Live` endpoint with modification of st
 
 ```{r}
 deathsCasesState <- function(state_name){
-  # There are state names with one word and with two or more words. 
-  # For one word state name, I set it up to be lower case.  
+  # There are state names with one word and more than two words. 
+  # You can simply type the full name of state with space between or type the abbreviated name (i.e. NC, GA, VA).  
+  # I set it up to be lower case.  
   state_name <- tolower(state_name)
-  # For two or more words state name, user will type the names with spaces. 
-  # I set it the function to insert %20 automatically using URLendoe().
-  two_word_states = list("new hampshire", "new jersey", "new mexico",
-                         "new york","north carolina","north dakota",
-                         "south carolina","south dakota", 
-                         "distrct of columbia", "puerto rico",
-                         "northern mariana islands", "virgin islands", 
-                         "rhode island")
+  full_url = paste0(base_url,
+                    "/dayone/country/united-states/status/deaths/live?province=",
+                    state_name)
+  URLencode(full_url)
+  covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
+  covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
 
-  if (state_name %in% two_word_states){
-     full_url = paste0(base_url,
-                       "/dayone/country/united-states/status/deaths/live?province=",
-                       state_name)
-     URLencode(full_url)
-    covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
-    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-  } else{
-    full_url = paste0(base_url,
-                      "/dayone/country/united-states/status/deaths/live?province=",
-                      state_name)
-    covid_cases_by_states_text = content(GET(url=full_url),"text")
-    covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-    }
-     covid_cases_by_states <- covid_cases_by_states_json %>% 
-                                select(Country, Province, City, Cases, Status, Date) 
-    return(covid_cases_by_states)
+  covid_cases_by_states <- covid_cases_by_states_json %>% 
+                           select(Country, Province, City, Cases, Status, Date) 
+  return(covid_cases_by_states)
 }
 
 # 6.User(s) can select different state names.
 state_deathData <- deathsCasesState("North Carolina")
 
-# 6-1.Last row was the sum of all confirmed case number of 55 states.
-# I deleted the last row to keep the state level data only.
+# 6-1.When states have different county level information, last row is the sum of all confirmed case number of the specified state's counties.
+# I am using North Carolina which has county level information. 
+# Therefore, I deleted the last row to keep the state level data only.
 state_deathData1 <- state_deathData %>% filter(row_number() <= n()-1)
 
 ```
