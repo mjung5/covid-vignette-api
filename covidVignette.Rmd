@@ -217,7 +217,7 @@ confirmedCasesState <- function(state_name){
 
 # 5.User(s) can select different state names.
 state_confirmedData <- confirmedCasesState("North Carolina")
-state_confirmedData
+
 # 5-1.Last row was the sum of all confirmed case numbers of 55 states.
 # I deleted the last row to keep the state level data only.
 state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
