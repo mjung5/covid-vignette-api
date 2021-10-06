@@ -79,7 +79,23 @@ countryName <- function(){
 }
 # This table will guide users to find specific country and slug.
 countryName <- countryName()
+countryName
 ```
+
+    ## # A tibble: 248 x 2
+    ##    Country        Slug          
+    ##    <chr>          <chr>         
+    ##  1 Australia      australia     
+    ##  2 Guam           guam          
+    ##  3 Rwanda         rwanda        
+    ##  4 Zimbabwe       zimbabwe      
+    ##  5 Austria        austria       
+    ##  6 Honduras       honduras      
+    ##  7 Lesotho        lesotho       
+    ##  8 Mauritius      mauritius     
+    ##  9 Norfolk Island norfolk-island
+    ## 10 Bahamas        bahamas       
+    ## # ... with 238 more rows
 
 ## `covidSummary`
 
@@ -122,9 +138,7 @@ confirmedCases <- function(country){
     covid_confirmed_cases <- confirmed_cases_json %>% 
                            select(Country, Cases, Status, Date)  
     return(covid_confirmed_cases)
-  }
-  # Otherwise, it will throw an error.
-  else {
+  } else {
     message <- paste("ERROR: Argument for country was not found in the Slug.", 
                     "Look up countryName to find the country you are looking",
                     "for and use Slug.")
@@ -157,9 +171,7 @@ deathCases <- function(country){
     covid_deaths_cases <- deaths_cases_json  %>% 
                             select(Country, Cases, Status, Date) 
     return(covid_deaths_cases)
-  }
-  # Otherwise, it will throw an error.
-  else {
+  } else {
     message <- paste("ERROR: Argument for country was not found in the Slug.", 
                      "Look up countryName to find the country you are looking",
                      "for and use Slug.")
@@ -192,9 +204,7 @@ recoveredCases <- function(country){
     covid_recovered_cases <- recovered_cases_json  %>% 
                              select(Country, Cases, Status, Date)
     return(covid_recovered_cases)
-  }
-  # Otherwise, it will throw an error.
-  else {
+  } else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
                        "Look up countryName to find the country you are looking",
                        "for and use Slug.")
@@ -210,7 +220,7 @@ recovered_cases <- recoveredCases("united-states")
 # Data manipulation
 
 # 4.I created one dataset with two data.frame datasets by row merging.
-us_all_cases <- rbind(confirmed_cases, death_cases)
+country_all_cases <- rbind(confirmed_cases, death_cases)
 ```
 
 ## `confirmedCasesState`
@@ -223,6 +233,7 @@ and other locations) to get different states’ datasets. I chose only 6
 variables to display, the ones I will mainly use.
 
 ``` r
+#library(usdata)
 confirmedCasesState <- function(state_name){
   # There are state names with one word and more than two words. 
   # For a one-word state name, I set it up to be lower case.  
@@ -230,9 +241,9 @@ confirmedCasesState <- function(state_name){
   two_word_states = list("new hampshire", "new jersey", "new mexico",
                          "new york","north carolina","north dakota",
                          "south carolina","south dakota", 
-                         "distrct of columbia", "puerto rico",
-                         "Northern Mariana Islands", "Virgin Islands", 
-                         "Rhode Island")
+                         "district of columbia", "puerto rico",
+                         "northern mariana islands", "virgin islands", 
+                         "rhode island")
   # For state names with two or more words, the user will type the state name with spaces.   
   # I set it the function to insert %20 automatically using URLendoe().
   if (state_name %in% two_word_states){
@@ -243,9 +254,7 @@ confirmedCasesState <- function(state_name){
     URLencode(full_url)
     covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-  }
-  # Otherwise, one word state name will work. 
-  else{
+  } else{
     full_url = paste0(base_url,
                       "/dayone/country/united-states/status/confirmed/live?province=",
                       state_name)
@@ -258,12 +267,184 @@ confirmedCasesState <- function(state_name){
 }
 
 # 5.User(s) can select different state names.
-nc_confirmedData <- confirmedCasesState("North Carolina")
+state_confirmedData <- confirmedCasesState("North Carolina")
 
 # 5-1.Last row was the sum of all confirmed case numbers of 55 states.
 # I deleted the last row to keep the state level data only.
-nc_confirmedData1 <- nc_confirmedData %>% filter(row_number() <= n()-1)
+state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
+
+ncf <- confirmedCasesState("district of columbia")
+ncf
 ```
+
+    ##                      Country             Province                 City Cases    Status                 Date
+    ## 1   United States of America District of Columbia District of Columbia 20151 confirmed 2020-11-22T00:00:00Z
+    ## 2   United States of America District of Columbia District of Columbia 20290 confirmed 2020-11-23T00:00:00Z
+    ## 3   United States of America District of Columbia District of Columbia 20409 confirmed 2020-11-24T00:00:00Z
+    ## 4   United States of America District of Columbia District of Columbia 20516 confirmed 2020-11-25T00:00:00Z
+    ## 5   United States of America District of Columbia District of Columbia 20736 confirmed 2020-11-26T00:00:00Z
+    ## 6   United States of America District of Columbia District of Columbia 20937 confirmed 2020-11-27T00:00:00Z
+    ## 7   United States of America District of Columbia District of Columbia 21308 confirmed 2020-11-28T00:00:00Z
+    ## 8   United States of America District of Columbia District of Columbia 21448 confirmed 2020-11-29T00:00:00Z
+    ## 9   United States of America District of Columbia District of Columbia 21552 confirmed 2020-11-30T00:00:00Z
+    ## 10  United States of America District of Columbia District of Columbia 21685 confirmed 2020-12-01T00:00:00Z
+    ## 11  United States of America District of Columbia District of Columbia 21842 confirmed 2020-12-02T00:00:00Z
+    ## 12  United States of America District of Columbia District of Columbia 22164 confirmed 2020-12-03T00:00:00Z
+    ## 13  United States of America District of Columbia District of Columbia 22480 confirmed 2020-12-04T00:00:00Z
+    ## 14  United States of America District of Columbia District of Columbia 22872 confirmed 2020-12-05T00:00:00Z
+    ## 15  United States of America District of Columbia District of Columbia 23136 confirmed 2020-12-06T00:00:00Z
+    ## 16  United States of America District of Columbia District of Columbia 23319 confirmed 2020-12-07T00:00:00Z
+    ## 17  United States of America District of Columbia District of Columbia 23589 confirmed 2020-12-08T00:00:00Z
+    ## 18  United States of America District of Columbia District of Columbia 23854 confirmed 2020-12-09T00:00:00Z
+    ## 19  United States of America District of Columbia District of Columbia 24098 confirmed 2020-12-10T00:00:00Z
+    ## 20  United States of America District of Columbia District of Columbia 24357 confirmed 2020-12-11T00:00:00Z
+    ## 21  United States of America District of Columbia District of Columbia 24643 confirmed 2020-12-12T00:00:00Z
+    ## 22  United States of America District of Columbia District of Columbia 24874 confirmed 2020-12-13T00:00:00Z
+    ## 23  United States of America District of Columbia District of Columbia 25038 confirmed 2020-12-14T00:00:00Z
+    ## 24  United States of America District of Columbia District of Columbia 25339 confirmed 2020-12-15T00:00:00Z
+    ## 25  United States of America District of Columbia District of Columbia 25602 confirmed 2020-12-16T00:00:00Z
+    ## 26  United States of America District of Columbia District of Columbia 25830 confirmed 2020-12-17T00:00:00Z
+    ## 27  United States of America District of Columbia District of Columbia 26104 confirmed 2020-12-18T00:00:00Z
+    ## 28  United States of America District of Columbia District of Columbia 26342 confirmed 2020-12-19T00:00:00Z
+    ## 29  United States of America District of Columbia District of Columbia 26601 confirmed 2020-12-20T00:00:00Z
+    ## 30  United States of America District of Columbia District of Columbia 26740 confirmed 2020-12-21T00:00:00Z
+    ## 31  United States of America District of Columbia District of Columbia 26900 confirmed 2020-12-22T00:00:00Z
+    ## 32  United States of America District of Columbia District of Columbia 27226 confirmed 2020-12-23T00:00:00Z
+    ## 33  United States of America District of Columbia District of Columbia 27436 confirmed 2020-12-24T00:00:00Z
+    ## 34  United States of America District of Columbia District of Columbia 27436 confirmed 2020-12-25T00:00:00Z
+    ## 35  United States of America District of Columbia District of Columbia 27710 confirmed 2020-12-26T00:00:00Z
+    ## 36  United States of America District of Columbia District of Columbia 28202 confirmed 2020-12-27T00:00:00Z
+    ## 37  United States of America District of Columbia District of Columbia 28342 confirmed 2020-12-28T00:00:00Z
+    ## 38  United States of America District of Columbia District of Columbia 28535 confirmed 2020-12-29T00:00:00Z
+    ## 39  United States of America District of Columbia District of Columbia 28758 confirmed 2020-12-30T00:00:00Z
+    ## 40  United States of America District of Columbia District of Columbia 28983 confirmed 2020-12-31T00:00:00Z
+    ## 41  United States of America District of Columbia District of Columbia 29252 confirmed 2021-01-01T00:00:00Z
+    ## 42  United States of America District of Columbia District of Columbia 29509 confirmed 2021-01-02T00:00:00Z
+    ## 43  United States of America District of Columbia District of Columbia 29764 confirmed 2021-01-03T00:00:00Z
+    ## 44  United States of America District of Columbia District of Columbia 29904 confirmed 2021-01-04T00:00:00Z
+    ## 45  United States of America District of Columbia District of Columbia 30166 confirmed 2021-01-05T00:00:00Z
+    ## 46  United States of America District of Columbia District of Columbia 30482 confirmed 2021-01-06T00:00:00Z
+    ## 47  United States of America District of Columbia District of Columbia 30750 confirmed 2021-01-07T00:00:00Z
+    ## 48  United States of America District of Columbia District of Columbia 31107 confirmed 2021-01-08T00:00:00Z
+    ## 49  United States of America District of Columbia District of Columbia 31457 confirmed 2021-01-09T00:00:00Z
+    ## 50  United States of America District of Columbia District of Columbia 31791 confirmed 2021-01-10T00:00:00Z
+    ## 51  United States of America District of Columbia District of Columbia 31993 confirmed 2021-01-11T00:00:00Z
+    ## 52  United States of America District of Columbia District of Columbia 32423 confirmed 2021-01-12T00:00:00Z
+    ## 53  United States of America District of Columbia District of Columbia 32600 confirmed 2021-01-13T00:00:00Z
+    ## 54  United States of America District of Columbia District of Columbia 32820 confirmed 2021-01-14T00:00:00Z
+    ## 55  United States of America District of Columbia District of Columbia 33140 confirmed 2021-01-15T00:00:00Z
+    ## 56  United States of America District of Columbia District of Columbia 33537 confirmed 2021-01-16T00:00:00Z
+    ## 57  United States of America District of Columbia District of Columbia 33851 confirmed 2021-01-17T00:00:00Z
+    ## 58  United States of America District of Columbia District of Columbia 34033 confirmed 2021-01-18T00:00:00Z
+    ## 59  United States of America District of Columbia District of Columbia 34259 confirmed 2021-01-19T00:00:00Z
+    ## 60  United States of America District of Columbia District of Columbia 34403 confirmed 2021-01-20T00:00:00Z
+    ## 61  United States of America District of Columbia District of Columbia 34612 confirmed 2021-01-21T00:00:00Z
+    ## 62  United States of America District of Columbia District of Columbia 34905 confirmed 2021-01-22T00:00:00Z
+    ## 63  United States of America District of Columbia District of Columbia 35077 confirmed 2021-01-23T00:00:00Z
+    ## 64  United States of America District of Columbia District of Columbia 35301 confirmed 2021-01-24T00:00:00Z
+    ## 65  United States of America District of Columbia District of Columbia 35505 confirmed 2021-01-25T00:00:00Z
+    ## 66  United States of America District of Columbia District of Columbia 35700 confirmed 2021-01-26T00:00:00Z
+    ## 67  United States of America District of Columbia District of Columbia 35865 confirmed 2021-01-27T00:00:00Z
+    ## 68  United States of America District of Columbia District of Columbia 36132 confirmed 2021-01-28T00:00:00Z
+    ## 69  United States of America District of Columbia District of Columbia 36414 confirmed 2021-01-29T00:00:00Z
+    ## 70  United States of America District of Columbia District of Columbia 36662 confirmed 2021-01-30T00:00:00Z
+    ## 71  United States of America District of Columbia District of Columbia 36872 confirmed 2021-01-31T00:00:00Z
+    ## 72  United States of America District of Columbia District of Columbia 37008 confirmed 2021-02-01T00:00:00Z
+    ## 73  United States of America District of Columbia District of Columbia 37008 confirmed 2021-02-02T00:00:00Z
+    ## 74  United States of America District of Columbia District of Columbia 37199 confirmed 2021-02-03T00:00:00Z
+    ## 75  United States of America District of Columbia District of Columbia 37365 confirmed 2021-02-04T00:00:00Z
+    ## 76  United States of America District of Columbia District of Columbia 37634 confirmed 2021-02-05T00:00:00Z
+    ## 77  United States of America District of Columbia District of Columbia 37877 confirmed 2021-02-06T00:00:00Z
+    ## 78  United States of America District of Columbia District of Columbia 38035 confirmed 2021-02-07T00:00:00Z
+    ## 79  United States of America District of Columbia District of Columbia 38136 confirmed 2021-02-08T00:00:00Z
+    ## 80  United States of America District of Columbia District of Columbia 38281 confirmed 2021-02-09T00:00:00Z
+    ## 81  United States of America District of Columbia District of Columbia 38348 confirmed 2021-02-10T00:00:00Z
+    ## 82  United States of America District of Columbia District of Columbia 38533 confirmed 2021-02-11T00:00:00Z
+    ## 83  United States of America District of Columbia District of Columbia 38670 confirmed 2021-02-12T00:00:00Z
+    ## 84  United States of America District of Columbia District of Columbia 38796 confirmed 2021-02-13T00:00:00Z
+    ## 85  United States of America District of Columbia District of Columbia 38918 confirmed 2021-02-14T00:00:00Z
+    ## 86  United States of America District of Columbia District of Columbia 39001 confirmed 2021-02-15T00:00:00Z
+    ## 87  United States of America District of Columbia District of Columbia 39131 confirmed 2021-02-16T00:00:00Z
+    ## 88  United States of America District of Columbia District of Columbia 39180 confirmed 2021-02-17T00:00:00Z
+    ## 89  United States of America District of Columbia District of Columbia 39301 confirmed 2021-02-18T00:00:00Z
+    ## 90  United States of America District of Columbia District of Columbia 39461 confirmed 2021-02-19T00:00:00Z
+    ## 91  United States of America District of Columbia District of Columbia 39553 confirmed 2021-02-20T00:00:00Z
+    ## 92  United States of America District of Columbia District of Columbia 39648 confirmed 2021-02-21T00:00:00Z
+    ## 93  United States of America District of Columbia District of Columbia 39755 confirmed 2021-02-22T00:00:00Z
+    ## 94  United States of America District of Columbia District of Columbia 39844 confirmed 2021-02-23T00:00:00Z
+    ## 95  United States of America District of Columbia District of Columbia 39943 confirmed 2021-02-24T00:00:00Z
+    ## 96  United States of America District of Columbia District of Columbia 40122 confirmed 2021-02-25T00:00:00Z
+    ## 97  United States of America District of Columbia District of Columbia 40284 confirmed 2021-02-26T00:00:00Z
+    ## 98  United States of America District of Columbia District of Columbia 40478 confirmed 2021-02-27T00:00:00Z
+    ## 99  United States of America District of Columbia District of Columbia 40598 confirmed 2021-02-28T00:00:00Z
+    ## 100 United States of America District of Columbia District of Columbia 40684 confirmed 2021-03-01T00:00:00Z
+    ## 101 United States of America District of Columbia District of Columbia 40767 confirmed 2021-03-02T00:00:00Z
+    ## 102 United States of America District of Columbia District of Columbia 40818 confirmed 2021-03-03T00:00:00Z
+    ## 103 United States of America District of Columbia District of Columbia 41014 confirmed 2021-03-04T00:00:00Z
+    ## 104 United States of America District of Columbia District of Columbia 41122 confirmed 2021-03-05T00:00:00Z
+    ## 105 United States of America District of Columbia District of Columbia 41273 confirmed 2021-03-06T00:00:00Z
+    ## 106 United States of America District of Columbia District of Columbia 41419 confirmed 2021-03-07T00:00:00Z
+    ## 107 United States of America District of Columbia District of Columbia 41579 confirmed 2021-03-08T00:00:00Z
+    ## 108 United States of America District of Columbia District of Columbia 41910 confirmed 2021-03-09T00:00:00Z
+    ## 109 United States of America District of Columbia District of Columbia 42006 confirmed 2021-03-10T00:00:00Z
+    ## 110 United States of America District of Columbia District of Columbia 42128 confirmed 2021-03-11T00:00:00Z
+    ## 111 United States of America District of Columbia District of Columbia 42282 confirmed 2021-03-12T00:00:00Z
+    ## 112 United States of America District of Columbia District of Columbia 42432 confirmed 2021-03-13T00:00:00Z
+    ## 113 United States of America District of Columbia District of Columbia 42511 confirmed 2021-03-14T00:00:00Z
+    ## 114 United States of America District of Columbia District of Columbia 42623 confirmed 2021-03-15T00:00:00Z
+    ## 115 United States of America District of Columbia District of Columbia 42730 confirmed 2021-03-16T00:00:00Z
+    ## 116 United States of America District of Columbia District of Columbia 42811 confirmed 2021-03-17T00:00:00Z
+    ## 117 United States of America District of Columbia District of Columbia 42892 confirmed 2021-03-18T00:00:00Z
+    ## 118 United States of America District of Columbia District of Columbia 43034 confirmed 2021-03-19T00:00:00Z
+    ## 119 United States of America District of Columbia District of Columbia 43175 confirmed 2021-03-20T00:00:00Z
+    ## 120 United States of America District of Columbia District of Columbia 43229 confirmed 2021-03-21T00:00:00Z
+    ## 121 United States of America District of Columbia District of Columbia 43383 confirmed 2021-03-22T00:00:00Z
+    ## 122 United States of America District of Columbia District of Columbia 43488 confirmed 2021-03-23T00:00:00Z
+    ## 123 United States of America District of Columbia District of Columbia 43595 confirmed 2021-03-24T00:00:00Z
+    ## 124 United States of America District of Columbia District of Columbia 43669 confirmed 2021-03-25T00:00:00Z
+    ## 125 United States of America District of Columbia District of Columbia 43825 confirmed 2021-03-26T00:00:00Z
+    ## 126 United States of America District of Columbia District of Columbia 44051 confirmed 2021-03-27T00:00:00Z
+    ## 127 United States of America District of Columbia District of Columbia 44175 confirmed 2021-03-28T00:00:00Z
+    ## 128 United States of America District of Columbia District of Columbia 44248 confirmed 2021-03-29T00:00:00Z
+    ## 129 United States of America District of Columbia District of Columbia 44413 confirmed 2021-03-30T00:00:00Z
+    ## 130 United States of America District of Columbia District of Columbia 44513 confirmed 2021-03-31T00:00:00Z
+    ## 131 United States of America District of Columbia District of Columbia 44656 confirmed 2021-04-01T00:00:00Z
+    ## 132 United States of America District of Columbia District of Columbia 44807 confirmed 2021-04-02T00:00:00Z
+    ## 133 United States of America District of Columbia District of Columbia 44932 confirmed 2021-04-03T00:00:00Z
+    ## 134 United States of America District of Columbia District of Columbia 45037 confirmed 2021-04-04T00:00:00Z
+    ## 135 United States of America District of Columbia District of Columbia 45112 confirmed 2021-04-05T00:00:00Z
+    ## 136 United States of America District of Columbia District of Columbia 45234 confirmed 2021-04-06T00:00:00Z
+    ## 137 United States of America District of Columbia District of Columbia 45328 confirmed 2021-04-07T00:00:00Z
+    ## 138 United States of America District of Columbia District of Columbia 45498 confirmed 2021-04-08T00:00:00Z
+    ## 139 United States of America District of Columbia District of Columbia 45634 confirmed 2021-04-09T00:00:00Z
+    ## 140 United States of America District of Columbia District of Columbia 45762 confirmed 2021-04-10T00:00:00Z
+    ## 141 United States of America District of Columbia District of Columbia 45830 confirmed 2021-04-11T00:00:00Z
+    ## 142 United States of America District of Columbia District of Columbia 45903 confirmed 2021-04-12T00:00:00Z
+    ## 143 United States of America District of Columbia District of Columbia 46016 confirmed 2021-04-13T00:00:00Z
+    ## 144 United States of America District of Columbia District of Columbia 46209 confirmed 2021-04-14T00:00:00Z
+    ## 145 United States of America District of Columbia District of Columbia 46315 confirmed 2021-04-15T00:00:00Z
+    ## 146 United States of America District of Columbia District of Columbia 46449 confirmed 2021-04-16T00:00:00Z
+    ## 147 United States of America District of Columbia District of Columbia 46579 confirmed 2021-04-17T00:00:00Z
+    ## 148 United States of America District of Columbia District of Columbia 46662 confirmed 2021-04-18T00:00:00Z
+    ## 149 United States of America District of Columbia District of Columbia 46740 confirmed 2021-04-19T00:00:00Z
+    ## 150 United States of America District of Columbia District of Columbia 46869 confirmed 2021-04-20T00:00:00Z
+    ## 151 United States of America District of Columbia District of Columbia 46941 confirmed 2021-04-21T00:00:00Z
+    ## 152 United States of America District of Columbia District of Columbia 47040 confirmed 2021-04-22T00:00:00Z
+    ## 153 United States of America District of Columbia District of Columbia 47141 confirmed 2021-04-23T00:00:00Z
+    ## 154 United States of America District of Columbia District of Columbia 47219 confirmed 2021-04-24T00:00:00Z
+    ## 155 United States of America District of Columbia District of Columbia 47323 confirmed 2021-04-25T00:00:00Z
+    ## 156 United States of America District of Columbia District of Columbia 47378 confirmed 2021-04-26T00:00:00Z
+    ## 157 United States of America District of Columbia District of Columbia 47471 confirmed 2021-04-27T00:00:00Z
+    ## 158 United States of America District of Columbia District of Columbia 47533 confirmed 2021-04-28T00:00:00Z
+    ## 159 United States of America District of Columbia District of Columbia 47614 confirmed 2021-04-29T00:00:00Z
+    ## 160 United States of America District of Columbia District of Columbia 47697 confirmed 2021-04-30T00:00:00Z
+    ## 161 United States of America District of Columbia District of Columbia 47697 confirmed 2021-05-01T00:00:00Z
+    ## 162 United States of America District of Columbia District of Columbia 47800 confirmed 2021-05-02T00:00:00Z
+    ## 163 United States of America District of Columbia District of Columbia 47903 confirmed 2021-05-03T00:00:00Z
+    ## 164 United States of America District of Columbia District of Columbia 47986 confirmed 2021-05-04T00:00:00Z
+    ## 165 United States of America District of Columbia District of Columbia 48041 confirmed 2021-05-05T00:00:00Z
+    ## 166 United States of America District of Columbia District of Columbia 48080 confirmed 2021-05-06T00:00:00Z
+    ##  [ reached 'max' / getOption("max.print") -- omitted 152 rows ]
 
 ## `deathsCasesState`
 
@@ -295,8 +476,7 @@ deathsCasesState <- function(state_name){
      URLencode(full_url)
     covid_cases_by_states_text = content(GET(url=URLencode(full_url)),"text")
     covid_cases_by_states_json = fromJSON(covid_cases_by_states_text)
-  }
-    else{
+  } else{
     full_url = paste0(base_url,
                       "/dayone/country/united-states/status/deaths/live?province=",
                       state_name)
@@ -309,18 +489,18 @@ deathsCasesState <- function(state_name){
 }
 
 # 6.User(s) can select different state names.
-nc_deathData <- deathsCasesState("North Carolina")
+state_deathData <- deathsCasesState("North Carolina")
 
 # 6-1.Last row was the sum of all confirmed case number of 55 states.
 # I deleted the last row to keep the state level data only.
-nc_deathData1 <- nc_deathData %>% filter(row_number() <= n()-1)
+state_deathData1 <- state_deathData %>% filter(row_number() <= n()-1)
 ```
 
 ``` r
 # Data loading
 
 # 7.I created this dataset with two data.frame datasets by row merging.
-nc_all_cases <- rbind(nc_confirmedData1, nc_deathData1)
+state_all_cases <- rbind(state_confirmedData1, state_deathData1)
 ```
 
 ## `liveConfirmedCases`
@@ -343,9 +523,7 @@ liveConfirmedCases <- function(country){
     covid_state_cases <- covid_cases_live_json %>% 
                          select(Country, Province, Confirmed, Deaths, Active, Date) 
     return(covid_state_cases)
-  }
-  # Otherwise, it will throw an error.
-  else {
+  } else {
       message <- paste("ERROR: Argument for country was not found in the Slug.", 
                        "Look up countryName to find the country you are looking",
                        "for and use Slug.")
@@ -354,7 +532,7 @@ liveConfirmedCases <- function(country){
 }
 
 # 8.User(s) can select different countries.
-us_liveCases <- liveConfirmedCases("united-states")
+country_liveCases <- liveConfirmedCases("united-states")
 ```
 
 ## `dateManipulation`
@@ -383,10 +561,10 @@ dateManipulation <- function(dataset){
 confirmed_month <- dateManipulation(confirmed_cases)
 
 # 10.US all cases (confirmed and death) data
-us_all_cases_month <- dateManipulation(us_all_cases)
+us_all_cases_month <- dateManipulation(country_all_cases)
 
 # 11.NC all cases (confirmed and death) data
-nc_all_cases_month <- dateManipulation(nc_all_cases)
+state_all_cases_month <- dateManipulation(state_all_cases)
 ```
 
 ## `riskStatusManipulation`
@@ -404,14 +582,14 @@ the confirmed case numbers at the state level.
 riskStatusManipulation <- function(dataset){
   dataset <- dataset %>% 
     mutate("DeathRate"= (Deaths/Confirmed)*100, 
-           "DeathRateStatus"= if_else(DeathRate > 2, "4.High",
-                               if_else(DeathRate > 1, "3.Medium", 
-                                if_else(DeathRate >0.5, "2.Low", "1.Very Low"))
+           "DeathRateStatus"= if_else(DeathRate > 2, "High",
+                               if_else(DeathRate > 1, "Medium", 
+                                if_else(DeathRate >0.5, "Low", "Very Low"))
                                ), 
-           "RiskStatus" = if_else(Confirmed > 1250000, "5.Very High",
-                           if_else(Confirmed > 750000, "4.High", 
-                            if_else(Confirmed > 350000, "3.Medium", 
-                             if_else(Confirmed > 150000, "2.Low", "1.Very Low"))))
+           "RiskStatus" = if_else(Confirmed > 1250000, "Very High",
+                           if_else(Confirmed > 750000, "High", 
+                            if_else(Confirmed > 350000, "Medium", 
+                             if_else(Confirmed > 150000, "Low", "Very Low"))))
     )            
   return(dataset)
 }
@@ -419,12 +597,22 @@ riskStatusManipulation <- function(dataset){
 
 ``` r
 # I filtered date to 10/01/2021 to only view the date's information.
-us_newlive <- us_liveCases %>% filter(Date == "2021-10-01T00:00:00Z")
+us_newlive <- country_liveCases %>% filter(Date == "2021-10-01T00:00:00Z")
 
 # 12.US live data using riskStatusManipulation function.
 us_newlive_risk <- riskStatusManipulation(us_newlive) %>% 
                     as_tibble()
 us_live_risk <- dateManipulation(us_newlive_risk)
+
+# Overwrite RiskStatus column with factor version
+us_live_risk$RiskStatus <- as.factor(us_live_risk$RiskStatus)
+# Use ordered function on a factor to order the levels
+us_live_risk$RiskStatus <- ordered(us_live_risk$RiskStatus, levels = c("Very Low", "Low", "Medium", "High", "Very High"))
+
+# Overwrite DeathRateStatus column with factor version
+us_live_risk$DeathRateStatus <- as.factor(us_live_risk$DeathRateStatus)
+# Use ordered function on a factor to order the levels
+us_live_risk$DeathRateStatus <- ordered(us_live_risk$DeathRateStatus, levels = c("Low", "Medium", "High"))
 ```
 
 # Exploratory Data Analysis
@@ -433,9 +621,9 @@ I pulled the data using functions I created interacting with endpoints.
 After using manipulation functions and merging different datasets, I
 mainly selected four data sets for the exploratory analysis.
 
--   `us_live_risk`: Confirmed and death cases by 55 states on
-    10/01/2021.
--   `nc_all_cases_month`: Confirmed cases in 101 NC Counties from
+-   `country_live_risk`: Confirmed and death cases by 55 states on
+    10/01/2021 in US.
+-   `state_all_cases_month`: Confirmed cases in 101 NC Counties from
     11/22/2020 to present.
 -   `confirmed_month`: US confirmed cases from 07/01/2020 to 09/30/2021.
 -   `us_all_cases_month`: US confirmed and death cases merged from
@@ -443,51 +631,46 @@ mainly selected four data sets for the exploratory analysis.
 
 Let’s talk about the Covid-19 pandemic in the U.S and how confirmed
 cases and death cases change over time. In order to see the change
-patterns of both confirmed and death cases, I created a scatterplot by
+patterns of both confirmed and death cases, I created a scatter plot by
 date.
-
-``` r
-# Scatter plot for US
-ggplot(data = us_all_cases_month, aes(x = Date, 
-                                      y = Cases)) +
-  geom_point(alpha=0.50) + 
-  facet_wrap(~ Status) + 
-  theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of US confirmed cases") + 
-  geom_smooth(method = lm, color = "blue")  
-```
-
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
-
-In the confirmed scatter plot, we see that the cases increased rapidly
-at the end of 2020 and beginning of 2021, and then it slowed down.
-However, it started rapidly increasing again since August 2021. It may
-have been related to mask policies, vaccination, or seasonal changes,
-but the fact is that covid cases are increasing. Compared to confirmed
-cases, deaths seem to be increasing slowly in the plot. However, it is
-not a really good comparison because the y axis scale is fitted to the
-confirmed cases. I will need to look at the confirmed plots and death
-plots separately.
 
 ``` r
 us_all_cases_month_wide <- us_all_cases_month %>%
                             pivot_wider(names_from = "Status",
                                         values_from = "Cases")
 
+# Scatter plot confirmed cases in US
+ggplot(data = us_all_cases_month_wide, aes(x = Date, 
+                                      y = confirmed)) +
+  geom_point(alpha=0.50) + 
+   
+  theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
+  ggtitle("US confirmed cases vs deaths cases") + 
+  geom_smooth(method = lm, color = "blue")  
+```
+
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+# Scatter plot deaths cases in US
 ggplot(data = us_all_cases_month_wide, aes(x = Date, 
                                            y = deaths)) +
   geom_point(alpha=0.50) + 
   theme(axis.text.x = element_text(angle = 45,hjust=1)) +
-  ggtitle("Scatterplot of  US deaths cases") + 
+  ggtitle("US deaths cases only") + 
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
-
-Bases on US death cases scatter plot, deaths cases are increasing over
-time, but not as fast as confirmed cases. It is good to see this pattern
-that even though many people are having a covid, they are less likely to
-die.
+![](README_files/figure-gfm/unnamed-chunk-16-2.png)<!-- --> In the
+confirmed scatter plot, we see that the cases increased rapidly at the
+end of 2020 and beginning of 2021, and then it slowed down. However, it
+started increasing again since August 2021. It may have been related to
+mask policies, vaccination, or seasonal changes, but the fact is that
+covid cases are increasing. Similar to confirmed cases, deaths cases
+also show similar pattern. Deaths cases are increasing over time, but it
+slowed down around March of 2021. It looks like deaths cases are
+increasing again around September. It will be interesting to see if we
+have a similar pattern of winter of 2020.
 
 Now, I wanted to see how the confirmed cases are increasing by every
 quarter using side by side box plots.
@@ -513,7 +696,7 @@ ggplot(us_confirmed_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -544,7 +727,7 @@ ggplot(us_deaths_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -564,14 +747,14 @@ us_bystate <- us_live_risk %>%
                           )
 
 # Display a table of the summary stats.
-kable(us_bystate, caption = " Summary Stat by US States")
+kable(us_bystate, caption = "Summary Stats by US states")
 ```
 
 | Min | Median |  Average |     Max |    IQR |
 |----:|-------:|---------:|--------:|-------:|
 | 269 | 508494 | 790137.1 | 4718816 | 753095 |
 
-Summary Stat by US States
+Summary Stats by US states
 
 First, `us_bystate` summary table using `us_live_risk` data shows
 interesting information. The average confirmed cases (790,137.1) is a
@@ -591,18 +774,18 @@ Summary_us_risk <- us_live_risk %>%
                               )
 
 # Display a table of the summary stats.
-kable(Summary_us_risk, caption = " Summary Stat by Risk Status")
+kable(Summary_us_risk, caption = "Summary stats by risk status")
 ```
 
-| RiskStatus  |    Average |    Median |        IQR |
-|:------------|-----------:|----------:|-----------:|
-| 1.Very Low  |   78554.15 |   89989.0 |   86058.00 |
-| 2.Low       |  231486.12 |  246741.5 |   80623.25 |
-| 3.Medium    |  556041.43 |  520417.0 |  206787.50 |
-| 4.High      |  959809.55 |  866776.0 |  303044.00 |
-| 5.Very High | 2471328.89 | 1627508.0 | 2152867.00 |
+| RiskStatus |    Average |    Median |        IQR |
+|:-----------|-----------:|----------:|-----------:|
+| Very Low   |   78554.15 |   89989.0 |   86058.00 |
+| Low        |  231486.12 |  246741.5 |   80623.25 |
+| Medium     |  556041.43 |  520417.0 |  206787.50 |
+| High       |  959809.55 |  866776.0 |  303044.00 |
+| Very High  | 2471328.89 | 1627508.0 | 2152867.00 |
 
-Summary Stat by Risk Status
+Summary stats by risk status
 
 `Summary_us_risk` table shows the average, median, and IQR scores of
 each risk state. I created a variable called RiskStatus based on the
@@ -626,24 +809,23 @@ top10states <- us_live_risk1[1:10,]
 #Top10 states by risk status
 state_highrisk <- table(top10states$Province, top10states$RiskStatus)
 kable(state_highrisk, 
-      col.names = c('High risk', 'VeryHigh risk'), 
-      caption = "Top 10 States Risk Status")
+      caption = "Top 10 States of risk status")
 ```
 
-|                | High risk | VeryHigh risk |
-|:---------------|----------:|--------------:|
-| California     |         0 |             1 |
-| Florida        |         0 |             1 |
-| Georgia        |         0 |             1 |
-| Illinois       |         0 |             1 |
-| New York       |         0 |             1 |
-| North Carolina |         0 |             1 |
-| Ohio           |         0 |             1 |
-| Pennsylvania   |         0 |             1 |
-| Tennessee      |         1 |             0 |
-| Texas          |         0 |             1 |
+|                | Very Low | Low | Medium | High | Very High |
+|:---------------|---------:|----:|-------:|-----:|----------:|
+| California     |        0 |   0 |      0 |    0 |         1 |
+| Florida        |        0 |   0 |      0 |    0 |         1 |
+| Georgia        |        0 |   0 |      0 |    0 |         1 |
+| Illinois       |        0 |   0 |      0 |    0 |         1 |
+| New York       |        0 |   0 |      0 |    0 |         1 |
+| North Carolina |        0 |   0 |      0 |    0 |         1 |
+| Ohio           |        0 |   0 |      0 |    0 |         1 |
+| Pennsylvania   |        0 |   0 |      0 |    0 |         1 |
+| Tennessee      |        0 |   0 |      0 |    1 |         0 |
+| Texas          |        0 |   0 |      0 |    0 |         1 |
 
-Top 10 States Risk Status
+Top 10 States of risk status
 
 `state_highrisk` contingency table shows where the top 10 states with
 the most confirmed cases belong in terms of their risk status. Nine out
@@ -667,7 +849,7 @@ ggplot(data=top10states, aes(x=Province,
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 While state\_highrisk contingency table shows where each states belongs
 in terms of risk category, the bar plot shows the number of confirmed
@@ -683,14 +865,12 @@ cases? We can use the correlation score to see the relationship.
 corr_us <- cor(us_live_risk$Confirmed, us_live_risk$Deaths)
 
 # Display correlation summary
-kable(corr_us, caption = "Correlation")
+kable(corr_us, col.names = c("Correlation"))
 ```
 
-|        x |
-|---------:|
-| 0.975353 |
-
-Correlation
+| Correlation |
+|------------:|
+|    0.975353 |
 
 ``` r
 #Scatter plot: confirmed cases by death cases
@@ -698,12 +878,11 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
                                 y = Deaths)) +
   geom_point() + 
   theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of correlation between death and confirmed cases") + 
-  geom_smooth(method = lm, 
-              color = "blue")  
+  ggtitle("Correlation between deaths and confirmed cases") + 
+  geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.975, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -730,7 +909,7 @@ ggplot(data=top10statesdeath, aes(x=Province,
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 As the prediction of the correlation between confirmed cases and death
 cases, California is again the top state showing the highest number of
@@ -752,21 +931,21 @@ top10statesDeathRate <- us_live_deathrate[1:10,] %>%
 # Display top 10 states by death rate.
 kable(top10statesDeathRate, 
       col.names = c("States", "Death Rate"),
-      caption = "Death rate by top 10 states")
+      caption = "Death rate by top 10 states", digits=2)
 ```
 
 | States               | Death Rate |
 |:---------------------|-----------:|
-| New Jersey           |   2.375516 |
-| Massachusetts        |   2.294104 |
-| New York             |   2.281221 |
-| Connecticut          |   2.210609 |
-| Pennsylvania         |   2.056030 |
-| Mississippi          |   1.965626 |
-| Maryland             |   1.961528 |
-| Michigan             |   1.943805 |
-| District of Columbia |   1.919775 |
-| New Mexico           |   1.897449 |
+| New Jersey           |       2.38 |
+| Massachusetts        |       2.29 |
+| New York             |       2.28 |
+| Connecticut          |       2.21 |
+| Pennsylvania         |       2.06 |
+| Mississippi          |       1.97 |
+| Maryland             |       1.96 |
+| Michigan             |       1.94 |
+| District of Columbia |       1.92 |
+| New Mexico           |       1.90 |
 
 Death rate by top 10 states
 
@@ -784,7 +963,8 @@ group in the contingency table.
 
 ``` r
 # Contingency table 
-#United Status
+
+# United Status
 usDeathRate_status <- table(us_live_risk$RiskStatus, us_live_risk$DeathRateStatus)
 
 # change row names.
@@ -795,7 +975,7 @@ rownames(usDeathRate_status) <- c("VeryLow risk", "Low risk",
 # Display contingency table.
 kable(usDeathRate_status, 
       col.names = c('Low deathrate', 'Medium deathrate', 'High deathrate'),
-      caption = "US states: Risk status by death rate")
+      caption = "US states: Risk status vs death rate status")
 ```
 
 |               | Low deathrate | Medium deathrate | High deathrate |
@@ -806,7 +986,7 @@ kable(usDeathRate_status,
 | High risk     |             0 |                9 |              2 |
 | VeryHigh risk |             0 |                7 |              2 |
 
-US states: Risk status by death rate
+US states: Risk status vs death rate status
 
 When looking at the contingency table with confirmed cases risk groups
 and death rate groups, it still shows consistent results. The very high
@@ -823,18 +1003,12 @@ This bar plot shows the contingency table more visually.
 ggplot(data = us_live_risk, aes(x=RiskStatus)) +
   geom_bar(aes(fill = as.factor(DeathRateStatus))) + 
   labs(x = "Risk Status", 
-       title = "Bar plot of risk status in 55 states") +
+       title = "Risk status in 55 states") +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-  scale_fill_discrete(name = "Death Rate Status", 
-                      labels = c("2.Low" = "Low", "3.Medium" = "Medium", 
-                                 "4.High" = "High")) +
-  scale_x_discrete(labels = c("1.Very Low" = "Very Low","2.Low" = "Low",
-                              "3.Medium" = "Medium", "4.High" = "High",
-                              "5.Very High" = "Very High")
-                   )
+  scale_fill_discrete(name = "Death Rate Status") 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 You will see that the low death rate states are mainly in medium to low
 and very low risk groups (low confirmed cases) and high death rate
@@ -846,46 +1020,45 @@ in wake county.
 
 ``` r
 # sub setting rows of Wake county
-Wake_cases <- nc_all_cases_month %>% 
+Wake_cases <- state_all_cases_month %>% 
                 filter(City =="Wake") 
 
 # Making status column to two columns (deaths and confirmed)
 wake_cases_wide <- Wake_cases %>% 
                     pivot_wider(names_from = "Status", values_from = "Cases")
 
-# Scatter plots for wake county
-ggplot(data = Wake_cases, aes(x = Date, y = Cases)) +
+# Scatter plots of confirmed cases for wake county
+ggplot(data = wake_cases_wide, aes(x = Date, y = confirmed)) +
   geom_point(alpha=0.50) + 
-  facet_wrap(~ Status) + 
   theme(axis.text.x = element_text(angle = 45,hjust=1)) + 
-  ggtitle("Scatterplot of  Wake county Cases by date") +
+  ggtitle("Wake county confirmed cases by date") +
   geom_smooth(method = lm, color = "blue") +
   labs(x = "Month in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 # Scatter plots of death cases for wake county
 ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
   geom_point(alpha=0.50) + 
   theme(axis.text.x = element_text(angle = 45, hjust=1)) + 
-  ggtitle("Scatterplot of  Wake county deaths cases") +
-  geom_smooth(method = lm, 
-              color = "blue") +
+  ggtitle("Wake county deaths cases") +
+  geom_smooth(method = lm, color = "blue") +
   labs(x = "Month in 2021", y = "Deaths cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-37-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
 
-Looking at the multi-panel scatter plot, the confirmed scatterplot
-reveals that in the beginning of 2021 the cases increased rapidly. Then
-the cases increased rapidly again since September. Again, it is hard to
-look at the pattern of death cases, so I needed to create a separate
-scatter plot for this. Looking at the deaths cases scatter plot, the
-deaths cases also increased as confirmed cases increased. However, Since
-April 2021 it has been slow down, which is a good news. Since flue
-season is coming, we will see how the pattern changes.
+Looking at scatter plots, the confirmed scatter plot reveals that in the
+beginning of 2021 the cases increased rapidly. Then the cases increased
+rapidly again since August. One possible explanation is due to wake
+county school stared. Looking at the deaths cases scatter plot, the
+deaths cases also increased as confirmed cases increased. Especially,
+there was a big jump on the deaths cases in March from under 600 cases
+to almost 700 cases. However, Since April it has been slow down, which
+is a good news. Since flu season is coming, we will need to pay
+attention how the pattern will change.
 
 These histograms can also show how quickly confirmed cases and death
 cases are changing by frequency of the same case numbers.
@@ -894,12 +1067,12 @@ cases are changing by frequency of the same case numbers.
 # Histogram plot
 
 # Wake county confirmed cases in 2021
-wake_confirmed_cases <- nc_all_cases_month %>% 
+wake_confirmed_cases <- state_all_cases_month %>% 
                           filter(Status == "confirmed") %>% 
                           filter(City == "Wake")
 
 # Wake county deaths cases in 2021
-wake_deaths_cases <- nc_all_cases_month %>% 
+wake_deaths_cases <- state_all_cases_month %>% 
                         filter(Status == "deaths") %>% 
                         filter(City == "Wake")
 
@@ -910,7 +1083,7 @@ ggplot(wake_confirmed_cases, aes(Cases)) +
        title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 # Histogram of deaths cases in 2021
@@ -920,7 +1093,7 @@ ggplot(wake_deaths_cases, aes(Cases)) +
        title = "Deaths cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-38-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
