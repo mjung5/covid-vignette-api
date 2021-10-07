@@ -90,17 +90,34 @@ variables was the country, which I brought out and returned a
 and recovered cases for each country.
 
 ``` r
+# Create function to download summary data of world cases.
 covidSummary <- function(){
    full_url = paste0(base_url,"/summary")
    covid_summary_text <- content(GET(url=full_url),"text")
    covid_cases_summary_json <- fromJSON(covid_summary_text)
    # Select Country variable from json output. 
-   covid_cases_summary1 <- data.frame(covid_cases_summary_json$Countries) 
-   return(covid_cases_summary1)
+   covid_cases_summary1 <- as_tibble(covid_cases_summary_json$Countries) 
+   return(covid_cases_summary1) #covid_cases_summary_json
 }
-
-covidSummary <- covidSummary()
+# Display data.frame of  Cases data
+covidSummary2 <- covidSummary()
+covidSummary2
 ```
+
+    ## # A tibble: 192 x 12
+    ##    ID                                   Country  CountryCode Slug  NewConfirmed TotalConfirmed NewDeaths TotalDeaths NewRecovered TotalRecovered Date  Premium
+    ##    <chr>                                <chr>    <chr>       <chr>        <int>          <int>     <int>       <int>        <int>          <int> <chr> <named>
+    ##  1 a8795c6c-7757-4019-96ce-40a788befe40 Afghani~ AF          afgh~            0         155380         0        7220            0              0 2021~ <NULL> 
+    ##  2 2c60e62c-8976-4452-8159-15e18d6188f4 Albania  AL          alba~            0         173190         0        2734            0              0 2021~ <NULL> 
+    ##  3 b8eb1eac-9793-4e3c-87ae-94d1b1d3784e Algeria  DZ          alge~            0         204171         0        5838            0              0 2021~ <NULL> 
+    ##  4 c1e1e16d-bf6a-49ef-9179-2ec2a753da3e Andorra  AD          ando~            0          15284         0         130            0              0 2021~ <NULL> 
+    ##  5 c78fcd31-9091-4343-a5d8-3a97a012b4fd Angola   AO          ango~            0          60448         0        1598            0              0 2021~ <NULL> 
+    ##  6 f6cbf692-4f8e-42f9-9734-b09cfe18c996 Antigua~ AG          anti~            0           3581         0          87            0              0 2021~ <NULL> 
+    ##  7 c6258728-1e9b-4c9b-bce8-d0854f48deff Argenti~ AR          arge~            0        5263219         0      115379            0              0 2021~ <NULL> 
+    ##  8 953475f3-28a8-4034-bfa4-ae820440a859 Armenia  AM          arme~            0         267363         0        5440            0              0 2021~ <NULL> 
+    ##  9 ca3cc9c1-2f77-4105-8fbc-a170f2129f5d Austral~ AU          aust~         2216         120042        10        1389            0              0 2021~ <NULL> 
+    ## 10 fa7b4f7f-750e-4d27-9283-6f8c56ee76ba Austria  AT          aust~            0         753832         0       11061            0              0 2021~ <NULL> 
+    ## # ... with 182 more rows
 
 ## `confirmedCases`
 
@@ -112,6 +129,7 @@ chose 4 variables to display. Users can use the countryName table to
 find countries to look up.
 
 ``` r
+# Create function to download country level confirmed cases.
 confirmedCases <- function(country){
   country <- tolower(country)
   country <- sub(" ", "-", country)
@@ -149,6 +167,7 @@ display. Users can use the countryName table to find countries you want
 to look up.
 
 ``` r
+# Create function is to download country level death cases.
 deathCases <- function(country){
   country <- tolower(country)
   country <- sub(" ", "-", country)
@@ -185,6 +204,7 @@ display. Users can use the countryName table to find countries to look
 up.
 
 ``` r
+# Create function to download country level recovered cases.
 recoveredCases <- function(country){
   country <- tolower(country)
   country <- sub(" ", "-", country)
@@ -227,6 +247,7 @@ and other locations) to get different states’ datasets. I selected 6
 variables to display.
 
 ``` r
+# Create function to download state level confirmed cases.
 confirmedCasesState <- function(state_name){
 
 # There are state names with one word and more than two words. You can simply type the full name of the state with a space between or type the abbreviated name (i.e. NC, GA, VA).  
@@ -263,6 +284,7 @@ modification of status changed to deaths. This function returns a
 states’ datasets. I chose only 6 variables to display.
 
 ``` r
+# Create function to download state level death cases.
 deathsCasesState <- function(state_name){
   # There are state names with one word and with more than two words. 
   # You can simply type the full name of state with a space between or type the abbreviated name (i.e. NC, GA, VA).  
@@ -307,6 +329,7 @@ from a set date to present. Users can select a country name to get
 different country’s dataset. I chose 6 variables to display.
 
 ``` r
+# Create function to download country level live confirmed cases.
 liveConfirmedCases <- function(country){
   country <- tolower(country)
   country <- sub(" ", "-", country)
@@ -340,6 +363,7 @@ date formation and creates one variable with time span with every
 quarter.
 
 ``` r
+# I created this function for data summaries and visualization.
 dateManipulation <- function(dataset){
   dataset$Date <- as.Date(dataset$Date)
   dataset <- dataset %>% 
@@ -450,7 +474,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
 # Scatter plot death cases in US
@@ -462,7 +486,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-2.png)<!-- -->
 
 In the “confirmed cases” scatter plot, we see that the cases increased
 rapidly at the end of 2020 and beginning of 2021, and then their rate of
@@ -482,7 +506,7 @@ quarter using side-by-side box plots.
 # Box plot
 us_confirmed_states<- us_all_cases_month %>% 
                         filter(Status == "confirmed") 
-#Box plot for confirmed cases by time line.
+# Box plot for confirmed cases by time line.
 ggplot(us_confirmed_states, aes(x = Time_span, 
                                 y = Cases, 
                                 fill = Time_span)) +
@@ -499,7 +523,7 @@ ggplot(us_confirmed_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -509,10 +533,10 @@ case numbers rapidly increased.
 Now, let’s look at how death cases are increasing by quarter.
 
 ``` r
-#Setting the data set with only death status
+# Subset of the dataset with only death status
 us_deaths_states<- us_all_cases_month %>% 
                     filter(Status == "deaths") 
-#Box plot for death cases by timeline
+# Box plot for death cases by timeline
 ggplot(us_deaths_states, aes(x = Time_span, 
                                 y = Cases, 
                                 fill = Time_span)
@@ -530,7 +554,7 @@ ggplot(us_deaths_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -568,7 +592,7 @@ Minimum score or Maximum score, I would miss the gap between the two end
 values.
 
 ``` r
-# Summary stats for two categorical variables
+# Summary stats for two categorical variables.
 Summary_us_risk <- us_live_risk %>% 
                     group_by(RiskStatus) %>% 
                     summarise(Average = mean(Confirmed),
@@ -602,7 +626,7 @@ that states with confirmed cases higher than 1,250,000 are more spread
 out, but the majority are still around the median scores.
 
 ``` r
-# Arrange data by descending order
+# Arrange data by descending order.
 us_live_risk1 <- us_live_risk %>% 
                   arrange(desc(Confirmed))
 
@@ -639,7 +663,7 @@ directly looks at the confirmed cases only. Therefore, if considering
 state populations, risk categories may change.
 
 ``` r
-#Bar plot for top 10 states
+# Bar plot for top 10 states
 ggplot(data=top10states, aes(x = Province, 
                              y = Confirmed)) +
   geom_bar(stat = "identity", fill = "orange") +
@@ -652,7 +676,7 @@ ggplot(data=top10states, aes(x = Province,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 While the “Top 10 States of risk status” contingency table shows where
 each state belongs in terms of risk category, the bar plot shows the
@@ -681,7 +705,7 @@ kable(corr_us, col.names = "Correlation", digits = 2)
 |        0.98 |
 
 ``` r
-#Scatter plot: confirmed cases by death cases
+# Scatter plot: confirmed cases by death cases
 ggplot(data = us_live_risk, aes(x = Confirmed, 
                                 y = Deaths)) +
   geom_point() + 
@@ -690,7 +714,7 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.98, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -701,7 +725,7 @@ the confirmed cases, the higher the death cases as well. Also, the top
 The bar plot below shows the top 10 states on death cases.
 
 ``` r
-# Sub setting top 10 states of death cases.
+# Subset of top 10 states of death cases.
 # Descending order
 us_live_death1 <- us_live_risk %>% 
                     arrange(desc(Deaths))
@@ -718,7 +742,7 @@ ggplot(data=top10statesdeath, aes(x = Province,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 As the correlation between confirmed cases and death cases suggested,
 California is again the top state showing the highest number of deaths,
@@ -729,7 +753,7 @@ than New York. Let’s move on to see the top 10 states with high death
 rate.
 
 ``` r
-# Sub setting top 10 states by death rate.
+# Subset of top 10 states by death rate.
 # Descending order
 us_live_deathrate <- us_live_risk %>% 
                       arrange(desc(DeathRate))
@@ -818,18 +842,93 @@ ggplot(data = us_live_risk, aes(x = RiskStatus)) +
   scale_fill_discrete(name = "Death Rate Status") 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 The graph shows that the low death rate states are mainly in medium to
 low and very low risk groups (low confirmed cases), and high death rate
 states are in the medium to high and very high risk groups (high
 confirmed cases).
 
+Now, let’s move down to the county level data, beginning with discussing
+some summary statistics.
+
+``` r
+# Summary stats table for NC counties.
+Summary_county_cases <- state_all_cases_month %>% group_by(City, Status) %>%
+                summarise(Min = min(Cases), 
+                          Median = median(Cases),
+                          Average = mean(Cases),
+                          Max = max(Cases)
+                          )
+# Subset of the top 5 counties in NC on confirmed cases.
+Summary_county_confirmed <- Summary_county_cases %>% 
+                              filter(Status == "confirmed") %>% arrange(desc(Max))
+Summary_county_confirmed <- Summary_county_confirmed[1:5,]
+
+# Subset of the top 5 counties in NC on death cases.
+Summary_county_deaths <- Summary_county_cases %>% 
+                           filter(Status == "deaths") %>% arrange(desc(Max))
+Summary_county_deaths <- Summary_county_deaths[1:5,]
+
+# Display a table of the summary stats for top 5 counties on confirmed cases. 
+kable(Summary_county_confirmed, caption = "Summary Stats of confirmed cases by top 5 NC county", digits = 2)
+```
+
+| City        | Status    |   Min | Median |   Average |    Max |
+|:------------|:----------|------:|-------:|----------:|-------:|
+| Mecklenburg | confirmed | 40754 | 109948 | 103118.80 | 152437 |
+| Wake        | confirmed | 26464 |  85911 |  80022.02 | 124490 |
+| Guilford    | confirmed | 15355 |  46460 |  42858.16 |  64984 |
+| Forsyth     | confirmed | 12101 |  35263 |  33204.90 |  49690 |
+| Cumberland  | confirmed |  8868 |  27907 |  26602.13 |  43017 |
+
+Summary Stats of confirmed cases by top 5 NC county
+
+``` r
+# Display a table of the summary stats for top 5 counties on death cases. 
+kable(Summary_county_deaths, caption = "Summary Stats of death cases by top 5 NC county", digits = 2)
+```
+
+| City        | Status | Min | Median | Average |  Max |
+|:------------|:-------|----:|-------:|--------:|-----:|
+| Mecklenburg | deaths | 430 |    940 |  873.65 | 1177 |
+| Wake        | deaths | 286 |    720 |  620.86 |  852 |
+| Guilford    | deaths | 230 |    693 |  598.70 |  840 |
+| Gaston      | deaths | 176 |    420 |  389.66 |  576 |
+| Forsyth     | deaths | 157 |    374 |  358.54 |  525 |
+
+Summary Stats of death cases by top 5 NC county
+
+The data begins on November 22, 2020 to the present (live data), and the
+cases are reported daily. Therefore, the Max column shows the most
+recent date’s cases, and the Min column shows the case number on
+November 22, 2020.
+
+Looking at the confirmed cases summary table, Mecklenburg County shows
+the highest Maximum cases, followed by Wake and Guilford counties. The
+confirmed cases of Mecklenburg and Wake Counties are a lot higher than
+Guilford County, almost double, in fact. Mecklenburg County is again the
+top county of death cases, and Wake County is the second. However, the
+discrepancy of the death cases between Mecklenburg County and the
+subsequent counties appears smaller than the differences in confirmed
+cases. It suggests that even though the confirmed cases are high in
+Mecklenburg and Wake Counties, their death rates are comparable to other
+counties or even lower. However, We again need to consider the
+population of the counties to truly understand the confirmed and death
+cases.
+
+In both the confirmed and death cases summary tables, median scores are
+similar to average scores, but the average scores are generally lower
+than the median scores. The median scores show the confirmed cases and
+death cases at the mid-point between November 2020 to present, and the
+average scores show the average for all the confirmed and death cases
+from the data starting day to the present.
+
 Lastly, I wanted to see how confirmed cases and death cases are changing
 in wake county.
 
 ``` r
-# sub setting rows of Wake county
+# Subset of rows of Wake county
 Wake_cases <- state_all_cases_month %>% 
                 filter(City =="Wake") 
 
@@ -846,7 +945,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = confirmed)) +
   labs(x = "2021", y = "Confirmed cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 # Scatter plot of death cases for wake county
@@ -858,7 +957,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
   labs(x = "2021", y = "Death cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-33-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-36-2.png)<!-- -->
 
 Looking at the scatter plots, the confirmed cases scatter plot reveals
 that in the beginning of 2021 the cases increased rapidly. Then the
@@ -895,7 +994,7 @@ ggplot(wake_confirmed_cases, aes(Cases)) +
        title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 ``` r
 # Histogram of death cases in 2021
@@ -905,7 +1004,7 @@ ggplot(wake_deaths_cases, aes(Cases)) +
        title = "Death cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-34-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-37-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
