@@ -391,7 +391,7 @@ us_all_cases_month_wide <- us_all_cases_month %>%
 ggplot(data = us_all_cases_month_wide, aes(x = Date, 
                                            y = confirmed)) +
   geom_point(alpha = 0.50) + 
-  theme(axis.text.x = element_text(angle = 45,hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   ggtitle("US confirmed cases") + 
   geom_smooth(method = lm, color = "blue")  
 
@@ -399,7 +399,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
 ggplot(data = us_all_cases_month_wide, aes(x = Date, 
                                            y = deaths)) +
   geom_point(alpha = 0.50) + 
-  theme(axis.text.x = element_text(angle = 45,hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ggtitle("US death cases") + 
   geom_smooth(method = lm, color = "blue")  
 
@@ -471,7 +471,7 @@ us_bystate <- us_live_risk %>%
                           )
 
 # Display a table of the summary stats.
-kable(us_bystate, caption = "Summary Stats by US states")
+kable(us_bystate, caption = "Summary Stats by US states", digits = 2)
 ```
 
 First, the Summary Stats by US states table using `us_live_risk` data shows interesting information. The average confirmed cases (790,137.1) is higher than the median score (508494), and the IQR score is also not extremely high. However, the difference between minimum (269) and maximum (4,718,816) numbers is extremely big. If I didn't check the Minimum score or Maximum score, I would miss the gap between the two end values. 
@@ -486,7 +486,7 @@ Summary_us_risk <- us_live_risk %>%
                               )
 
 # Display a table of the summary stats.
-kable(Summary_us_risk, caption = "Summary stats by risk status")
+kable(Summary_us_risk, caption = "Summary stats by risk status", digits = 2)
 
 ```
 
@@ -532,7 +532,7 @@ Now, let's look at both confirmed cases and death cases and their relationship. 
 corr_us <- cor(us_live_risk$Confirmed, us_live_risk$Deaths)
 
 # Display correlation summary
-kable(corr_us, col.names = c("Correlation"))
+kable(corr_us, col.names = "Correlation", digits = 2)
 
 #Scatter plot: confirmed cases by death cases
 ggplot(data = us_live_risk, aes(x = Confirmed, 
@@ -543,7 +543,7 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-The correlation between confirmed cases and death cases is 0.975, which is really high being close to 1. The scatter plot shows the pattern of the relationship, as well. Based on the results, we know that the higher the confirmed cases, the higher the death cases as well. Also, the top 10 confirmed case states are more likely to show higher death cases. 
+The correlation between confirmed cases and death cases is 0.98, which is really high being close to 1. The scatter plot shows the pattern of the relationship, as well. Based on the results, we know that the higher the confirmed cases, the higher the death cases as well. Also, the top 10 confirmed case states are more likely to show higher death cases. 
 
 The bar plot below shows the top 10 states on death cases. 
 

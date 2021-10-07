@@ -445,24 +445,24 @@ us_all_cases_month_wide <- us_all_cases_month %>%
 ggplot(data = us_all_cases_month_wide, aes(x = Date, 
                                            y = confirmed)) +
   geom_point(alpha = 0.50) + 
-  theme(axis.text.x = element_text(angle = 45,hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   ggtitle("US confirmed cases") + 
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
 # Scatter plot death cases in US
 ggplot(data = us_all_cases_month_wide, aes(x = Date, 
                                            y = deaths)) +
   geom_point(alpha = 0.50) + 
-  theme(axis.text.x = element_text(angle = 45,hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ggtitle("US death cases") + 
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
 
 In the “confirmed cases” scatter plot, we see that the cases increased
 rapidly at the end of 2020 and beginning of 2021, and then their rate of
@@ -499,7 +499,7 @@ ggplot(us_confirmed_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -530,7 +530,7 @@ ggplot(us_deaths_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -550,7 +550,7 @@ us_bystate <- us_live_risk %>%
                           )
 
 # Display a table of the summary stats.
-kable(us_bystate, caption = "Summary Stats by US states")
+kable(us_bystate, caption = "Summary Stats by US states", digits = 2)
 ```
 
 | Min | Median |  Average |     Max |    IQR |
@@ -577,7 +577,7 @@ Summary_us_risk <- us_live_risk %>%
                               )
 
 # Display a table of the summary stats.
-kable(Summary_us_risk, caption = "Summary stats by risk status")
+kable(Summary_us_risk, caption = "Summary stats by risk status", digits = 2)
 ```
 
 | RiskStatus |    Average |    Median |        IQR |
@@ -652,7 +652,7 @@ ggplot(data=top10states, aes(x = Province,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 While the “Top 10 States of risk status” contingency table shows where
 each state belongs in terms of risk category, the bar plot shows the
@@ -673,12 +673,12 @@ cases? We can use the correlation score to see the relationship.
 corr_us <- cor(us_live_risk$Confirmed, us_live_risk$Deaths)
 
 # Display correlation summary
-kable(corr_us, col.names = c("Correlation"))
+kable(corr_us, col.names = "Correlation", digits = 2)
 ```
 
 | Correlation |
 |------------:|
-|    0.975353 |
+|        0.98 |
 
 ``` r
 #Scatter plot: confirmed cases by death cases
@@ -690,9 +690,9 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
-The correlation between confirmed cases and death cases is 0.975, which
+The correlation between confirmed cases and death cases is 0.98, which
 is really high being close to 1. The scatter plot shows the pattern of
 the relationship, as well. Based on the results, we know that the higher
 the confirmed cases, the higher the death cases as well. Also, the top
@@ -718,7 +718,7 @@ ggplot(data=top10statesdeath, aes(x = Province,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 As the correlation between confirmed cases and death cases suggested,
 California is again the top state showing the highest number of deaths,
@@ -818,7 +818,7 @@ ggplot(data = us_live_risk, aes(x = RiskStatus)) +
   scale_fill_discrete(name = "Death Rate Status") 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 The graph shows that the low death rate states are mainly in medium to
 low and very low risk groups (low confirmed cases), and high death rate
@@ -846,7 +846,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = confirmed)) +
   labs(x = "2021", y = "Confirmed cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 ``` r
 # Scatter plot of death cases for wake county
@@ -858,7 +858,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
   labs(x = "2021", y = "Death cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-63-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-33-2.png)<!-- -->
 
 Looking at the scatter plots, the confirmed cases scatter plot reveals
 that in the beginning of 2021 the cases increased rapidly. Then the
@@ -895,7 +895,7 @@ ggplot(wake_confirmed_cases, aes(Cases)) +
        title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 ``` r
 # Histogram of death cases in 2021
@@ -905,7 +905,7 @@ ggplot(wake_deaths_cases, aes(Cases)) +
        title = "Death cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-34-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
