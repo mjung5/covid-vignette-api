@@ -66,25 +66,6 @@ countryName <- countryName()
 
 ```
 
-## `covidSummary`
-
-This function interacts with the `Summary` endpoint. It returned a `list` of 5 variables showing information such as the world total of confirmed case numbers and the world total death numbers. One of the variables was the country, which I brought out and returned a `data.frame` with the most recent data of confirmed cases, death cases, and recovered cases for each country.    
-
-```{r message=FALSE}
-# Create function to download summary data of world cases.
-covidSummary <- function(){
-   full_url = paste0(base_url,"/summary")
-   covid_summary_text <- content(GET(url=full_url),"text")
-   covid_cases_summary_json <- fromJSON(covid_summary_text)
-   # Select Country variable from json output. 
-   covid_cases_summary1 <- as_tibble(covid_cases_summary_json$Countries) 
-   return(covid_cases_summary1) #covid_cases_summary_json
-}
-# Display data.frame of  Cases data
-covidSummary2 <- covidSummary()
-covidSummary2
-``` 
-
 ## `confirmedCases`
 
 This function interacts with the `By Country Total` endpoint. This function returns a `data.frame` of daily confirmed case numbers by a specific country during the specified dates (7/01/2020 - 09/30/2021). Users can select the country to get a different country's dataset. I chose 4 variables to display. Users can use the countryName table to find countries to look up. 
