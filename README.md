@@ -4,9 +4,9 @@ Min-Jung Jung
 10/05/2021
 
 -   [Reqired pakages](#reqired-pakages)
--   [Functions to contact the Covid19 Data
-    API](#functions-to-contact-the-covid19-data-api)
-    -   [Base url](#base-url)
+-   [Functions to contact the COVID19
+    API](#functions-to-contact-the-covid19-api)
+    -   [Base URL](#base-url)
     -   [`countryName`](#countryname)
     -   [`confirmedCases`](#confirmedcases)
     -   [`deathCases`](#deathcases)
@@ -40,7 +40,7 @@ and analysis with COVID19 API:
 -   [`lubridate`](https://cran.r-project.org/web/packages/lubridate/index.html):
     for date conversion.
 
-# Functions to contact the Covid19 Data API
+# Functions to contact the COVID19 API
 
 To access the [Covid
 Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), we need
@@ -50,7 +50,7 @@ from it.
 Here is the base URL that I am going to use throughout defining the
 functions.
 
-## Base url
+## Base URL
 
 ``` r
 base_url = "https://api.covid19api.com"

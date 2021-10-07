@@ -34,13 +34,13 @@ library(httr)
 library(lubridate)
 ```
 
-# Functions to contact the Covid19 Data API
+# Functions to contact the COVID19 API
 
 To access the [Covid Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), we need to get a URL with the name of the table and attributes we want to pull from it.
 
 Here is the base URL that I am going to use throughout defining the functions.
 
-## Base url
+## Base URL
 
 ```{r}
 base_url = "https://api.covid19api.com"
