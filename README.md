@@ -43,21 +43,17 @@ and analysis with COVID19 API:
 # Functions to contact the COVID19 API
 
 To access the [Covid
-Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), we need
-to get a URL with the name of the table and attributes we want to pull
-from it.
+Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), I wrote
+several functions to contact the COVID19 API via 6 different endpoints.
+
+## Base URL
 
 Here is the base URL that I am going to use throughout defining the
 functions.
 
-## Base URL
-
 ``` r
 base_url = "https://api.covid19api.com"
 ```
-
-I wrote several functions to contact the COVID19 API via different
-endpoints.
 
 ## `countryName`
 
@@ -404,7 +400,7 @@ us_live_risk$DeathRateStatus <- ordered(us_live_risk$DeathRateStatus, levels = c
 
 I pulled the data using functions I created interacting with endpoints.
 After using manipulation functions and merging different datasets, I
-mainly selected four data sets for the exploratory analysis.
+mainly selected four datasets for the exploratory analysis.
 
 -   `country_live_risk`: Confirmed and death cases by 55 states on
     10/01/2021 in the US.
@@ -434,7 +430,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 # Scatter plot death cases in US
@@ -446,13 +442,13 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 In the “confirmed cases” scatter plot, we see that the cases increased
 rapidly at the end of 2020 and beginning of 2021, and then their rate of
 increase slowed down. However, the rate of cases started increasing
 again in August 2021. It may have been related to mask policies,
-vaccination, or seasonal changes, but the fact is that covid cases are
+vaccination, or seasonal changes, but the fact is that Covid cases are
 increasing. Similar to confirmed cases, death cases also show a similar
 pattern. Death cases are increasing over time, but this started slowing
 down around March of 2021. It looks like death cases started increasing
@@ -483,7 +479,7 @@ ggplot(us_confirmed_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Similar to the scatter plot of confirmed cases, the median line of 2021
 quarter 1 is a lot higher than 2020 quarter 4. Also, the interquartile
@@ -514,7 +510,7 @@ ggplot(us_deaths_states, aes(x = Time_span,
                                 ) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 I also created side by side box plots for the death cases, and death
 cases increased rapidly between the last quarter of 2020 and the first
@@ -636,7 +632,7 @@ ggplot(data=top10states, aes(x = Province,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 While the “Top 10 States of risk status” contingency table shows where
 each state belongs in terms of risk category, the bar plot shows the
@@ -674,7 +670,7 @@ ggplot(data = us_live_risk, aes(x = Confirmed,
   geom_smooth(method = lm, color = "blue")  
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 The correlation between confirmed cases and death cases is 0.98, which
 is really high being close to 1. The scatter plot shows the pattern of
@@ -702,7 +698,7 @@ ggplot(data=top10statesdeath, aes(x = Province,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 As the correlation between confirmed cases and death cases suggested,
 California is again the top state showing the highest number of deaths,
@@ -802,7 +798,7 @@ ggplot(data = us_live_risk, aes(x = RiskStatus)) +
   scale_fill_discrete(name = "Death Rate Status") 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The graph shows that the low death rate states are mainly in medium to
 low and very low risk groups (low confirmed cases), and high death rate
@@ -905,7 +901,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = confirmed)) +
   labs(x = "2021", y = "Confirmed cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 # Scatter plot of death cases for wake county
@@ -917,7 +913,7 @@ ggplot(data = wake_cases_wide, aes(x = Date, y = deaths)) +
   labs(x = "2021", y = "Death cases")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
 
 Looking at the scatter plots, the confirmed cases scatter plot reveals
 that in the beginning of 2021 the cases increased rapidly. Then the
@@ -954,7 +950,7 @@ ggplot(wake_confirmed_cases, aes(Cases)) +
        title = "Confrimed cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 # Histogram of death cases in 2021
@@ -964,17 +960,17 @@ ggplot(wake_deaths_cases, aes(Cases)) +
        title = "Death cases in Wake county in 2021")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-30-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
 
 The confirmed histogram shows how many confirmed cases were in Wake
 County by number of counts (days), so the longer the number of cases
 remained the same, the larger the bar on the histogram, which means the
 slower the increase in number of cases. In other words, in the confirmed
-histogram, the highest bar is at 87,500 confirmed cases. The time period
-when the confirmed cases were 87,500 was most frequent, and we can
-interpret this as during those 60 counts (60 days), the confirmed cases
-increased slowly, which occurred around the second quarter of the year.
-However, confirmed cases are rapidly increasing again because the
+histogram, the highest bar is at around 87,000 confirmed cases. The time
+period when the confirmed cases were about 87,000 was most frequent, and
+we can interpret this as during those 60 counts (60 days), the confirmed
+cases increased slowly, which occurred around the second quarter of the
+year. However, confirmed cases are rapidly increasing again because the
 histogram shows that later this year, the frequency of confirmed cases
 at a given number count was much lower, meaning that the number of
 counts with that number of cases was smaller. This shows that the cases

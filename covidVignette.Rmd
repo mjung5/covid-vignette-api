@@ -36,18 +36,15 @@ library(lubridate)
 
 # Functions to contact the COVID19 API
 
-To access the [Covid Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), we need to get a URL with the name of the table and attributes we want to pull from it.
-
-Here is the base URL that I am going to use throughout defining the functions.
+To access the [Covid Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), I wrote several functions to contact the COVID19 API via 6 different endpoints.
 
 ## Base URL
+
+Here is the base URL that I am going to use throughout defining the functions.
 
 ```{r}
 base_url = "https://api.covid19api.com"
 ```
-
-
-I wrote several functions to contact the COVID19 API via different endpoints.
 
 ## `countryName`
 
@@ -359,7 +356,7 @@ us_live_risk$DeathRateStatus <- ordered(us_live_risk$DeathRateStatus, levels = c
 
 # Exploratory Data Analysis
 
-I pulled the data using functions I created interacting with endpoints. After using manipulation functions and merging different datasets, I mainly selected four data sets for the exploratory analysis.
+I pulled the data using functions I created interacting with endpoints. After using manipulation functions and merging different datasets, I mainly selected four datasets for the exploratory analysis.
 
   * `country_live_risk`: Confirmed and death cases by 55 states on 10/01/2021 in the US. 
   * `state_all_cases_month`: Confirmed cases in 101 NC Counties from 11/22/2020 to present.
@@ -393,7 +390,7 @@ ggplot(data = us_all_cases_month_wide, aes(x = Date,
 
 ```
 
-In the "confirmed cases" scatter plot, we see that the cases increased rapidly at the end of 2020 and beginning of 2021, and then their rate of increase slowed down. However, the rate of cases started increasing again in August 2021. It may have been related to mask policies, vaccination, or seasonal changes, but the fact is that covid cases are increasing. Similar to confirmed cases, death cases also show a similar pattern. Death cases are increasing over time, but this started slowing down around March of 2021. It looks like death cases started increasing again around September. It will be interesting to see if we have a similar pattern to the winter of 2020. 
+In the "confirmed cases" scatter plot, we see that the cases increased rapidly at the end of 2020 and beginning of 2021, and then their rate of increase slowed down. However, the rate of cases started increasing again in August 2021. It may have been related to mask policies, vaccination, or seasonal changes, but the fact is that Covid cases are increasing. Similar to confirmed cases, death cases also show a similar pattern. Death cases are increasing over time, but this started slowing down around March of 2021. It looks like death cases started increasing again around September. It will be interesting to see if we have a similar pattern to the winter of 2020. 
 
 Now, I wanted to see how the confirmed cases are increasing by every quarter using side-by-side box plots. 
 
@@ -637,6 +634,7 @@ kable(Summary_county_confirmed, caption = "Summary Stats of confirmed cases by t
 # Display a table of the summary stats for top 5 counties on death cases. 
 kable(Summary_county_deaths, caption = "Summary Stats of death cases by top 5 NC county", digits = 2)
 ```
+
 The data begins on November 22, 2020 to the present (live data), and the cases are reported daily. Therefore, the Max column shows the most recent date's cases, and the Min column shows the case number on November 22, 2020.
 
 Looking at the confirmed cases summary table, Mecklenburg County shows the highest Maximum cases, followed by Wake and Guilford counties. The confirmed cases of Mecklenburg and Wake Counties are a lot higher than Guilford County, almost double, in fact. Mecklenburg County is again the top county of death cases, and Wake County is the second. However, the discrepancy of the death cases between Mecklenburg County and the subsequent counties appears smaller than the differences in confirmed cases. It suggests that even though the confirmed cases are high in Mecklenburg and Wake Counties, their death rates are comparable to other counties or even lower. However, We again need to consider the population of the counties to truly understand the confirmed and death cases.  
@@ -704,7 +702,7 @@ ggplot(wake_deaths_cases, aes(Cases)) +
 
 ```
 
-The confirmed histogram shows how many confirmed cases were in Wake County by number of counts (days), so the longer the number of cases remained the same, the larger the bar on the histogram, which means the slower the increase in number of cases. In other words, in the confirmed histogram, the highest bar is at 87,500 confirmed cases. The time period when the confirmed cases were 87,500 was most frequent, and we can interpret this as during those 60 counts (60 days), the confirmed cases increased slowly, which occurred around the second quarter of the year. However, confirmed cases are rapidly increasing again because the histogram shows that later this year, the frequency of confirmed cases at a given number count was much lower, meaning that the number of counts with that number of cases was smaller. This shows that the cases changed more quickly. 
+The confirmed histogram shows how many confirmed cases were in Wake County by number of counts (days), so the longer the number of cases remained the same, the larger the bar on the histogram, which means the slower the increase in number of cases. In other words, in the confirmed histogram, the highest bar is at around 87,000 confirmed cases. The time period when the confirmed cases were about 87,000 was most frequent, and we can interpret this as during those 60 counts (60 days), the confirmed cases increased slowly, which occurred around the second quarter of the year. However, confirmed cases are rapidly increasing again because the histogram shows that later this year, the frequency of confirmed cases at a given number count was much lower, meaning that the number of counts with that number of cases was smaller. This shows that the cases changed more quickly. 
 
 In the deaths histogram, death cases stagnated between 730 and 750, which means that there were a higher number of days in which the total death cases remained about the same. In other words, death cases are more slowly increasing in the later months of 2021.  It is good to know that in the midst of the more quickly increasing of confirmed cases, death cases are slowing down in Wake county.  
 
