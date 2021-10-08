@@ -44,7 +44,7 @@ and analysis with COVID19 API:
 
 To access the [Covid
 Data](https://documenter.getpostman.com/view/10808728/SzS8rjbc), I wrote
-several functions to contact the COVID19 API via 6 different endpoints.
+several functions to contact the COVID19 API via different endpoints.
 
 ## Base URL
 
