@@ -115,7 +115,7 @@ confirmed_cases <- confirmedCases("United States")
 ## `deathCases`
 
 This function interacts with the `By Country Total` endpoint with
-modification of status changed to deaths. This function returns a
+modification of status changed to `deaths`. This function returns a
 `data.frame` of the number of daily death cases by a specific country
 during the specified dates (7/01/2020 - 09/30/2021). Users can select
 country to get a different country’s dataset. I chose 4 variables to
@@ -152,7 +152,7 @@ death_cases <- deathCases("United States")
 ## `recoveredCases`
 
 This function interacts with the `By Country Total` endpoint with
-modification of status changed to recovered. This function returns a
+modification of status changed to `recovered`. This function returns a
 `data.frame` of daily recovered case numbers by specific countries
 during the specified dates (7/01/2020 - 09/30/2021). Users can select
 the country to get different countries’ datasets. I chose 4 variables to
@@ -196,7 +196,7 @@ country_all_cases <- rbind(confirmed_cases, death_cases)
 ## `confirmedCasesState`
 
 This function interacts with the `Day One Live` endpoint with
-modification of status changed to confirmed. This function returns a
+modification of status changed to `confirmed`. This function returns a
 `data.frame` of daily confirmed case numbers by specific states from
 11/22/2020 to present. Users can select state names (encompassing states
 and other locations) to get different states’ datasets. I selected 6
@@ -234,7 +234,7 @@ state_confirmedData1 <- state_confirmedData %>% filter(row_number() <= n()-1)
 ## `deathsCasesState`
 
 This function interacts with the `Day One Live` endpoint with
-modification of status changed to deaths. This function returns a
+modification of status changed to `deaths`. This function returns a
 `data.frame` of the number of daily death cases by specific states from
 11/22/2020 to present. Users can select the state name to get different
 states’ datasets. I chose only 6 variables to display.
